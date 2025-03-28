@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -20,8 +20,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user, loading } = useAuth()
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -30,24 +28,49 @@ export default function RootLayout({
             <FirebaseError />
             <AuthProvider>
               <I18nProvider>
-                {!user && !loading ? (
-                  // Explicitly render LoginPage when no user is authenticated
-                  <LoginPage />
-                ) : (
-                  // Normal layout when user is authenticated
-                  <div className="flex min-h-screen">
-                    <CollapsibleSidebar />
-                    <main className="flex-1 overflow-x-hidden pl-0 md:pl-[250px] transition-all duration-300 pt-16 md:pt-0">
-                      {children}
-                    </main>
-                    <Toaster />
-                  </div>
-                )}
+                <LayoutContent>{children}</LayoutContent>
+                <Toaster />
               </I18nProvider>
             </AuthProvider>
           </FirebaseProvider>
         </ThemeProvider>
       </body>
     </html>
+  )
+}
+
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth()
+
+  // Comprehensive debug logging
+  React.useEffect(() => {
+    console.group('🔍 Authentication State');
+    console.log('User:', user ? { 
+      uid: user.uid, 
+      email: user.email, 
+      displayName: user.displayName 
+    } : null);
+    console.log('Loading:', loading);
+    console.groupEnd();
+  }, [user, loading])
+
+  // Render loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-blue-500"></div>
+      </div>
+    )
+  }
+
+  return !user ? (
+    <LoginPage />
+  ) : (
+    <div className="flex min-h-screen">
+      <CollapsibleSidebar />
+      <main className="flex-1 overflow-x-hidden pl-0 md:pl-[250px] transition-all duration-300 pt-16 md:pt-0">
+        {children}
+      </main>
+    </div>
   )
 }

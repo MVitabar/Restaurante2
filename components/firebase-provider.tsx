@@ -46,31 +46,48 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   })
 
   useEffect(() => {
+    console.group('🔥 Firebase Initialization');
+    console.log('Environment Variables:');
+    console.log('API Key:', process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? '✅ Set' : '❌ Not Set');
+    console.log('Auth Domain:', process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN);
+    console.log('Project ID:', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+    console.groupEnd();
+
     let app: FirebaseApp | null = null
     let db: Firestore | null = null
     let auth: Auth | null = null
     let initializationError: Error | null = null
 
     try {
-      if (getApps().length === 0) {
-        // Initialize Firebase if it hasn't been initialized yet
-        app = initializeApp(firebaseConfig)
-        console.log("Firebase initialized successfully")
-      } else {
-        // Use the existing Firebase app
-        app = getApps()[0]
-        console.log("Using existing Firebase app")
+      // Validate configuration
+      if (!firebaseConfig.apiKey) {
+        throw new Error('❌ Firebase API Key is missing. Check your .env configuration.')
       }
+
+      // Initialize Firebase
+      app = getApps().length === 0 
+        ? initializeApp(firebaseConfig) 
+        : getApps()[0]
+
+      console.log('🟢 Firebase App Initialized:', app.name);
 
       // Initialize Firestore and Auth
       db = getFirestore(app)
       auth = getAuth(app)
 
-      // Configure persistence to local (this helps with auth state persistence)
-      auth.useDeviceLanguage()
+      console.log('🔐 Authentication Service:', auth ? '✅ Available' : '❌ Not Available');
+      console.log('📊 Firestore Service:', db ? '✅ Available' : '❌ Not Available');
+
+      // Additional auth configuration
+      if (auth) {
+        auth.useDeviceLanguage()
+      }
     } catch (error) {
-      console.error("Error initializing Firebase:", error)
-      initializationError = error instanceof Error ? error : new Error(String(error))
+      console.error('❌ Firebase Initialization Error:', error);
+      
+      initializationError = error instanceof Error 
+        ? error 
+        : new Error('Unknown Firebase initialization error')
     } finally {
       setFirebaseState({
         app: app || null,
@@ -82,6 +99,14 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // Comprehensive error and state logging
+  useEffect(() => {
+    console.group('🔍 Firebase Provider State');
+    console.log('App:', firebaseState.app ? '✅ Initialized' : '❌ Not Initialized');
+    console.log('Auth:', firebaseState.auth ? '✅ Available' : '❌ Not Available');
+    console.log('Error:', firebaseState.error?.message || 'No Errors');
+    console.groupEnd();
+  }, [firebaseState])
+
   return <FirebaseContext.Provider value={firebaseState}>{children}</FirebaseContext.Provider>
 }
-

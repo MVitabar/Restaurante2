@@ -30,46 +30,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { toast } = useToast()
 
+  // Comprehensive initial state logging
   useEffect(() => {
-    // If Firebase failed to initialize, don't proceed with auth
-    if (error || !isInitialized) {
-      setLoading(false)
+    console.group('🔐 AuthProvider Initial State');
+    console.log('User:', user ? { 
+      uid: user.uid, 
+      email: user.email 
+    } : null);
+    console.log('Loading:', loading);
+    console.log('Firebase Initialized:', isInitialized);
+    console.log('Auth Available:', !!auth);
+    console.log('Error:', error);
+    console.groupEnd();
+  }, []);
+
+  useEffect(() => {
+    // Immediate loading state if Firebase is not initialized
+    if (!isInitialized || !auth) {
+      console.warn('🚨 Firebase not fully initialized', { 
+        isInitialized, 
+        authAvailable: !!auth 
+      });
+      setLoading(true)
       return
     }
 
-    if (!auth) return
-
+    // Set up auth state listener
     const unsubscribe = onAuthStateChanged(
       auth,
-      (user) => {
-        setUser(user)
+      (authUser) => {
+        console.group('🔑 Auth State Change');
+        console.log('New User:', authUser ? {
+          uid: authUser.uid,
+          email: authUser.email,
+          displayName: authUser.displayName
+        } : null);
+        
+        // Update user state
+        setUser(authUser)
         setLoading(false)
 
-        if (!user && !publicRoutes.includes(pathname)) {
+        // Redirect logic
+        if (!authUser && !publicRoutes.includes(pathname)) {
+          console.log('🚪 Redirecting to login');
           router.push("/login")
         }
+
+        console.groupEnd();
       },
-      (error) => {
-        console.error("Auth state change error:", error)
+      (authError) => {
+        console.error("🔥 Auth state change error:", authError)
         setLoading(false)
         toast({
           title: "Authentication Error",
-          description: "There was a problem with authentication. Please try again.",
+          description: authError.message || "An unexpected error occurred",
           variant: "destructive",
         })
-      },
+      }
     )
 
     return () => unsubscribe()
-  }, [auth, isInitialized, error, pathname, router, toast])
-
-  // If Firebase failed to initialize and we're not on a public route, redirect to login
-  useEffect(() => {
-    if (error && !publicRoutes.includes(pathname)) {
-      router.push("/login")
-    }
-  }, [error, pathname, router])
+  }, [auth, isInitialized, pathname, router, toast])
 
   return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
 }
-
