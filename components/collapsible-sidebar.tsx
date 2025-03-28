@@ -117,186 +117,163 @@ export function CollapsibleSidebar() {
       icon: Users,
     },
     {
-      name: t("advancedReports"),
-      href: "/advanced-reports",
-      icon: FileSpreadsheet,
-    },
-    {
       name: t("settings"),
       href: "/settings",
       icon: Settings,
-    },
+    }
   ]
-
-  if (!user) return null
 
   return (
     <>
-      {/* Mobile menu button - fixed position */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden bg-background/80 backdrop-blur-sm shadow-sm border"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-      >
-        {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
-
-      {/* Sidebar overlay for mobile */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-          aria-hidden="true"
-        />
+      {/* Mobile Menu Toggle */}
+      {isMobile && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="fixed top-4 left-4 z-50 md:hidden"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </Button>
       )}
 
-      {/* Sidebar */}
-      <div
+      {/* Desktop Sidebar */}
+      <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-40 bg-background border-r transform transition-all duration-300 ease-in-out md:translate-x-0 shadow-lg",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
-          isCollapsed ? "w-[70px]" : "w-[250px]",
+          "fixed top-0 left-0 z-40 h-screen bg-background border-r transition-all duration-300 hidden md:block",
+          isCollapsed ? "w-16" : "w-64"
         )}
       >
-        <div className="flex flex-col h-full">
-          {/* Header with logo and collapse button */}
-          <div className={cn("flex items-center p-4 border-b", isCollapsed ? "justify-center" : "justify-between")}>
-            {!isCollapsed && <h2 className="text-xl font-bold truncate">Restaurant PWA</h2>}
-            {isCollapsed && <span className="text-xl font-bold">R</span>}
-
-            {/* Collapse toggle button - only visible on desktop */}
-            <Button
-              variant="ghost"
-              size="icon"
+        <div className="h-full px-3 py-4 overflow-y-auto">
+          <div className="flex items-center justify-between mb-4">
+            {!isCollapsed && (
+              <Link href="/dashboard" className="flex items-center">
+                <span className="self-center text-xl font-semibold whitespace-nowrap">
+                  {t("appName")}
+                </span>
+              </Link>
+            )}
+            <Button 
+              variant="ghost" 
+              size="icon" 
               onClick={toggleCollapsed}
-              className="hidden md:flex"
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="ml-auto"
             >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
             </Button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 py-4 overflow-y-auto">
-            <ul className="space-y-1 px-2">
+          <nav>
+            <ul className="space-y-2">
               {navItems.map((item) => (
                 <li key={item.href}>
-                  {isCollapsed ? (
-                    <div className="relative group">
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "flex items-center justify-center p-2 rounded-md transition-colors",
-                          pathname === item.href
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted text-muted-foreground hover:text-foreground",
-                        )}
-                        onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                        title={item.name}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span className="sr-only">{item.name}</span>
-                      </Link>
-                      <div className="absolute left-full top-0 ml-2 px-2 py-1 bg-popover text-popover-foreground rounded-md text-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                  <Link 
+                    href={item.href} 
+                    className={cn(
+                      "flex items-center p-2 rounded-lg group",
+                      pathname === item.href 
+                        ? "bg-primary/10 text-primary" 
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700",
+                      isCollapsed && "justify-center"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5 transition duration-75" />
+                    {!isCollapsed && (
+                      <span className="ml-3 flex-1 whitespace-nowrap">
                         {item.name}
-                      </div>
-                    </div>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "flex items-center px-4 py-2 rounded-md transition-colors",
-                        pathname === item.href
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-muted text-muted-foreground hover:text-foreground",
-                      )}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <item.icon className="mr-3 h-5 w-5" />
-                      <span>{item.name}</span>
-                    </Link>
-                  )}
+                      </span>
+                    )}
+                  </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
-          {/* Footer with language selector and logout */}
-          <div className={cn("p-4 border-t", isCollapsed ? "flex flex-col items-center" : "")}>
-            {/* Language selector */}
-            {!isCollapsed && (
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium">{t("language")}</span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8">
-                      {language === "en" && t("english")}
-                      {language === "es" && t("spanish")}
-                      {language === "pt" && t("portuguese")}
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setLanguage("en")}>{t("english")}</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLanguage("es")}>{t("spanish")}</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLanguage("pt")}>{t("portuguese")}</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
-
-            {isCollapsed ? (
-              <div className="relative group">
-                <Button variant="outline" size="icon" onClick={handleLogout} className="mt-2" title={t("logout")}>
-                  <LogOut className="h-5 w-5" />
-                  <span className="sr-only">{t("logout")}</span>
-                </Button>
-                <div className="absolute left-full top-0 ml-2 px-2 py-1 bg-popover text-popover-foreground rounded-md text-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                  {t("logout")}
-                </div>
-              </div>
-            ) : (
-              <Button variant="outline" className="w-full justify-start" onClick={handleLogout}>
-                <LogOut className="mr-2 h-5 w-5" />
-                {t("logout")}
-              </Button>
-            )}
-
-            {/* Collapsed language selector */}
-            {isCollapsed && (
-              <DropdownMenu>
-                <div className="relative group">
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="mt-2" title={t("language")}>
-                      <span className="font-bold">{language.toUpperCase()}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <div className="absolute left-full top-0 ml-2 px-2 py-1 bg-popover text-popover-foreground rounded-md text-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                    {t("language")}
-                  </div>
-                </div>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setLanguage("en")}>{t("english")}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage("es")}>{t("spanish")}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage("pt")}>{t("portuguese")}</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+          {/* Logout Button */}
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <Button 
+              variant="ghost" 
+              className={cn(
+                "w-full justify-start", 
+                isCollapsed && "justify-center px-0"
+              )}
+              onClick={handleLogout}
+            >
+              <LogOut className="h-5 w-5 mr-2" />
+              {!isCollapsed && t("logout")}
+            </Button>
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Spacer div to push content away from the sidebar */}
-      <div
-        className={cn(
-          "transition-all duration-300 ease-in-out",
-          isCollapsed ? "md:ml-[70px]" : "md:ml-[250px]",
-          "ml-0", // No margin on mobile
-        )}
-      />
+      {/* Mobile Sidebar */}
+      {isMobile && isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <aside 
+            className="absolute top-0 left-0 w-64 h-full bg-background border-r shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="h-full px-3 py-4 overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <Link href="/dashboard" className="flex items-center">
+                  <span className="self-center text-xl font-semibold whitespace-nowrap">
+                    {t("appName")}
+                  </span>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <X className="h-6 w-6" />
+                </Button>
+              </div>
+
+              <nav>
+                <ul className="space-y-2">
+                  {navItems.map((item) => (
+                    <li key={item.href}>
+                      <Link 
+                        href={item.href} 
+                        className={cn(
+                          "flex items-center p-2 rounded-lg group",
+                          pathname === item.href 
+                            ? "bg-primary/10 text-primary" 
+                            : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                        )}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="h-5 w-5 transition duration-75 mr-3" />
+                        <span className="flex-1 whitespace-nowrap">
+                          {item.name}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              {/* Logout Button */}
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    handleLogout()
+                    setIsMobileMenuOpen(false)
+                  }}
+                >
+                  <LogOut className="h-5 w-5 mr-2" />
+                  {t("logout")}
+                </Button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
     </>
   )
 }
-

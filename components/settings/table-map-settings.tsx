@@ -254,23 +254,38 @@ export function TableMapSettings() {
           {tableMaps.map((map) => (
             <TabsContent key={map.id} value={map.id} className="space-y-4">
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between space-y-2 md:space-y-0 pb-2">
                   <div>
                     <CardTitle>{map.name}</CardTitle>
                     <CardDescription>{map.description}</CardDescription>
                   </div>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full md:w-auto" 
+                      asChild
+                    >
                       <Link href={`/tables/${map.id}`}>
                         <Grid className="mr-2 h-4 w-4" />
                         {t("viewTableMap")}
                       </Link>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full md:w-auto" 
+                      onClick={() => setIsEditing(true)}
+                    >
                       <Edit className="mr-2 h-4 w-4" />
                       {t("editTableMap")}
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDeleteMap(map.id)}>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      className="w-full md:w-auto" 
+                      onClick={() => handleDeleteMap(map.id)}
+                    >
                       <Trash className="mr-2 h-4 w-4" />
                       {t("deleteTableMap")}
                     </Button>
@@ -305,4 +320,3 @@ export function TableMapSettings() {
     </div>
   )
 }
-

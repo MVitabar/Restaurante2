@@ -35,9 +35,9 @@ export default function RootLayout({
                   <LoginPage />
                 ) : (
                   // Normal layout when user is authenticated
-                  <div className="flex min-h-screen flex-col">
+                  <div className="flex min-h-screen">
                     <CollapsibleSidebar />
-                    <main className="flex-1 transition-all duration-300 md:pt-0 pt-16">
+                    <main className="flex-1 overflow-x-hidden pl-0 md:pl-[250px] transition-all duration-300 pt-16 md:pt-0">
                       {children}
                     </main>
                     <Toaster />

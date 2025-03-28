@@ -259,12 +259,168 @@ export default function TableMapPage() {
     }
   }
 
+  // Enhanced safety methods for order handling
+  const getOrderByTableId = (tableId?: string | null): Order | undefined => {
+    return tableId && activeOrders && activeOrders[tableId] ? activeOrders[tableId] : undefined
+  }
+
+  const hasActiveOrder = (tableId?: string | null): boolean => {
+    return !!(tableId && activeOrders && activeOrders[tableId])
+  }
+
+  const getOrderId = (tableId?: string | null): string => {
+    const order = getOrderByTableId(tableId)
+    return order?.id ?? ''
+  }
+
+  const getOrderStatus = (tableId?: string | null): string => {
+    const order = getOrderByTableId(tableId)
+    return order?.status ?? ''
+  }
+
+  const getOrderTotal = (tableId?: string | null): number => {
+    const order = getOrderByTableId(tableId)
+    return order?.total ?? 0
+  }
+
+  const getOrderSubtotal = (tableId?: string | null): number => {
+    const order = getOrderByTableId(tableId)
+    return order?.subtotal ?? 0
+  }
+
+  const getOrderTax = (tableId?: string | null): number => {
+    const order = getOrderByTableId(tableId)
+    return order?.tax ?? 0
+  }
+
+  const getOrderDiscount = (tableId?: string | null): number => {
+    const order = getOrderByTableId(tableId)
+    return order?.discount ?? 0
+  }
+
+  const getOrderWaiter = (tableId?: string | null): string => {
+    const order = getOrderByTableId(tableId)
+    return order?.waiter ?? ''
+  }
+
+  const getOrderCreatedAt = (tableId?: string | null): string => {
+    const order = getOrderByTableId(tableId)
+    return order?.createdAt?.toDate ? new Date(order.createdAt.toDate()).toLocaleTimeString() : 'N/A'
+  }
+
+  const getOrderDietaryRestrictions = (tableId?: string | null): string[] => {
+    const order = getOrderByTableId(tableId)
+    return order?.dietaryRestrictions ?? []
+  }
+
+  const getOrderItems = (tableId?: string | null): OrderItem[] => {
+    const order = getOrderByTableId(tableId)
+    return order?.items ?? []
+  }
+
+  const getOrderSpecialRequests = (tableId?: string | null): string => {
+    const order = getOrderByTableId(tableId)
+    return order?.specialRequests ?? ''
+  }
+
+  const handleMarkAsServed = async (orderId?: string, tableId?: string) => {
+    if (!db || !tableId || !orderId) return
+
+    try {
+      await updateDoc(doc(db, "orders", orderId), {
+        status: "delivered",
+        updatedAt: serverTimestamp(),
+      })
+
+      // Update table status to "served"
+      await updateTableStatus(tableId, "served")
+
+      toast({
+        title: "Success",
+        description: "Order marked as served",
+      })
+    } catch (error) {
+      console.error("Error updating order:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update order",
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleTableClick = (table: TableItem) => {
     setSelectedTable(table)
 
     // If table has an active order, show it
-    if (activeOrders[table.id]) {
+    if (hasActiveOrder(table.id)) {
       setIsViewingOrder(true)
+    }
+  }
+
+  const handleCloseOrder = async (orderId?: string, tableId?: string) => {
+    if (!db || !tableMap || !tableId || !orderId) return
+
+    const order = getOrderByTableId(tableId)
+    if (!order) return
+
+    // Validate payment amount
+    if (!paymentInfo.amount || paymentInfo.amount < order.total) {
+      toast({
+        title: "Error",
+        description: "Payment amount must be at least equal to the order total",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const payment: PaymentInfo = {
+        method: paymentInfo.method || "cash",
+        amount: paymentInfo.amount,
+        tip: paymentInfo.tip || 0,
+        reference: paymentInfo.reference,
+        processedAt: new Date(),
+      }
+
+      // Update order status and add payment info
+      await updateDoc(doc(db, "orders", orderId), {
+        status: "closed",
+        payment: payment,
+        closedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      })
+
+      // Update table status to "available"
+      await updateTableStatus(tableId, "available")
+
+      // Remove from active orders
+      const newActiveOrders = { ...activeOrders }
+      delete newActiveOrders[tableId]
+      setActiveOrders(newActiveOrders)
+
+      setIsClosingOrder(false)
+      setIsViewingOrder(false)
+      setSelectedTable(null)
+
+      // Reset payment info
+      setPaymentInfo({
+        method: "cash",
+        amount: 0,
+        tip: 0,
+      })
+
+      toast({
+        title: "Success",
+        description: "Order closed successfully",
+      })
+    } catch (error) {
+      console.error("Error closing order:", error)
+      toast({
+        title: "Error",
+        description: "Failed to close order",
+        variant: "destructive",
+      })
     }
   }
 
@@ -324,98 +480,6 @@ export default function TableMapPage() {
     }
   }
 
-  const handleMarkAsServed = async (orderId: string, tableId: string) => {
-    if (!db || !tableMap) return
-
-    try {
-      await updateDoc(doc(db, "orders", orderId), {
-        status: "delivered",
-        updatedAt: serverTimestamp(),
-      })
-
-      // Update table status to "served"
-      await updateTableStatus(tableId, "served")
-
-      toast({
-        title: "Success",
-        description: "Order marked as served",
-      })
-    } catch (error) {
-      console.error("Error updating order:", error)
-      toast({
-        title: "Error",
-        description: "Failed to update order",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Add a function to handle order closure with payment
-  const handleCloseOrder = async (orderId: string, tableId: string) => {
-    if (!db || !tableMap || !activeOrders[tableId]) return
-
-    const order = activeOrders[tableId]
-
-    // Validate payment amount
-    if (paymentInfo.amount! < order.total) {
-      toast({
-        title: "Error",
-        description: "Payment amount must be at least equal to the order total",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      const payment: PaymentInfo = {
-        method: paymentInfo.method!,
-        amount: paymentInfo.amount!,
-        tip: paymentInfo.tip || 0,
-        reference: paymentInfo.reference,
-        processedAt: new Date(),
-      }
-
-      // Update order status and add payment info
-      await updateDoc(doc(db, "orders", orderId), {
-        status: "closed",
-        payment: payment,
-        closedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      })
-
-      // Update table status to "available"
-      await updateTableStatus(tableId, "available")
-
-      // Remove from active orders
-      const newActiveOrders = { ...activeOrders }
-      delete newActiveOrders[tableId]
-      setActiveOrders(newActiveOrders)
-
-      setIsClosingOrder(false)
-      setIsViewingOrder(false)
-      setSelectedTable(null)
-
-      // Reset payment info
-      setPaymentInfo({
-        method: "cash",
-        amount: 0,
-        tip: 0,
-      })
-
-      toast({
-        title: "Success",
-        description: "Order closed successfully",
-      })
-    } catch (error) {
-      console.error("Error closing order:", error)
-      toast({
-        title: "Error",
-        description: "Failed to close order",
-        variant: "destructive",
-      })
-    }
-  }
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -446,7 +510,7 @@ export default function TableMapPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" asChild>
             <Link href="/settings">
@@ -456,7 +520,8 @@ export default function TableMapPage() {
           <h1 className="text-3xl font-bold">{tableMap.name}</h1>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row items-center gap-2">
+          <div className="flex  md:flex-row items-center gap-2">
           <Badge variant="outline" className="text-sm">
             {tableMap.tables.filter((t) => t.status === "available").length} {t("available")}
           </Badge>
@@ -476,26 +541,27 @@ export default function TableMapPage() {
           <Badge variant="outline" className="text-sm">
             {tableMap.tables.filter((t) => t.status === "reserved").length} {t("reserved")}
           </Badge>
+          </div>
 
           {/* View mode toggle */}
-          <div className="ml-2 border rounded-md overflow-hidden flex">
+          <div className="  ml-2 border rounded-md overflow-hidden flex ">
             <Button
               variant={viewMode === "map" ? "default" : "ghost"}
               size="sm"
-              className="rounded-none"
+              className="rounded-none flex items-center space-x-1 min-w-[80px] justify-center"
               onClick={() => setViewMode("map")}
             >
-              <Map className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">{t("mapView")}</span>
+              <Map className="h-4 w-4" />
+              <span className="hidden md:inline">{t("mapView")}</span>
             </Button>
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
-              className="rounded-none"
+              className="rounded-none flex items-center space-x-1 min-w-[80px] justify-center"
               onClick={() => setViewMode("grid")}
             >
-              <Grid2X2 className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">{t("gridView")}</span>
+              <Grid2X2 className="h-4 w-4" />
+              <span className="hidden md:inline">{t("gridView")}</span>
             </Button>
           </div>
         </div>
@@ -552,40 +618,37 @@ export default function TableMapPage() {
                   </CardHeader>
 
                   <CardContent>
-                    {activeOrders[selectedTable.id] ? (
+                    {hasActiveOrder(selectedTable.id) ? (
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <h3 className="text-lg font-medium">{t("activeOrder")}</h3>
-                          <Badge variant="outline">{t(activeOrders[selectedTable.id].status)}</Badge>
+                          <Badge variant="outline">{getOrderStatus(selectedTable.id)}</Badge>
                         </div>
 
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">{t("waiter")}</span>
-                            <span>{activeOrders[selectedTable.id].waiter}</span>
+                            <span>{getOrderWaiter(selectedTable.id)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">{t("orderTime")}</span>
                             <span>
-                              {activeOrders[selectedTable.id].createdAt?.toDate
-                                ? new Date(activeOrders[selectedTable.id].createdAt.toDate()).toLocaleTimeString()
-                                : "N/A"}
+                              {getOrderCreatedAt(selectedTable.id)}
                             </span>
                           </div>
 
-                          {activeOrders[selectedTable.id].dietaryRestrictions &&
-                            activeOrders[selectedTable.id].dietaryRestrictions.length > 0 && (
-                              <div className="flex flex-col gap-1 text-sm">
-                                <span className="text-muted-foreground">{t("dietaryRestrictions")}</span>
-                                <div className="flex flex-wrap gap-1">
-                                  {activeOrders[selectedTable.id].dietaryRestrictions.map((restriction) => (
-                                    <Badge key={restriction} variant="outline" className="text-xs">
-                                      {t(restriction)}
-                                    </Badge>
-                                  ))}
-                                </div>
+                          {getOrderDietaryRestrictions(selectedTable.id).length > 0 && (
+                            <div className="flex flex-col gap-1 text-sm">
+                              <span className="text-muted-foreground">{t("dietaryRestrictions")}</span>
+                              <div className="flex flex-wrap gap-1">
+                                {getOrderDietaryRestrictions(selectedTable.id).map((restriction) => (
+                                  <Badge key={restriction} variant="outline" className="text-xs">
+                                    {t(restriction)}
+                                  </Badge>
+                                ))}
                               </div>
-                            )}
+                            </div>
+                          )}
                         </div>
 
                         <Separator />
@@ -593,7 +656,7 @@ export default function TableMapPage() {
                         <div>
                           <h4 className="font-medium mb-2">{t("items")}</h4>
                           <ul className="space-y-2">
-                            {activeOrders[selectedTable.id].items.map((item, index) => (
+                            {getOrderItems(selectedTable.id).map((item, index) => (
                               <li key={index} className="flex justify-between">
                                 <div>
                                   <div className="font-medium">
@@ -620,13 +683,13 @@ export default function TableMapPage() {
 
                         <div className="flex justify-between font-bold">
                           <span>{t("total")}</span>
-                          <span>${activeOrders[selectedTable.id].total.toFixed(2)}</span>
+                          <span>${getOrderTotal(selectedTable.id).toFixed(2)}</span>
                         </div>
 
-                        {activeOrders[selectedTable.id].specialRequests && (
+                        {getOrderSpecialRequests(selectedTable.id) && (
                           <div className="mt-4 p-3 bg-muted rounded-md text-sm">
                             <div className="font-medium mb-1">{t("specialRequests")}</div>
-                            <p>{activeOrders[selectedTable.id].specialRequests}</p>
+                            <p>{getOrderSpecialRequests(selectedTable.id)}</p>
                           </div>
                         )}
                       </div>
@@ -650,29 +713,29 @@ export default function TableMapPage() {
                       {t("close")}
                     </Button>
 
-                    {activeOrders[selectedTable.id] ? (
+                    {hasActiveOrder(selectedTable.id) ? (
                       <div className="flex gap-2">
                         <Button variant="outline" asChild>
-                          <Link href={`/orders/${activeOrders[selectedTable.id].id}`}>
+                          <Link href={`/orders/${getOrderByTableId(selectedTable.id)?.id}`}>
                             <Edit className="mr-2 h-4 w-4" />
                             {t("editOrder")}
                           </Link>
                         </Button>
 
-                        {activeOrders[selectedTable.id].status === "ready" ? (
+                        {getOrderByTableId(selectedTable.id)?.status === "ready" ? (
                           <Button
-                            onClick={() => handleMarkAsServed(activeOrders[selectedTable.id].id, selectedTable.id)}
+                            onClick={() => handleMarkAsServed(getOrderByTableId(selectedTable.id)?.id, selectedTable.id)}
                           >
                             <CheckCircle className="mr-2 h-4 w-4" />
                             {t("markAsServed")}
                           </Button>
-                        ) : activeOrders[selectedTable.id].status === "delivered" ? (
+                        ) : getOrderByTableId(selectedTable.id)?.status === "delivered" ? (
                           <Button onClick={() => setIsClosingOrder(true)}>
                             <Receipt className="mr-2 h-4 w-4" />
                             {t("closeOrder")}
                           </Button>
                         ) : (
-                          <Button disabled>{t(activeOrders[selectedTable.id].status)}</Button>
+                          <Button disabled>{getOrderByTableId(selectedTable.id)?.status}</Button>
                         )}
                       </div>
                     ) : (
@@ -747,18 +810,18 @@ export default function TableMapPage() {
           <div className="space-y-4 py-4">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t("subtotal")}</span>
-              <span>${activeOrders[selectedTable?.id]?.subtotal.toFixed(2) || "0.00"}</span>
+              <span>${getOrderSubtotal(selectedTable?.id).toFixed(2) || "0.00"}</span>
             </div>
 
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t("tax")}</span>
-              <span>${activeOrders[selectedTable?.id]?.tax?.toFixed(2) || "0.00"}</span>
+              <span>${getOrderTax(selectedTable?.id).toFixed(2) || "0.00"}</span>
             </div>
 
-            {activeOrders[selectedTable?.id]?.discount && (
+            {getOrderDiscount(selectedTable?.id) && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t("discount")}</span>
-                <span>-${activeOrders[selectedTable?.id]?.discount.toFixed(2)}</span>
+                <span>-${getOrderDiscount(selectedTable?.id).toFixed(2)}</span>
               </div>
             )}
 
@@ -766,7 +829,7 @@ export default function TableMapPage() {
 
             <div className="flex justify-between font-bold">
               <span>{t("total")}</span>
-              <span>${activeOrders[selectedTable?.id]?.total.toFixed(2) || "0.00"}</span>
+              <span>${getOrderTotal(selectedTable?.id).toFixed(2) || "0.00"}</span>
             </div>
 
             <div className="space-y-2 pt-4">
@@ -792,8 +855,8 @@ export default function TableMapPage() {
                 id="paymentAmount"
                 type="number"
                 step="0.01"
-                min={activeOrders[selectedTable?.id]?.total || 0}
-                value={paymentInfo.amount || activeOrders[selectedTable?.id]?.total || 0}
+                min={getOrderTotal(selectedTable?.id) || 0}
+                value={paymentInfo.amount || getOrderTotal(selectedTable?.id) || 0}
                 onChange={(e) => setPaymentInfo({ ...paymentInfo, amount: Number.parseFloat(e.target.value) })}
               />
             </div>
@@ -830,8 +893,8 @@ export default function TableMapPage() {
             <Button
               onClick={() =>
                 selectedTable &&
-                activeOrders[selectedTable.id] &&
-                handleCloseOrder(activeOrders[selectedTable.id].id, selectedTable.id)
+                getOrderByTableId(selectedTable.id) &&
+                handleCloseOrder(getOrderByTableId(selectedTable.id)?.id, selectedTable.id)
               }
             >
               <Receipt className="mr-2 h-4 w-4" />
@@ -843,4 +906,3 @@ export default function TableMapPage() {
     </div>
   )
 }
-
