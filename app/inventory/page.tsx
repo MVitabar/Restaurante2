@@ -79,8 +79,8 @@ export default function InventoryPage() {
     } catch (error) {
       console.error("Error fetching inventory:", error)
       toast({
-        title: "Error",
-        description: "Failed to fetch inventory items",
+        title: t("error"),
+        description: t("error.fetchItems"),
         variant: "destructive",
       })
     } finally {
@@ -118,8 +118,8 @@ export default function InventoryPage() {
       ])
 
       toast({
-        title: "Item Added",
-        description: `${formData.name} has been added to inventory`,
+        title: t("addItem"),
+        description: t("toast.itemAdded", { itemName: formData.name }),
       })
 
       // Reset form and close dialog
@@ -135,8 +135,8 @@ export default function InventoryPage() {
     } catch (error) {
       console.error("Error adding inventory item:", error)
       toast({
-        title: "Error",
-        description: "Failed to add inventory item",
+        title: t("error"),
+        description: t("error.addItem"),
         variant: "destructive",
       })
     }
@@ -158,16 +158,16 @@ export default function InventoryPage() {
       )
 
       toast({
-        title: "Item Updated",
-        description: `${formData.name} has been updated`,
+        title: t("edit"),
+        description: t("toast.itemUpdated", { itemName: formData.name }),
       })
 
       setIsEditDialogOpen(false)
     } catch (error) {
       console.error("Error updating inventory item:", error)
       toast({
-        title: "Error",
-        description: "Failed to update inventory item",
+        title: t("error"),
+        description: t("error.updateItem"),
         variant: "destructive",
       })
     }
@@ -184,14 +184,14 @@ export default function InventoryPage() {
       setItems(items.filter((item) => item.id !== id))
 
       toast({
-        title: "Item Deleted",
-        description: "Inventory item has been deleted",
+        title: t("delete"),
+        description: t("toast.itemDeleted"),
       })
     } catch (error) {
       console.error("Error deleting inventory item:", error)
       toast({
-        title: "Error",
-        description: "Failed to delete inventory item",
+        title: t("error"),
+        description: t("error.deleteItem"),
         variant: "destructive",
       })
     }
@@ -234,7 +234,7 @@ export default function InventoryPage() {
             <div className="flex items-center">
               <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
               <span className="font-medium text-amber-800">
-                {lowStockItems.length} {lowStockItems.length === 1 ? "item" : "items"} with low stock
+                {t("lowStockWarning", { count: lowStockItems.length })}
               </span>
             </div>
           </CardContent>
@@ -246,7 +246,7 @@ export default function InventoryPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search inventory..."
+            placeholder={t("inventory.searchPlaceholder")}
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -260,19 +260,19 @@ export default function InventoryPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-4">Loading...</div>
+            <div className="text-center py-4">{t("loading")}</div>
           ) : filteredItems.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Unit</TableHead>
-                  <TableHead>Min. Quantity</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t("table.headers.name")}</TableHead>
+                  <TableHead>{t("table.headers.category")}</TableHead>
+                  <TableHead>{t("table.headers.quantity")}</TableHead>
+                  <TableHead>{t("table.headers.unit")}</TableHead>
+                  <TableHead>{t("table.headers.minQuantity")}</TableHead>
+                  <TableHead>{t("table.headers.price")}</TableHead>
+                  <TableHead>{t("table.headers.status")}</TableHead>
+                  <TableHead className="text-right">{t("table.headers.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -286,18 +286,18 @@ export default function InventoryPage() {
                     <TableCell>${item.price.toFixed(2)}</TableCell>
                     <TableCell>
                       {item.quantity <= item.minQuantity ? (
-                        <Badge className="bg-red-100 text-red-800 border-red-200">Low Stock</Badge>
+                        <Badge className="bg-red-100 text-red-800 border-red-200">{t("lowStock")}</Badge>
                       ) : (
-                        <Badge className="bg-green-100 text-green-800 border-green-200">In Stock</Badge>
+                        <Badge className="bg-green-100 text-green-800 border-green-200">{t("inStock")}</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="outline" size="sm" onClick={() => openEditDialog(item)}>
-                          Edit
+                          {t("edit")}
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDeleteItem(item.id)}>
-                          Delete
+                          {t("delete")}
                         </Button>
                       </div>
                     </TableCell>
@@ -306,7 +306,7 @@ export default function InventoryPage() {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-center py-4">No inventory items found</div>
+            <div className="text-center py-4">{t("noItemsFound")}</div>
           )}
         </CardContent>
       </Card>
@@ -315,23 +315,23 @@ export default function InventoryPage() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("addItem")}</DialogTitle>
-            <DialogDescription>Add a new item to your inventory</DialogDescription>
+            <DialogTitle>{t("addItem.title")}</DialogTitle>
+            <DialogDescription>{t("addItem.description")}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t("name")}</Label>
                 <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">{t("category")}</Label>
                 <Input id="category" name="category" value={formData.category} onChange={handleInputChange} required />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity</Label>
+                <Label htmlFor="quantity">{t("quantity")}</Label>
                 <Input
                   id="quantity"
                   name="quantity"
@@ -342,13 +342,13 @@ export default function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="unit">Unit</Label>
+                <Label htmlFor="unit">{t("unit")}</Label>
                 <Input id="unit" name="unit" value={formData.unit} onChange={handleInputChange} required />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="minQuantity">Minimum Quantity</Label>
+                <Label htmlFor="minQuantity">{t("minQuantity")}</Label>
                 <Input
                   id="minQuantity"
                   name="minQuantity"
@@ -359,7 +359,7 @@ export default function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price">Price</Label>
+                <Label htmlFor="price">{t("price")}</Label>
                 <Input
                   id="price"
                   name="price"
@@ -374,9 +374,9 @@ export default function InventoryPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-              Cancel
+              {t("cancel")}
             </Button>
-            <Button onClick={handleAddItem}>Add Item</Button>
+            <Button onClick={handleAddItem}>{t("addItem")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -385,17 +385,17 @@ export default function InventoryPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
-            <DialogDescription>Update inventory item details</DialogDescription>
+            <DialogTitle>{t("editItem.title")}</DialogTitle>
+            <DialogDescription>{t("editItem.description")}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Name</Label>
+                <Label htmlFor="edit-name">{t("name")}</Label>
                 <Input id="edit-name" name="name" value={formData.name} onChange={handleInputChange} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-category">Category</Label>
+                <Label htmlFor="edit-category">{t("category")}</Label>
                 <Input
                   id="edit-category"
                   name="category"
@@ -407,7 +407,7 @@ export default function InventoryPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-quantity">Quantity</Label>
+                <Label htmlFor="edit-quantity">{t("quantity")}</Label>
                 <Input
                   id="edit-quantity"
                   name="quantity"
@@ -418,13 +418,13 @@ export default function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-unit">Unit</Label>
+                <Label htmlFor="edit-unit">{t("unit")}</Label>
                 <Input id="edit-unit" name="unit" value={formData.unit} onChange={handleInputChange} required />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-minQuantity">Minimum Quantity</Label>
+                <Label htmlFor="edit-minQuantity">{t("minQuantity")}</Label>
                 <Input
                   id="edit-minQuantity"
                   name="minQuantity"
@@ -435,7 +435,7 @@ export default function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-price">Price</Label>
+                <Label htmlFor="edit-price">{t("price")}</Label>
                 <Input
                   id="edit-price"
                   name="price"
@@ -450,13 +450,12 @@ export default function InventoryPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
+              {t("cancel")}
             </Button>
-            <Button onClick={handleEditItem}>Update Item</Button>
+            <Button onClick={handleEditItem}>{t("edit")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   )
 }
-

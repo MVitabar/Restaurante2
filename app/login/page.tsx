@@ -56,8 +56,8 @@ export default function LoginPage() {
 
     if (!auth) {
       toast({
-        title: "Error",
-        description: "Authentication service not available",
+        title: t("error"),
+        description: t("auth.serviceUnavailable"),
         variant: "destructive",
       })
       return
@@ -74,20 +74,20 @@ export default function LoginPage() {
       // Handle specific Firebase errors
       if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
         toast({
-          title: "Login Failed",
-          description: "Invalid email or password",
+          title: t("login"),
+          description: t("login.error.invalidCredentials"),
           variant: "destructive",
         })
       } else if (error.code === "auth/too-many-requests") {
         toast({
-          title: "Login Failed",
-          description: "Too many failed login attempts. Please try again later.",
+          title: t("login"),
+          description: t("login.error.tooManyAttempts"),
           variant: "destructive",
         })
       } else {
         toast({
-          title: "Login Failed",
-          description: error.message || "An unknown error occurred",
+          title: t("login"),
+          description: t("login.error.unknown"),
           variant: "destructive",
         })
       }
@@ -105,7 +105,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t("login")}</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardDescription>{t("login.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -138,6 +138,7 @@ export default function LoginPage() {
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? t("password.hide") : t("password.show")}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -148,7 +149,7 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t("login")}
+                  {t("login.button.loggingIn")}
                 </>
               ) : (
                 t("login")
@@ -168,4 +169,3 @@ export default function LoginPage() {
     </div>
   )
 }
-

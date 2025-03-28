@@ -27,7 +27,11 @@ export function LanguageSettings() {
         try {
           const prefsDoc = await getDoc(doc(db, "users", user.uid, "settings", "language"))
           if (prefsDoc.exists() && prefsDoc.data().language) {
-            setLanguage(prefsDoc.data().language as Language)
+            const storedLanguage = prefsDoc.data().language as Language;
+            // Only set language if it's different from current language
+            if (storedLanguage !== language) {
+              setLanguage(storedLanguage);
+            }
           }
         } catch (error) {
           console.error("Error fetching language preference:", error)
@@ -38,10 +42,57 @@ export function LanguageSettings() {
 
       fetchLanguagePreference()
     }
-  }, [user, db, setLanguage])
+  }, [user, db, language, setLanguage])
+
+  const getSavedLanguage = async () => {
+    if (!user || !db) return null;
+
+    try {
+      const prefsDoc = await getDoc(doc(db, "users", user.uid, "settings", "language"))
+      if (prefsDoc.exists() && prefsDoc.data().language) {
+        return prefsDoc.data().language as Language;
+      }
+    } catch (error) {
+      console.error("Error fetching saved language:", error)
+    }
+
+    return null;
+  }
+
+  const setSavedLanguage = async (language: Language) => {
+    if (!user || !db) return;
+
+    try {
+      await setDoc(doc(db, "users", user.uid, "settings", "language"), {
+        language,
+        updatedAt: new Date(),
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error setting saved language:", error)
+    }
+  }
 
   const handleLanguageChange = (value: Language) => {
-    setLanguage(value)
+    console.log(`CRITICAL: Attempting to change language to: ${value}`);
+    console.log(`CRITICAL: Current language before change: ${language}`);
+    
+    // Prevent immediate language reversion
+    const preventReversion = async () => {
+      const currentLanguage = await getSavedLanguage();
+      console.log(`CRITICAL: Saved language check: ${currentLanguage}`);
+      
+      if (currentLanguage !== value) {
+        console.log(`CRITICAL: Forcing language to: ${value}`);
+        await setSavedLanguage(value);
+        setLanguage(value);
+      }
+    };
+
+    // Immediate change
+    setLanguage(value);
+    
+    // Prevent reversion with a slight delay
+    setTimeout(preventReversion, 100);
   }
 
   const handleSave = async () => {
@@ -50,26 +101,29 @@ export function LanguageSettings() {
     setSaving(true)
 
     try {
+      console.log(`CRITICAL: Saving language preference: ${language}`);
+      
+      // Update Firestore with the current language
       await setDoc(doc(db, "users", user.uid, "settings", "language"), {
         language,
         updatedAt: new Date(),
-      })
+      }, { merge: true });
 
       toast({
         title: t("languagePreferenceSaved"),
         description: t("languagePreferenceSuccess"),
       })
     } catch (error) {
-      console.error("Error saving language preference:", error)
+      console.error("CRITICAL: Error saving language preference", error);
       toast({
-        title: t("languagePreferenceFailed"),
-        description: t("languagePreferenceError"),
-        variant: "destructive",
+        title: "Error",
+        description: "Failed to save language preference",
+        variant: "destructive"
       })
     } finally {
       setSaving(false)
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -126,4 +180,3 @@ export function LanguageSettings() {
     </div>
   )
 }
-

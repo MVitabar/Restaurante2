@@ -31,8 +31,8 @@ export default function ForgotPasswordPage() {
 
     if (!email) {
       toast({
-        title: "Error",
-        description: t("emailRequired"),
+        title: t("error"),
+        description: t("forgotPassword.error.emailRequired"),
         variant: "destructive",
       })
       return
@@ -40,8 +40,8 @@ export default function ForgotPasswordPage() {
 
     if (!auth) {
       toast({
-        title: "Error",
-        description: "Authentication service not available",
+        title: t("error"),
+        description: t("forgotPassword.error.authServiceUnavailable"),
         variant: "destructive",
       })
       return
@@ -53,22 +53,22 @@ export default function ForgotPasswordPage() {
       await sendPasswordResetEmail(auth, email)
       setEmailSent(true)
       toast({
-        title: "Email Sent",
-        description: "Password reset instructions have been sent to your email",
+        title: t("forgotPassword"),
+        description: t("forgotPassword.success.emailSent"),
       })
     } catch (error: any) {
       console.error("Password reset error:", error)
 
       if (error.code === "auth/user-not-found") {
         toast({
-          title: "Error",
-          description: "No account found with this email address",
+          title: t("error"),
+          description: t("forgotPassword.error.userNotFound"),
           variant: "destructive",
         })
       } else {
         toast({
-          title: "Error",
-          description: error.message || "Failed to send password reset email",
+          title: t("error"),
+          description: error.message || t("forgotPassword.error.generic"),
           variant: "destructive",
         })
       }
@@ -93,8 +93,8 @@ export default function ForgotPasswordPage() {
           </div>
           <CardDescription>
             {emailSent
-              ? "Check your email for password reset instructions"
-              : "Enter your email to receive password reset instructions"}
+              ? t("forgotPassword.description.emailSent")
+              : t("forgotPassword.description.initial")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -115,30 +115,36 @@ export default function ForgotPasswordPage() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
+                    {t("forgotPassword.button.sending")}
                   </>
                 ) : (
-                  "Send Reset Instructions"
+                  t("forgotPassword.button.sendInstructions")
                 )}
               </Button>
             </form>
           ) : (
             <div className="text-center py-4">
               <p className="mb-4">
-                We've sent password reset instructions to <strong>{email}</strong>
+                {t("forgotPassword.success.emailSent")} <strong>{email}</strong>
               </p>
-              <p className="text-sm text-muted-foreground">If you don't see the email, check your spam folder</p>
-              <Button className="mt-4" variant="outline" onClick={() => setEmailSent(false)}>
-                Try another email
+              <p className="text-sm text-muted-foreground">
+                {t("forgotPassword.emailSent.checkSpam")}
+              </p>
+              <Button 
+                className="mt-4" 
+                variant="outline" 
+                onClick={() => setEmailSent(false)}
+              >
+                {t("forgotPassword.button.tryAnotherEmail")}
               </Button>
             </div>
           )}
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
-            Remember your password?{" "}
+            {t("forgotPassword.loginReminder")}{" "}
             <Link href="/login" className="text-primary hover:underline">
-              {t("login")}
+              {t("forgotPassword.loginLink")}
             </Link>
           </p>
         </CardFooter>
@@ -146,4 +152,3 @@ export default function ForgotPasswordPage() {
     </div>
   )
 }
-

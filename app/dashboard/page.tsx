@@ -41,12 +41,12 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold">{t("dashboard")}</h1>
+      <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("salesOverview")}</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.salesOverview")}</CardTitle>
             <CardDescription>Daily sales overview</CardDescription>
           </CardHeader>
           <CardContent>
@@ -62,7 +62,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("topSellingItems")}</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.topSellingItems")}</CardTitle>
             <CardDescription>Most popular items</CardDescription>
           </CardHeader>
           <CardContent>
@@ -79,7 +79,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("stockLevel")}</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.stockLevel")}</CardTitle>
             <CardDescription>Inventory status</CardDescription>
           </CardHeader>
           <CardContent>
@@ -120,11 +120,11 @@ export default function DashboardPage() {
         <TabsList>
           <TabsTrigger value="recent">
             <LineChart className="h-4 w-4 mr-2" />
-            {t("recentOrders")}
+            {t("dashboard.recentOrders")}
           </TabsTrigger>
           <TabsTrigger value="sales">
             <BarChart className="h-4 w-4 mr-2" />
-            {t("salesOverview")}
+            {t("dashboard.salesOverview")}
           </TabsTrigger>
           <TabsTrigger value="categories">
             <PieChart className="h-4 w-4 mr-2" />
@@ -135,7 +135,7 @@ export default function DashboardPage() {
         <TabsContent value="recent" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>{t("recentOrders")}</CardTitle>
+              <CardTitle>{t("dashboard.recentOrders")}</CardTitle>
               <CardDescription>Latest orders from customers</CardDescription>
             </CardHeader>
             <CardContent>
@@ -170,7 +170,7 @@ export default function DashboardPage() {
         <TabsContent value="sales" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>{t("salesOverview")}</CardTitle>
+              <CardTitle>{t("dashboard.salesOverview")}</CardTitle>
               <CardDescription>Sales data for the current period</CardDescription>
             </CardHeader>
             <CardContent>
@@ -257,4 +257,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-

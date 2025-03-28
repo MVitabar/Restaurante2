@@ -97,8 +97,8 @@ export default function RegisterPage() {
     if (!validateForm()) return
     if (!auth || !db) {
       toast({
-        title: "Error",
-        description: "Authentication service not available. Please try again later.",
+        title: t("commons.error"),
+        description: t("commons.auth.serviceUnavailable"),
         variant: "destructive",
       })
       return
@@ -146,14 +146,14 @@ export default function RegisterPage() {
         setErrors((prev) => ({ ...prev, password: t("passwordTooWeak") }))
       } else if (error.code === "auth/configuration-not-found") {
         toast({
-          title: "Firebase Configuration Error",
-          description: "The app is not properly configured. Please contact support.",
+          title: t("commons.error"),
+          description: t("commons.auth.configurationError"),
           variant: "destructive",
         })
       } else {
         toast({
           title: t("registrationFailed"),
-          description: error.message || t("unknownError"),
+          description: error.message || t("commons.error.generic"),
           variant: "destructive",
         })
       }
@@ -218,6 +218,7 @@ export default function RegisterPage() {
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? t("password.hide") : t("password.show")}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -242,6 +243,7 @@ export default function RegisterPage() {
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? t("password.hide") : t("password.show")}
                 >
                   {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -286,4 +288,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-

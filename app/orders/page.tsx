@@ -77,8 +77,8 @@ export default function OrdersPage() {
     } catch (error) {
       console.error("Error fetching orders:", error)
       toast({
-        title: "Error",
-        description: "Failed to fetch orders",
+        title: t("commons.error"),
+        description: t("orders.error.fetchFailed"),
         variant: "destructive",
       })
     } finally {
@@ -104,16 +104,16 @@ export default function OrdersPage() {
       )
 
       toast({
-        title: "Status Updated",
-        description: `Order #${selectedOrder.id.substring(0, 6)} status changed to ${newStatus}`,
+        title: t("orders.success.statusUpdated"),
+        description: `${t("orders.table.id")} #${selectedOrder.id.substring(0, 6)} ${t("orders.action.updateStatus")} ${t(`orderStatus.${newStatus}`)}`,
       })
 
       setIsStatusDialogOpen(false)
     } catch (error) {
       console.error("Error updating order status:", error)
       toast({
-        title: "Error",
-        description: "Failed to update order status",
+        title: t("commons.error"),
+        description: t("orders.error.updateStatusFailed"),
         variant: "destructive",
       })
     }
@@ -130,16 +130,16 @@ export default function OrdersPage() {
       setOrders(orders.filter((order) => order.id !== selectedOrder.id))
 
       toast({
-        title: "Order Deleted",
-        description: `Order #${selectedOrder.id.substring(0, 6)} has been deleted`,
+        title: t("orders.success.orderDeleted"),
+        description: `${t("orders.table.id")} #${selectedOrder.id.substring(0, 6)} ${t("orders.action.delete")}`,
       })
 
       setIsDeleteDialogOpen(false)
     } catch (error) {
       console.error("Error deleting order:", error)
       toast({
-        title: "Error",
-        description: "Failed to delete order",
+        title: t("commons.error"),
+        description: t("orders.error.deleteFailed"),
         variant: "destructive",
       })
     }
@@ -187,7 +187,7 @@ export default function OrdersPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search orders..."
+            placeholder={t("orders.search.placeholder")}
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -195,15 +195,15 @@ export default function OrdersPage() {
         </div>
         <Select defaultValue="all">
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder={t("orders.filter.allStatuses")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="preparing">Preparing</SelectItem>
-            <SelectItem value="ready">Ready</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="all">{t("orders.filter.allStatuses")}</SelectItem>
+            <SelectItem value="pending">{t("orderStatus.pending")}</SelectItem>
+            <SelectItem value="preparing">{t("orderStatus.preparing")}</SelectItem>
+            <SelectItem value="ready">{t("orderStatus.ready")}</SelectItem>
+            <SelectItem value="delivered">{t("orderStatus.delivered")}</SelectItem>
+            <SelectItem value="cancelled">{t("orderStatus.cancelled")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -214,19 +214,19 @@ export default function OrdersPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-4">Loading...</div>
+            <div className="text-center py-4">{t("orders.loading")}</div>
           ) : filteredOrders.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Table</TableHead>
-                  <TableHead>Waiter</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t("orders.table.id")}</TableHead>
+                  <TableHead>{t("orders.table.table")}</TableHead>
+                  <TableHead>{t("orders.table.waiter")}</TableHead>
+                  <TableHead>{t("orders.table.items")}</TableHead>
+                  <TableHead>{t("orders.table.total")}</TableHead>
+                  <TableHead>{t("orders.table.status")}</TableHead>
+                  <TableHead>{t("orders.table.createdAt")}</TableHead>
+                  <TableHead className="text-right">{t("orders.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -238,7 +238,9 @@ export default function OrdersPage() {
                     <TableCell>{order.items?.length || 0}</TableCell>
                     <TableCell>${order.total?.toFixed(2) || "0.00"}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
+                      <Badge className={getStatusBadgeVariant(order.status)}>
+                        {t(`orderStatus.${order.status}`)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       {order.createdAt?.toDate ? new Date(order.createdAt.toDate()).toLocaleString() : "N/A"}
@@ -248,7 +250,7 @@ export default function OrdersPage() {
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
                             <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
+                            <span className="sr-only">{t("orders.action.actions")}</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -260,7 +262,7 @@ export default function OrdersPage() {
                             }}
                           >
                             <Edit className="mr-2 h-4 w-4" />
-                            Update Status
+                            {t("orders.action.updateStatus")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
@@ -270,7 +272,7 @@ export default function OrdersPage() {
                             className="text-red-600"
                           >
                             <Trash className="mr-2 h-4 w-4" />
-                            Delete Order
+                            {t("orders.action.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -280,7 +282,7 @@ export default function OrdersPage() {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-center py-4">No orders found</div>
+            <div className="text-center py-4">{t("orders.noOrders")}</div>
           )}
         </CardContent>
       </Card>
@@ -289,26 +291,30 @@ export default function OrdersPage() {
       <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update Order Status</DialogTitle>
-            <DialogDescription>Change the status for order #{selectedOrder?.id.substring(0, 6)}</DialogDescription>
+            <DialogTitle>{t("orders.statusDialog.title")}</DialogTitle>
+            <DialogDescription>
+              {t("orders.statusDialog.description")}
+            </DialogDescription>
           </DialogHeader>
           <Select value={newStatus} onValueChange={(value) => setNewStatus(value as OrderStatus)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder={t("orders.table.status")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="preparing">Preparing</SelectItem>
-              <SelectItem value="ready">Ready</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="pending">{t("orderStatus.pending")}</SelectItem>
+              <SelectItem value="preparing">{t("orderStatus.preparing")}</SelectItem>
+              <SelectItem value="ready">{t("orderStatus.ready")}</SelectItem>
+              <SelectItem value="delivered">{t("orderStatus.delivered")}</SelectItem>
+              <SelectItem value="cancelled">{t("orderStatus.cancelled")}</SelectItem>
             </SelectContent>
           </Select>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>
-              Cancel
+              {t("commons.button.cancel")}
             </Button>
-            <Button onClick={handleUpdateStatus}>Update Status</Button>
+            <Button onClick={handleUpdateStatus}>
+              {t("commons.button.submit")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -317,17 +323,17 @@ export default function OrdersPage() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Order</DialogTitle>
+            <DialogTitle>{t("orders.action.delete")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete order #{selectedOrder?.id.substring(0, 6)}? This action cannot be undone.
+              {t("commons.confirmDelete")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
+              {t("commons.button.cancel")}
             </Button>
             <Button variant="destructive" onClick={handleDeleteOrder}>
-              Delete
+              {t("orders.action.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -335,4 +341,3 @@ export default function OrdersPage() {
     </div>
   )
 }
-
