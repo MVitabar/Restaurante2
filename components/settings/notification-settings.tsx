@@ -75,17 +75,20 @@ export function NotificationSettings() {
     setSaving(true)
 
     try {
-      await setDoc(doc(db, "users", user.uid, "settings", "notifications"), preferences)
+      await setDoc(doc(db, "users", user.uid, "settings", "notifications"), {
+        ...preferences,
+        updatedAt: new Date()
+      })
 
       toast({
-        title: t("notificationPreferencesSaved"),
-        description: t("notificationPreferencesSuccess"),
+        title: t("settings.notifications.actions.profileUpdated"),
+        description: t("settings.notifications.actions.profileUpdateSuccess"),
       })
     } catch (error) {
       console.error("Error saving notification preferences:", error)
       toast({
-        title: t("notificationPreferencesFailed"),
-        description: t("notificationPreferencesError"),
+        title: t("settings.notifications.actions.profileUpdateFailed"),
+        description: t("settings.notifications.actions.profileUpdateError"),
         variant: "destructive",
       })
     } finally {
@@ -104,132 +107,56 @@ export function NotificationSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">{t("notifications")}</h2>
-        <p className="text-muted-foreground">{t("notificationSettingsDescription")}</p>
+        <h2 className="text-2xl font-bold">{t("settings.notifications.title")}</h2>
+        <p className="text-muted-foreground">{t("settings.notifications.description")}</p>
       </div>
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium mb-4">{t("notificationTypes")}</h3>
+          <h3 className="text-lg font-medium mb-4">{t("settings.notifications.types.title")}</h3>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="newOrders" className="font-medium">
-                  {t("newOrders")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("newOrdersDescription")}</p>
+            {(["newOrders", "orderUpdates", "inventoryAlerts", "systemAnnouncements", "dailyReports"] as (keyof NotificationPreferences)[]).map((key) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor={key} className="font-medium">
+                    {t(`settings.notifications.types.${key}.label`)}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t(`settings.notifications.types.${key}.description`)}
+                  </p>
+                </div>
+                <Switch
+                  id={key}
+                  checked={preferences[key]}
+                  onCheckedChange={() => handleToggle(key)}
+                />
               </div>
-              <Switch
-                id="newOrders"
-                checked={preferences.newOrders}
-                onCheckedChange={() => handleToggle("newOrders")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="orderUpdates" className="font-medium">
-                  {t("orderUpdates")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("orderUpdatesDescription")}</p>
-              </div>
-              <Switch
-                id="orderUpdates"
-                checked={preferences.orderUpdates}
-                onCheckedChange={() => handleToggle("orderUpdates")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="inventoryAlerts" className="font-medium">
-                  {t("inventoryAlerts")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("inventoryAlertsDescription")}</p>
-              </div>
-              <Switch
-                id="inventoryAlerts"
-                checked={preferences.inventoryAlerts}
-                onCheckedChange={() => handleToggle("inventoryAlerts")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="systemAnnouncements" className="font-medium">
-                  {t("systemAnnouncements")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("systemAnnouncementsDescription")}</p>
-              </div>
-              <Switch
-                id="systemAnnouncements"
-                checked={preferences.systemAnnouncements}
-                onCheckedChange={() => handleToggle("systemAnnouncements")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="dailyReports" className="font-medium">
-                  {t("dailyReports")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("dailyReportsDescription")}</p>
-              </div>
-              <Switch
-                id="dailyReports"
-                checked={preferences.dailyReports}
-                onCheckedChange={() => handleToggle("dailyReports")}
-              />
-            </div>
+            ))}
           </div>
         </div>
 
         <Separator />
 
         <div>
-          <h3 className="text-lg font-medium mb-4">{t("deliveryMethods")}</h3>
+          <h3 className="text-lg font-medium mb-4">{t("settings.notifications.deliveryMethods.title")}</h3>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="emailNotifications" className="font-medium">
-                  {t("emailNotifications")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("emailNotificationsDescription")}</p>
+            {(["emailNotifications", "pushNotifications", "soundAlerts"] as (keyof NotificationPreferences)[]).map((key) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor={key} className="font-medium">
+                    {t(`settings.notifications.deliveryMethods.${key}.label`)}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t(`settings.notifications.deliveryMethods.${key}.description`)}
+                  </p>
+                </div>
+                <Switch
+                  id={key}
+                  checked={preferences[key]}
+                  onCheckedChange={() => handleToggle(key)}
+                />
               </div>
-              <Switch
-                id="emailNotifications"
-                checked={preferences.emailNotifications}
-                onCheckedChange={() => handleToggle("emailNotifications")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="pushNotifications" className="font-medium">
-                  {t("pushNotifications")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("pushNotificationsDescription")}</p>
-              </div>
-              <Switch
-                id="pushNotifications"
-                checked={preferences.pushNotifications}
-                onCheckedChange={() => handleToggle("pushNotifications")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="soundAlerts" className="font-medium">
-                  {t("soundAlerts")}
-                </Label>
-                <p className="text-sm text-muted-foreground">{t("soundAlertsDescription")}</p>
-              </div>
-              <Switch
-                id="soundAlerts"
-                checked={preferences.soundAlerts}
-                onCheckedChange={() => handleToggle("soundAlerts")}
-              />
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -239,14 +166,13 @@ export function NotificationSettings() {
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("saving")}
+              {t("settings.notifications.actions.submitting")}
             </>
           ) : (
-            t("saveChanges")
+            t("settings.notifications.actions.submit")
           )}
         </Button>
       </div>
     </div>
   )
 }
-

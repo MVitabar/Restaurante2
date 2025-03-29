@@ -38,7 +38,7 @@ export function Sidebar() {
     try {
       await signOut(auth)
       toast({
-        title: t("logout"),
+        title: t("sidebar.logout"),
         description: "You have been logged out successfully",
       })
     } catch (error) {
@@ -147,7 +147,7 @@ export function Sidebar() {
 
             <Button variant="outline" className="w-full justify-start" onClick={handleLogout}>
               <LogOut className="mr-2 h-5 w-5" />
-              {t("logout")}
+              {t("sidebar.logout")}
             </Button>
           </div>
         </div>
@@ -155,4 +155,3 @@ export function Sidebar() {
     </>
   )
 }
-

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { useFirebase } from "@/components/firebase-provider"
 import { useI18n } from "@/components/i18n-provider"
-import { useTheme } from "@/components/theme-provider"
+import { useTheme, Theme } from "@/components/theme-provider"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -29,7 +29,7 @@ export function AppearanceSettings() {
         try {
           const prefsDoc = await getDoc(doc(db, "users", user.uid, "settings", "appearance"))
           if (prefsDoc.exists() && prefsDoc.data().theme) {
-            setTheme(prefsDoc.data().theme)
+            setTheme(prefsDoc.data().theme as Theme)
           }
         } catch (error) {
           console.error("Error fetching appearance preference:", error)
@@ -42,7 +42,7 @@ export function AppearanceSettings() {
     }
   }, [user, db, setTheme])
 
-  const handleThemeChange = (value: string) => {
+  const handleThemeChange = (value: Theme) => {
     setTheme(value)
   }
 
@@ -58,14 +58,14 @@ export function AppearanceSettings() {
       })
 
       toast({
-        title: t("appearancePreferenceSaved"),
-        description: t("appearancePreferenceSuccess"),
+        title: t("settings.appearance.actions.saved.title"),
+        description: t("settings.appearance.actions.saved.description"),
       })
     } catch (error) {
       console.error("Error saving appearance preference:", error)
       toast({
-        title: t("appearancePreferenceFailed"),
-        description: t("appearancePreferenceError"),
+        title: t("settings.appearance.actions.failed.title"),
+        description: t("settings.appearance.actions.failed.description"),
         variant: "destructive",
       })
     } finally {
@@ -84,8 +84,8 @@ export function AppearanceSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">{t("appearance")}</h2>
-        <p className="text-muted-foreground">{t("appearanceSettingsDescription")}</p>
+        <h2 className="text-2xl font-bold">{t("settings.appearance.title")}</h2>
+        <p className="text-muted-foreground">{t("settings.appearance.description")}</p>
       </div>
 
       <RadioGroup value={theme} onValueChange={handleThemeChange} className="space-y-4">
@@ -93,21 +93,21 @@ export function AppearanceSettings() {
           <RadioGroupItem value="light" id="light" />
           <Label htmlFor="light" className="flex items-center gap-2 font-medium">
             <Sun className="h-4 w-4" />
-            {t("lightMode")}
+            {t("settings.appearance.modes.light.label")}
           </Label>
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="dark" id="dark" />
           <Label htmlFor="dark" className="flex items-center gap-2 font-medium">
             <Moon className="h-4 w-4" />
-            {t("darkMode")}
+            {t("settings.appearance.modes.dark.label")}
           </Label>
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="system" id="system" />
           <Label htmlFor="system" className="flex items-center gap-2 font-medium">
             <Monitor className="h-4 w-4" />
-            {t("systemMode")}
+            {t("settings.appearance.modes.system.label")}
           </Label>
         </div>
       </RadioGroup>
@@ -117,14 +117,13 @@ export function AppearanceSettings() {
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("saving")}
+              {t("settings.appearance.actions.saving")}
             </>
           ) : (
-            t("saveChanges")
+            t("settings.appearance.actions.save")
           )}
         </Button>
       </div>
     </div>
   )
 }
-

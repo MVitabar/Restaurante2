@@ -185,47 +185,47 @@ export function TableMapSettings() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">{t("tableMaps")}</h2>
-          <p className="text-muted-foreground">{t("tableMapSettingsDescription")}</p>
+          <h2 className="text-2xl font-bold">{t("tableMapSettings.title")}</h2>
+          <p className="text-muted-foreground">{t("tableMapSettings.description")}</p>
         </div>
 
         <Dialog open={isCreating} onOpenChange={setIsCreating}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              {t("createTableMap")}
+              {t("tableMapSettings.actions.createTableMap")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{t("createTableMap")}</DialogTitle>
-              <DialogDescription>{t("createTableMapDescription")}</DialogDescription>
+              <DialogTitle>{t("tableMapSettings.actions.createTableMap")}</DialogTitle>
+              <DialogDescription>{t("tableMapSettings.description")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="mapName">{t("mapName")}</Label>
+                <Label htmlFor="mapName">{t("tableMapSettings.form.mapName.label")}</Label>
                 <Input
                   id="mapName"
                   value={newMapName}
                   onChange={(e) => setNewMapName(e.target.value)}
-                  placeholder={t("mapNamePlaceholder")}
+                  placeholder={t("tableMapSettings.form.mapName.placeholder")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="mapDescription">{t("mapDescription")}</Label>
+                <Label htmlFor="mapDescription">{t("tableMapSettings.form.mapDescription.label")}</Label>
                 <Input
                   id="mapDescription"
                   value={newMapDescription}
                   onChange={(e) => setNewMapDescription(e.target.value)}
-                  placeholder={t("mapDescriptionPlaceholder")}
+                  placeholder={t("tableMapSettings.form.mapDescription.placeholder")}
                 />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsCreating(false)}>
-                {t("cancel")}
+                {t("tableMapSettings.actions.cancel")}
               </Button>
-              <Button onClick={handleCreateMap}>{t("create")}</Button>
+              <Button onClick={handleCreateMap}>{t("tableMapSettings.actions.create")}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -268,7 +268,7 @@ export function TableMapSettings() {
                     >
                       <Link href={`/tables/${map.id}`}>
                         <Grid className="mr-2 h-4 w-4" />
-                        {t("viewTableMap")}
+                        {t("tableMapSettings.actions.viewTableMap")}
                       </Link>
                     </Button>
                     <Button 
@@ -278,7 +278,7 @@ export function TableMapSettings() {
                       onClick={() => setIsEditing(true)}
                     >
                       <Edit className="mr-2 h-4 w-4" />
-                      {t("editTableMap")}
+                      {t("tableMapSettings.actions.editTableMap")}
                     </Button>
                     <Button 
                       variant="destructive" 
@@ -287,7 +287,7 @@ export function TableMapSettings() {
                       onClick={() => handleDeleteMap(map.id)}
                     >
                       <Trash className="mr-2 h-4 w-4" />
-                      {t("deleteTableMap")}
+                      {t("tableMapSettings.actions.deleteTableMap")}
                     </Button>
                   </div>
                 </CardHeader>
@@ -308,11 +308,11 @@ export function TableMapSettings() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-10">
             <Grid className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium">{t("noTableMapsFound")}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{t("noTableMapsFoundDescription")}</p>
+            <h3 className="text-lg font-medium">{t("tableMapSettings.empty.title")}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{t("tableMapSettings.empty.description")}</p>
             <Button onClick={() => setIsCreating(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              {t("createTableMap")}
+              {t("tableMapSettings.actions.createTableMap")}
             </Button>
           </CardContent>
         </Card>

@@ -73,16 +73,11 @@ export function LanguageSettings() {
   }
 
   const handleLanguageChange = (value: Language) => {
-    console.log(`CRITICAL: Attempting to change language to: ${value}`);
-    console.log(`CRITICAL: Current language before change: ${language}`);
-    
     // Prevent immediate language reversion
     const preventReversion = async () => {
       const currentLanguage = await getSavedLanguage();
-      console.log(`CRITICAL: Saved language check: ${currentLanguage}`);
       
       if (currentLanguage !== value) {
-        console.log(`CRITICAL: Forcing language to: ${value}`);
         await setSavedLanguage(value);
         setLanguage(value);
       }
@@ -101,8 +96,6 @@ export function LanguageSettings() {
     setSaving(true)
 
     try {
-      console.log(`CRITICAL: Saving language preference: ${language}`);
-      
       // Update Firestore with the current language
       await setDoc(doc(db, "users", user.uid, "settings", "language"), {
         language,
@@ -110,14 +103,14 @@ export function LanguageSettings() {
       }, { merge: true });
 
       toast({
-        title: t("languagePreferenceSaved"),
-        description: t("languagePreferenceSuccess"),
+        title: t("settings.language.actions.profileUpdated"),
+        description: t("settings.language.actions.profileUpdateSuccess"),
       })
     } catch (error) {
-      console.error("CRITICAL: Error saving language preference", error);
+      console.error("Error saving language preference", error);
       toast({
-        title: "Error",
-        description: "Failed to save language preference",
+        title: t("settings.language.actions.profileUpdateFailed"),
+        description: t("settings.language.actions.profileUpdateError"),
         variant: "destructive"
       })
     } finally {
@@ -136,31 +129,40 @@ export function LanguageSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">{t("language")}</h2>
-        <p className="text-muted-foreground">{t("languageSettingsDescription")}</p>
+        <h2 className="text-2xl font-bold">{t("settings.language.title")}</h2>
+        <p className="text-muted-foreground">{t("settings.language.description")}</p>
       </div>
 
       <RadioGroup
         value={language}
-        onValueChange={handleLanguageChange as (value: string) => void}
-        className="space-y-4"
+        onValueChange={handleLanguageChange}
+        className="grid grid-cols-3 gap-4"
       >
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="en" id="en" />
-          <Label htmlFor="en" className="font-medium">
-            English
+        <div>
+          <RadioGroupItem value="en" id="en" className="peer sr-only" />
+          <Label
+            htmlFor="en"
+            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+          >
+            {t("settings.language.languages.en")}
           </Label>
         </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="es" id="es" />
-          <Label htmlFor="es" className="font-medium">
-            Español
+        <div>
+          <RadioGroupItem value="es" id="es" className="peer sr-only" />
+          <Label
+            htmlFor="es"
+            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+          >
+            {t("settings.language.languages.es")}
           </Label>
         </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="pt" id="pt" />
-          <Label htmlFor="pt" className="font-medium">
-            Português
+        <div>
+          <RadioGroupItem value="pt" id="pt" className="peer sr-only" />
+          <Label
+            htmlFor="pt"
+            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+          >
+            {t("settings.language.languages.pt")}
           </Label>
         </div>
       </RadioGroup>
@@ -170,10 +172,10 @@ export function LanguageSettings() {
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("saving")}
+              {t("settings.language.actions.submitting")}
             </>
           ) : (
-            t("saveChanges")
+            t("settings.language.actions.submit")
           )}
         </Button>
       </div>

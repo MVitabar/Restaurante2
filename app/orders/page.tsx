@@ -44,7 +44,7 @@ interface Order {
 }
 
 export default function OrdersPage() {
-  const { t } = useI18n()
+  const { t, i18n } = useI18n()
   const { db } = useFirebase()
   const { toast } = useToast()
   const [orders, setOrders] = useState<Order[]>([])
@@ -173,11 +173,11 @@ export default function OrdersPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">{t("orders")}</h1>
+        <h1 className="text-3xl font-bold">{t("ordersPage.orders")}</h1>
         <Link href="/orders/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            {t("newOrder")}
+            {t("ordersPage.newOrder")}
           </Button>
         </Link>
       </div>
@@ -187,7 +187,7 @@ export default function OrdersPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder={t("orders.search.placeholder")}
+            placeholder={t("ordersPage.search.placeholder")}
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -195,84 +195,92 @@ export default function OrdersPage() {
         </div>
         <Select defaultValue="all">
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={t("orders.filter.allStatuses")} />
+            <SelectValue placeholder={t("ordersPage.filter.allStatuses")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t("orders.filter.allStatuses")}</SelectItem>
-            <SelectItem value="pending">{t("orderStatus.pending")}</SelectItem>
-            <SelectItem value="preparing">{t("orderStatus.preparing")}</SelectItem>
-            <SelectItem value="ready">{t("orderStatus.ready")}</SelectItem>
-            <SelectItem value="delivered">{t("orderStatus.delivered")}</SelectItem>
-            <SelectItem value="cancelled">{t("orderStatus.cancelled")}</SelectItem>
+            <SelectItem value="all">{t("ordersPage.filter.allStatuses")}</SelectItem>
+            {Object.keys(t("ordersPage.orderStatus")).map((status) => (
+              <SelectItem key={status} value={status}>
+                {t(`ordersPage.orderStatus.${status}`)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("orders")}</CardTitle>
+          <CardTitle>{t("ordersPage.orders")}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-4">{t("orders.loading")}</div>
-          ) : filteredOrders.length > 0 ? (
+            <div className="text-center py-4">{t("commons.loading")}</div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="text-center py-4">{t("ordersPage.noOrdersFound")}</div>
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("orders.table.id")}</TableHead>
-                  <TableHead>{t("orders.table.table")}</TableHead>
-                  <TableHead>{t("orders.table.waiter")}</TableHead>
-                  <TableHead>{t("orders.table.items")}</TableHead>
-                  <TableHead>{t("orders.table.total")}</TableHead>
-                  <TableHead>{t("orders.table.status")}</TableHead>
-                  <TableHead>{t("orders.table.createdAt")}</TableHead>
-                  <TableHead className="text-right">{t("orders.table.actions")}</TableHead>
+                  <TableHead>{t("ordersPage.table.id")}</TableHead>
+                  <TableHead>{t("ordersPage.table.table")}</TableHead>
+                  <TableHead>{t("ordersPage.table.waiter")}</TableHead>
+                  <TableHead>{t("ordersPage.table.items")}</TableHead>
+                  <TableHead>{t("ordersPage.table.status")}</TableHead>
+                  <TableHead>{t("ordersPage.table.total")}</TableHead>
+                  <TableHead>{t("ordersPage.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredOrders.map((order) => (
                   <TableRow key={order.id}>
-                    <TableCell className="font-medium">#{order.id.substring(0, 6)}</TableCell>
+                    <TableCell>#{order.id.substring(0, 6)}</TableCell>
                     <TableCell>{order.table}</TableCell>
                     <TableCell>{order.waiter}</TableCell>
-                    <TableCell>{order.items?.length || 0}</TableCell>
-                    <TableCell>${order.total?.toFixed(2) || "0.00"}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusBadgeVariant(order.status)}>
-                        {t(`orderStatus.${order.status}`)}
+                      {order.items.map((item) => `${item.name} (${item.quantity})`).join(", ")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant="outline" 
+                        className={getStatusBadgeVariant(order.status)}
+                      >
+                        {t(`ordersPage.orderStatus.${order.status}`)}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {order.createdAt?.toDate ? new Date(order.createdAt.toDate()).toLocaleString() : "N/A"}
+                      {t("commons.currency", { 
+                        value: order.total.toLocaleString(i18n.language, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        }) 
+                      })}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
                             <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">{t("orders.action.actions")}</span>
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => {
+                        <DropdownMenuContent>
+                          <DropdownMenuItem 
+                            onSelect={() => {
                               setSelectedOrder(order)
-                              setNewStatus(order.status)
                               setIsStatusDialogOpen(true)
                             }}
                           >
                             <Edit className="mr-2 h-4 w-4" />
-                            {t("orders.action.updateStatus")}
+                            {t("ordersPage.action.updateStatus")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
+                          <DropdownMenuItem 
+                            onSelect={() => {
                               setSelectedOrder(order)
                               setIsDeleteDialogOpen(true)
                             }}
-                            className="text-red-600"
+                            className="text-destructive"
                           >
                             <Trash className="mr-2 h-4 w-4" />
-                            {t("orders.action.delete")}
+                            {t("ordersPage.action.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -281,8 +289,6 @@ export default function OrdersPage() {
                 ))}
               </TableBody>
             </Table>
-          ) : (
-            <div className="text-center py-4">{t("orders.noOrders")}</div>
           )}
         </CardContent>
       </Card>
@@ -291,29 +297,37 @@ export default function OrdersPage() {
       <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("orders.statusDialog.title")}</DialogTitle>
+            <DialogTitle>{t("ordersPage.action.updateStatus")}</DialogTitle>
             <DialogDescription>
-              {t("orders.statusDialog.description")}
+              {t("ordersPage.action.updateStatusDescription", { 
+                orderId: selectedOrder ? `#${selectedOrder.id.substring(0, 6)}` : '' 
+              })}
             </DialogDescription>
           </DialogHeader>
-          <Select value={newStatus} onValueChange={(value) => setNewStatus(value as OrderStatus)}>
+          <Select 
+            value={newStatus} 
+            onValueChange={(value: OrderStatus) => setNewStatus(value)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={t("orders.table.status")} />
+              <SelectValue placeholder={t("ordersPage.action.selectStatus")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending">{t("orderStatus.pending")}</SelectItem>
-              <SelectItem value="preparing">{t("orderStatus.preparing")}</SelectItem>
-              <SelectItem value="ready">{t("orderStatus.ready")}</SelectItem>
-              <SelectItem value="delivered">{t("orderStatus.delivered")}</SelectItem>
-              <SelectItem value="cancelled">{t("orderStatus.cancelled")}</SelectItem>
+              {Object.keys(t("ordersPage.orderStatus")).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {t(`ordersPage.orderStatus.${status}`)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>
-              {t("commons.button.cancel")}
+            <Button 
+              variant="outline" 
+              onClick={() => setIsStatusDialogOpen(false)}
+            >
+              {t("commons.cancel")}
             </Button>
             <Button onClick={handleUpdateStatus}>
-              {t("commons.button.submit")}
+              {t("commons.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -323,17 +337,25 @@ export default function OrdersPage() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("orders.action.delete")}</DialogTitle>
+            <DialogTitle>{t("ordersPage.action.deleteOrder")}</DialogTitle>
             <DialogDescription>
-              {t("commons.confirmDelete")}
+              {t("ordersPage.action.deleteOrderConfirmation", { 
+                orderId: selectedOrder ? `#${selectedOrder.id.substring(0, 6)}` : '' 
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              {t("commons.button.cancel")}
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              {t("commons.cancel")}
             </Button>
-            <Button variant="destructive" onClick={handleDeleteOrder}>
-              {t("orders.action.delete")}
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteOrder}
+            >
+              {t("commons.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -29,7 +29,9 @@ export const enTranslations = {
     "loading": "Loading...",
     "noItemsFound": "No items found",
     "searchPlaceholder": "Search...",
-    "confirmDelete": "Are you sure you want to delete this item? This action cannot be undone."
+    "confirmDelete": "Are you sure you want to delete this item? This action cannot be undone.",
+    "currency": "{{value}}"
+    
   },
 
   // Inventory Translations
@@ -39,26 +41,37 @@ export const enTranslations = {
     "noItemsFound": "No inventory items found",
     "headers": {
       "name": "Name",
-      "category": "Category",
+      "category": "Category", 
       "quantity": "Quantity",
       "unit": "Unit",
       "minQuantity": "Min Quantity",
       "price": "Price",
-      "actions": "Actions"
+      "actions": "Actions",
+      "status": "Status"
     },
     "addItem": {
       "title": "Add Item",
-      "description": "Add a new item to your inventory",
+      "description": "Add a new item to the inventory",
+      "namePlaceholder": "Enter item name",
+      "categoryPlaceholder": "Select item category",
+      "quantityPlaceholder": "Enter quantity",
+      "unitPlaceholder": "Enter unit (e.g., kg, pcs)",
+      "minQuantityPlaceholder": "Enter minimum stock quantity",
+      "pricePlaceholder": "Enter item price",
       "successToast": "{{itemName}} has been added to inventory",
-      "errorToast": "Failed to add inventory item"
+      "errorToast": "Failed to add inventory item",
+      "cancel": "Cancel",
     },
     "editItem": {
       "title": "Edit Item",
       "description": "Update inventory item details",
       "successToast": "{{itemName}} has been updated",
-      "errorToast": "Failed to update inventory item"
+      "errorToast": "Failed to update inventory item",
+      "cancel": "Cancel"
     },
     "deleteItem": {
+      "title": "Delete Item",
+      "description": "Are you sure you want to delete {{itemName}}? This action cannot be undone.",
       "successToast": "Inventory item has been deleted",
       "errorToast": "Failed to delete inventory item"
     },
@@ -78,6 +91,10 @@ export const enTranslations = {
     },
     "errors": {
       "fetchItems": "Failed to fetch inventory items"
+    },
+    "status": {
+      "lowStock": "Low Stock",
+      "inStock": "In Stock"
     }
   },
 
@@ -277,18 +294,143 @@ export const enTranslations = {
 
   // Settings
   "settings": {
-    "profile": "Profile",
-    "profileSettingsDescription": "Manage your personal information and account settings",
-    "notifications": "Notifications",
-    "notificationSettingsDescription": "Configure how you receive notifications",
-    "language": "Language",
-    "languageSettingsDescription": "Choose your preferred language",
-    "appearance": "Appearance",
-    "appearanceSettingsDescription": "Customize the look and feel of the application",
-    "tableMaps": "Table Maps",
-    "tableMapSettingsDescription": "Create and manage restaurant table layouts",
-    "system": "System",
-    "systemSettingsDescription": "Configure system-wide settings"
+    "title": "Settings",
+    "description": "Manage your account settings and personal information",
+    "profile": {
+      "title": "Profile",
+      "description": "Manage your personal information and account settings",
+      "fields": {
+        "username": "Username",
+        "email": {
+          "label": "Email",
+          "cannotBeChanged": "Email address cannot be changed"
+        },
+        "phoneNumber": "Phone Number",
+        "position": {
+          "label": "Position",
+          "placeholder": "Enter your job position"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Select your role",
+          "options": {
+            "admin": "Admin",
+            "manager": "Manager", 
+            "chef": "Chef",
+            "waiter": "Waiter"
+          }
+        }
+      },
+      "actions": {
+        "uploadPhoto": "Upload Photo",
+        "submit": "Save Changes",
+        "submitting": "Saving...",
+        "profileUpdated": "Profile Updated",
+        "profileUpdateSuccess": "Your profile has been successfully updated.",
+        "profileUpdateFailed": "Profile Update Failed",
+        "profileUpdateError": "An error occurred while updating your profile."
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Configure how you receive notifications",
+      "types": {
+        "newOrders": {
+          "label": "New Orders",
+          "description": "Get notified when new orders are placed"
+        },
+        "orderUpdates": {
+          "label": "Order Updates",
+          "description": "Receive updates on order status changes"
+        },
+        "inventoryAlerts": {
+          "label": "Inventory Alerts",
+          "description": "Be informed about low stock or inventory issues"
+        },
+        "systemAnnouncements": {
+          "label": "System Announcements",
+          "description": "Receive important system-wide notifications"
+        },
+        "dailyReports": {
+          "label": "Daily Reports",
+          "description": "Get daily summary reports"
+        }
+      },
+      "deliveryMethods": {
+        "emailNotifications": {
+          "label": "Email Notifications",
+          "description": "Receive notifications via email"
+        },
+        "pushNotifications": {
+          "label": "Push Notifications",
+          "description": "Get real-time notifications on your device"
+        },
+        "soundAlerts": {
+          "label": "Sound Alerts",
+          "description": "Play sound alerts for notifications"
+        }
+      },
+      "actions": {
+        "save": "Save Preferences",
+        "saving": "Saving...",
+        "saved": "Notification Preferences Updated",
+        "saveSuccess": "Your notification preferences have been successfully updated.",
+        "saveFailed": "Failed to Update Notification Preferences",
+        "saveError": "An error occurred while updating your notification preferences."
+      }
+    },
+    "language": {
+      "title": "Language",
+      "description": "Select your preferred language for the application",
+      "languages": {
+        "en": "English",
+        "es": "Spanish",
+        "pt": "Portuguese"
+      },
+      "actions": {
+        "saveChanges": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Language Updated",
+        "saveSuccess": "Your language preference has been successfully updated."
+      }
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize the look and feel of the application",
+      "modes": {
+        "light": {
+          "label": "Light Mode",
+          "icon": "sun"
+        },
+        "dark": {
+          "label": "Dark Mode",
+          "icon": "moon"
+        },
+        "system": {
+          "label": "System Mode",
+          "icon": "monitor"
+        }
+      },
+      "actions": {
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Appearance Preferences Updated",
+        "saveSuccess": "Your appearance preferences have been successfully updated.",
+        "saveFailed": "Failed to Update Appearance Preferences",
+        "saveError": "An error occurred while updating your appearance preferences."
+      }
+    },
+    "tableMaps": {
+      "title": "Table Maps",
+      "description": "Create and manage restaurant table layouts",
+      "addNew": "Add New Map",
+      "edit": "Edit Map",
+      "delete": "Delete Map"
+    },
+    "system": {
+      "title": "System",
+      "description": "Configure system-wide settings"
+    }
   },
 
   // Profile
@@ -369,9 +511,25 @@ export const enTranslations = {
   "dashboard": {
     "title": "Main Dashboard",
     "dashboard": "Dashboard",
-    "salesOverview": "Sales Overview",
-    "topSellingItems": "Top Selling Items",
-    "stockLevel": "Inventory Level",
+    "salesOverview": {
+      "title": "Sales Overview",
+      "description": "Daily sales overview",
+      "totalSales": "Total Sales: {{amount}}",
+      "monthlyGrowth": "+{{percentage}}% since last month",
+      "dailySalesTrend": "Day {{day}} Sales: {{amount}}",
+      "dailySalesTrendFormat": "Day {{day}}: {{amount}}"
+    },
+    "topSellingItems": {
+      "title": "Top Selling Items",
+      "description": "Most popular items",
+      "orderCount": "{{count, number}} orders"
+    },
+    "stockLevel": {
+      "title": "Inventory Status",
+      "description": "Current stock levels",
+      "percentage": "{{percentage}}%",
+      "lowStockItems": "{{count, number}} items with low stock"
+    },
     "recentOrders": "Recent Orders",
     "salesTrend": "Sales Trend",
     "dailySalesOverview": "Daily sales overview",
@@ -390,9 +548,15 @@ export const enTranslations = {
   "ordersPage": {
     "orders": "Orders",
     "newOrder": "New Order",
+    "search": {
+      "placeholder": "Search orders..."
+    },
+    "filter": {
+      "allStatuses": "All Statuses"
+    },
     "orderStatus": {
       "pending": "Pending",
-      "preparing": "Preparing",
+      "preparing": "Preparing", 
       "ready": "Ready",
       "delivered": "Delivered",
       "cancelled": "Cancelled"
@@ -408,20 +572,15 @@ export const enTranslations = {
     },
     "action": {
       "updateStatus": "Update Status",
-      "delete": "Delete Order"
+      "updateStatusDescription": "Update status for order {{orderId}}",
+      "selectStatus": "Select new status",
+      "delete": "Delete Order",
+      "deleteOrder": "Delete Order",
+      "deleteOrderConfirmation": "Are you sure you want to delete order {{orderId}}?"
     },
-    "statusDialog": {
-      "title": "Update Order Status",
-      "description": "Select the new status for the order"
-    },
-    "search": {
-      "placeholder": "Search orders..."
-    },
-    "filter": {
-      "allStatuses": "All Statuses"
-    },
+    "noOrdersFound": "No orders found",
     "error": {
-      "fetchFailed": "Failed to load orders",
+      "fetchFailed": "Failed to fetch orders",
       "updateStatusFailed": "Failed to update order status",
       "deleteFailed": "Failed to delete order"
     },
@@ -449,7 +608,220 @@ export const enTranslations = {
     "appId": "App ID",
     "set": "✓ Set",
     "missing": "✗ Missing"
-  }
+  },
+
+  "sidebar": {
+    "appName": "Restaurant Management",
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "users": "Users",
+    "settings": "Settings",
+    "logout": "Logout",
+    "orders": "Orders"
+  },
+
+  "tables": {
+    "search": "Search tables",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "sortBy": "Sort by",
+    "tableNumber": "Table number",
+    "seats": "Seats",
+    "addTable": "Add Table",
+    "noTablesMatchFilter": "No tables match the filter",
+    "noTablesInMap": "No tables in the map",
+    
+    "statuses": {
+      "available": "Available",
+      "occupied": "Occupied",
+      "reserved": "Reserved",
+      "maintenance": "Maintenance",
+      "ordering": "Ordering",
+      "preparing": "Preparing",
+      "ready": "Ready",
+      "served": "Served"
+    }
+  },
+
+  "tableMap": {
+    "notFound": {
+      "title": "Table Map Not Found",
+      "description": "The table map you are looking for does not exist.",
+      "backToSettings": "Back to Settings"
+    },
+    "views": {
+      "map": "Map View",
+      "grid": "Grid View"
+    },
+    "statuses": {
+      "available": "Available",
+      "occupied": "Occupied",
+      "reserved": "Reserved"
+    },
+    "table": {
+      "label": "Table",
+      "details": {
+        "seats": "Seats",
+        "activeOrder": "Active Order",
+        "noActiveOrder": "No Active Order",
+        "waiter": "Waiter",
+        "orderTime": "Order Time",
+        "dietaryRestrictions": "Dietary Restrictions",
+        "items": "Items",
+        "total": "Total",
+        "specialRequests": "Special Requests"
+      },
+      "actions": {
+        "close": "Close",
+        "editOrder": "Edit Order",
+        "markAsServed": "Mark as Served",
+        "closeOrder": "Close Order",
+        "createOrder": "Create Order"
+      },
+      "descriptions": {
+        "available": "This table is currently available for a new order.",
+        "reserved": "This table is currently reserved.",
+        "maintenance": "This table is currently under maintenance."
+      }
+    }
+  },
+
+  "tableCard": {
+    "label": "Table",
+    "details": {
+      "seats": "Seats",
+      "shape": {
+        "square": "Square",
+        "rectangle": "Rectangle",
+        "circle": "Circle"
+      }
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "viewOrder": "View Order"
+    }
+  },
+
+  "userProfile": {
+    "title": "Profile",
+    "description": "Manage your profile settings and information",
+    "actions": {
+      "uploadPhoto": "Upload Photo",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
+    },
+    "fields": {
+      "username": "Username",
+      "email": {
+        "label": "Email",
+        "cannotBeChanged": "Email cannot be changed"
+      },
+      "phoneNumber": "Phone Number",
+      "position": {
+        "label": "Position",
+        "placeholder": "Enter your position"
+      },
+      "role": {
+        "label": "Role",
+        "placeholder": "Select a role",
+        "options": {
+          "admin": "Admin",
+          "manager": "Manager", 
+          "chef": "Chef",
+          "waiter": "Waiter"
+        }
+      }
+    },
+    "notifications": {
+      "profileUpdated": "Profile Updated",
+      "profileUpdateSuccess": "Your profile has been successfully updated.",
+      "profileUpdateFailed": "Profile Update Failed",
+      "profileUpdateError": "An error occurred while updating your profile."
+    }
+  },
+
+  "tableMapSettings": {
+    "title": "Table Maps",
+    "description": "Manage and configure your restaurant's table maps",
+    "actions": {
+      "create": "Create",
+      "cancel": "Cancel",
+      "createTableMap": "Create Table Map",
+      "viewTableMap": "View Table Map",
+      "editTableMap": "Edit Table Map",
+      "deleteTableMap": "Delete Table Map"
+    },
+    "form": {
+      "mapName": {
+        "label": "Map Name",
+        "placeholder": "Enter map name"
+      },
+      "mapDescription": {
+        "label": "Map Description",
+        "placeholder": "Enter map description"
+      }
+    },
+    "empty": {
+      "title": "No Table Maps Found",
+      "description": "Create your first table map to get started"
+    },
+    "notifications": {
+      "mapCreated": "Table Map Created",
+      "mapUpdated": "Table Map Updated",
+      "mapDeleted": "Table Map Deleted",
+      "mapCreationFailed": "Failed to Create Table Map",
+      "mapUpdateFailed": "Failed to Update Table Map",
+      "mapDeletionFailed": "Failed to Delete Table Map"
+    }
+  },
+
+  "menu": {
+    "items": {
+      "pizzaMargherita": "Pizza Margherita",
+      "pastaCarbonara": "Pasta Carbonara", 
+      "tiramisu": "Tiramisu",
+      "caesarSalad": "Caesar Salad",
+      "risotto": "Risotto"
+    }
+  },
+
+  "newOrderPage": {
+    "title": "Create New Order",
+    "orderDetails": "Order Details",
+    "currentOrder": "Current Order",
+    "tableNumber": "Table Number",
+    "tableNumberPlaceholder": "Enter table number",
+    "selectItem": "Select Item",
+    "selectItemPlaceholder": "Choose an item to add",
+    "quantity": "Quantity",
+    "notes": "Notes",
+    "notesPlaceholder": "Special instructions",
+    "addToOrder": "Add to Order",
+    "noItemsInOrder": "No items added to the order yet",
+    "total": "Total",
+    "createOrder": "Submit Order",
+    "table": {
+      "item": "Item",
+      "quantity": "Qty",
+      "price": "Price",
+      "total": "Total",
+      "actions": "Actions"
+    },
+    "error": {
+      "title": "Error",
+      "noItem": "Please select an item",
+      "noTable": "Please enter a table number",
+      "noItems": "Please add at least one item to the order",
+      "orderCreationFailed": "Failed to create order"
+    },
+    "success": {
+      "orderCreated": "Order Created",
+      "orderCreatedDescription": "Order for Table {{tableNumber}} has been created successfully"
+    }
+  },
+
+  // Rest of the translations continue...
 };
 
 export default enTranslations;

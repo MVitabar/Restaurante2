@@ -4,31 +4,59 @@ import { useEffect, useState } from "react"
 import { useI18n } from "@/components/i18n-provider"
 import { useFirebase } from "@/components/firebase-provider"
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, LineChart, PieChart } from "lucide-react"
 
+// Define types for our dashboard data
+type SalesData = {
+  date: Date
+  amount: number
+}
+
+type TopSellingItem = {
+  id: string
+  name: string
+  orders: number
+}
+
+type InventoryData = {
+  level: number
+  lowStockItems?: string[]
+}
+
 export default function DashboardPage() {
-  const { t } = useI18n()
+  const { t, i18n } = useI18n()
   const { db } = useFirebase()
   const [recentOrders, setRecentOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Properly typed state variables
+  const [totalSales, setTotalSales] = useState<number>(0)
+  const [salesGrowthPercentage, setSalesGrowthPercentage] = useState<number>(0)
+  const [salesTrend, setSalesTrend] = useState<number[]>([])
+  const [topSellingItems, setTopSellingItems] = useState<TopSellingItem[]>([])
+  const [inventoryLevel, setInventoryLevel] = useState<number>(0)
+  const [lowStockItems, setLowStockItems] = useState<string[]>([])
 
   useEffect(() => {
     const fetchRecentOrders = async () => {
-      if (!db) return
+      if (!db) {
+        console.warn("Firestore database is not initialized")
+        return
+      }
 
       try {
-        const ordersRef = collection(db, "orders")
+        const ordersRef = collection(db!, "orders")
         const q = query(ordersRef, orderBy("createdAt", "desc"), limit(5))
         const querySnapshot = await getDocs(q)
 
-        const orders = querySnapshot.docs.map((doc) => ({
+        const fetchedOrders = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }))
 
-        setRecentOrders(orders)
+        setRecentOrders(fetchedOrders)
       } catch (error) {
         console.error("Error fetching recent orders:", error)
       } finally {
@@ -36,8 +64,119 @@ export default function DashboardPage() {
       }
     }
 
+    const fetchSalesData = async () => {
+      if (!db) {
+        console.warn("Firestore database is not initialized")
+        return
+      }
+
+      try {
+        const salesRef = collection(db!, "sales")
+        const q = query(salesRef, orderBy("date", "desc"), limit(30))
+        const querySnapshot = await getDocs(q)
+
+        const salesData: SalesData[] = querySnapshot.docs.map((doc) => ({
+          date: doc.data().date.toDate(),
+          amount: doc.data().amount,
+        }))
+
+        const totalSales = salesData.reduce((acc, curr) => acc + curr.amount, 0)
+        const salesGrowthPercentage = salesData.length > 1 
+          ? ((totalSales / salesData[0].amount) - 1) * 100 
+          : 0
+        const salesTrend = salesData.map((sale) => sale.amount)
+
+        setTotalSales(totalSales)
+        setSalesGrowthPercentage(salesGrowthPercentage)
+        setSalesTrend(salesTrend)
+      } catch (error) {
+        console.error("Error fetching sales data:", error)
+      }
+    }
+
+    const fetchTopSellingItems = async () => {
+      if (!db) {
+        console.warn("Firestore database is not initialized")
+        return
+      }
+
+      try {
+        const itemsRef = collection(db!, "items")
+        const q = query(itemsRef, orderBy("orders", "desc"), limit(5))
+        const querySnapshot = await getDocs(q)
+
+        const topSellingItems: TopSellingItem[] = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+          orders: doc.data().orders,
+        }))
+
+        setTopSellingItems(topSellingItems)
+      } catch (error) {
+        console.error("Error fetching top selling items:", error)
+      }
+    }
+
+    const fetchInventoryData = async () => {
+      if (!db) {
+        console.warn("Firestore database is not initialized")
+        return
+      }
+
+      try {
+        const inventoryRef = collection(db!, "inventory")
+        const q = query(inventoryRef, orderBy("level", "desc"), limit(1))
+        const querySnapshot = await getDocs(q)
+        
+        // Log the query snapshot for debugging
+        console.log("Inventory Query Snapshot:", {
+          empty: querySnapshot.empty,
+          docs: querySnapshot.docs.length,
+          firstDocData: querySnapshot.docs.length > 0 ? querySnapshot.docs[0].data() : null
+        })
+
+        // Handle empty query result
+        if (querySnapshot.empty) {
+          console.warn("No inventory data found")
+          setInventoryLevel(0)
+          setLowStockItems([])
+          return
+        }
+
+        // Safely access the first document
+        const firstDoc = querySnapshot.docs[0]
+        if (!firstDoc) {
+          console.warn("No first document in inventory query")
+          setInventoryLevel(0)
+          setLowStockItems([])
+          return
+        }
+
+        // Safely get document data
+        const docData = firstDoc.data()
+        if (!docData) {
+          console.warn("Document data is undefined")
+          setInventoryLevel(0)
+          setLowStockItems([])
+          return
+        }
+
+        // Type assertion with additional checks
+        const inventoryData = docData as InventoryData
+
+        // Set state with fallback values
+        setInventoryLevel(inventoryData.level || 0)
+        setLowStockItems(inventoryData.lowStockItems || [])
+      } catch (error) {
+        console.error("Error fetching inventory data:", error)
+      }
+    }
+
     fetchRecentOrders()
-  }, [db])
+    fetchSalesData()
+    fetchTopSellingItems()
+    fetchInventoryData()
+  }, [db, i18n.language])
 
   return (
     <div className="p-6 space-y-6">
@@ -46,31 +185,66 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("dashboard.salesOverview")}</CardTitle>
-            <CardDescription>Daily sales overview</CardDescription>
+            <CardTitle className="text-sm font-medium">{t("dashboard.salesOverview.title")}</CardTitle>
+            <CardDescription>{t("dashboard.salesOverview.description")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$1,234.56</div>
-            <p className="text-xs text-muted-foreground">+12.5% from last month</p>
-            <div className="h-[80px] mt-4 flex items-end justify-between">
-              {[40, 30, 70, 80, 50, 60, 90].map((height, i) => (
-                <div key={i} className="w-[8%] bg-primary rounded-sm" style={{ height: `${height}%` }} />
-              ))}
+            <div className="text-2xl font-bold">
+              {t("dashboard.salesOverview.totalSales", { 
+                amount: t("commons.currency", { 
+                  value: totalSales.toLocaleString(i18n.language, { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                  }) 
+                }) 
+              })}
             </div>
+            <p className="text-xs text-muted-foreground">
+              {t("dashboard.salesOverview.monthlyGrowth", { 
+                percentage: salesGrowthPercentage.toLocaleString(i18n.language, {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1
+                }) 
+              })}
+            </p>
+            {salesTrend.length > 0 && (
+              <div className="mt-4 h-[60px]">
+                <LineChart className="w-full h-full" />
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  {salesTrend.map((amount, index) => (
+                    <span key={index}>
+                      {t("dashboard.salesOverview.dailySalesTrendFormat", {
+                        day: index + 1,
+                        amount: t("commons.currency", { 
+                          value: amount.toLocaleString(i18n.language, { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                          }) 
+                        })
+                      })}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("dashboard.topSellingItems")}</CardTitle>
-            <CardDescription>Most popular items</CardDescription>
+            <CardTitle className="text-sm font-medium">{t("dashboard.topSellingItems.title")}</CardTitle>
+            <CardDescription>{t("dashboard.topSellingItems.description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {["Pizza Margherita", "Pasta Carbonara", "Tiramisu", "Caesar Salad", "Risotto"].map((item, i) => (
+              {topSellingItems.map((item, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <span>{item}</span>
-                  <span className="text-sm text-muted-foreground">{Math.floor(Math.random() * 50) + 10} orders</span>
+                  <span>{t(`menu.items.${item.id}`, { defaultValue: item.name })}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("dashboard.topSellingItems.orderCount", { 
+                      count: item.orders 
+                    })}
+                  </span>
                 </div>
               ))}
             </div>
@@ -79,14 +253,21 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("dashboard.stockLevel")}</CardTitle>
-            <CardDescription>Inventory status</CardDescription>
+            <CardTitle className="text-sm font-medium">{t("dashboard.stockLevel.title")}</CardTitle>
+            <CardDescription>{t("dashboard.stockLevel.description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-center h-[120px]">
               <div className="relative w-32 h-32">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold">78%</span>
+                  <span className="text-xl font-bold">
+                    {t("dashboard.stockLevel.percentage", { 
+                      percentage: inventoryLevel.toLocaleString(i18n.language, { 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 0 
+                      }) 
+                    })}
+                  </span>
                 </div>
                 <svg className="w-full h-full" viewBox="0 0 100 100">
                   <circle
@@ -100,18 +281,21 @@ export default function DashboardPage() {
                   <circle
                     className="text-primary stroke-current"
                     strokeWidth="10"
-                    strokeLinecap="round"
                     fill="transparent"
                     r="40"
                     cx="50"
                     cy="50"
                     strokeDasharray="251.2"
-                    strokeDashoffset="55.3"
+                    strokeDashoffset={`${251.2 * (1 - inventoryLevel / 100)}`}
                   />
                 </svg>
               </div>
             </div>
-            <div className="mt-2 text-center text-sm text-muted-foreground">3 items with low stock</div>
+            <div className="mt-2 text-center text-sm text-muted-foreground">
+              {t("dashboard.stockLevel.lowStockItems", { 
+                count: Number(lowStockItems.length)
+              })}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -124,7 +308,7 @@ export default function DashboardPage() {
           </TabsTrigger>
           <TabsTrigger value="sales">
             <BarChart className="h-4 w-4 mr-2" />
-            {t("dashboard.salesOverview")}
+            {t("dashboard.salesOverview.title")}
           </TabsTrigger>
           <TabsTrigger value="categories">
             <PieChart className="h-4 w-4 mr-2" />
@@ -170,7 +354,7 @@ export default function DashboardPage() {
         <TabsContent value="sales" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.salesOverview")}</CardTitle>
+              <CardTitle>{t("dashboard.salesOverview.title")}</CardTitle>
               <CardDescription>Sales data for the current period</CardDescription>
             </CardHeader>
             <CardContent>

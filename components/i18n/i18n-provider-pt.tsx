@@ -46,38 +46,54 @@ export const ptTranslations = {
     "validation.passwordRequirements": "A senha deve incluir maiúsculas, minúsculas e números",
     "success.generic": "Operação bem-sucedida",
     "terms.accept": "Aceito os Termos e Condições",
-    "terms.required": "Você deve aceitar os termos e condições"
+    "terms.required": "Você deve aceitar os termos e condições",
+    "currency": "{{value}}"
   },
 
   // Inventory Translations
   "inventory": {
-    "pageTitle": "Gestão de Estoque",
-    "searchPlaceholder": "Buscar no estoque...",
-    "noItemsFound": "Nenhum item de estoque encontrado",
+    "pageTitle": "Gestão de Inventário",
+    "searchPlaceholder": "Buscar no inventário...",
+    "noItemsFound": "Nenhum item encontrado no inventário",
     "headers": {
       "name": "Nome",
       "category": "Categoria", 
       "quantity": "Quantidade",
       "unit": "Unidade",
-      "minQuantity": "Qtd. Mínima",
+      "minQuantity": "Quantidade Mínima",
       "price": "Preço",
-      "actions": "Ações"
+      "actions": "Ações",
+      "status": "Status"
     },
     "addItem": {
       "title": "Adicionar Item",
-      "description": "Adicionar um novo item ao estoque",
-      "successToast": "{{itemName}} foi adicionado ao estoque",
-      "errorToast": "Falha ao adicionar item de estoque"
+      "description": "Adicionar um novo item ao inventário",
+      "namePlaceholder": "Insira o nome do item",
+      "categoryPlaceholder": "Selecione a categoria do item",
+      "quantityPlaceholder": "Insira a quantidade",
+      "unitPlaceholder": "Insira a unidade (ex. kg, pçs)",
+      "minQuantityPlaceholder": "Insira a quantidade mínima de estoque",
+      "pricePlaceholder": "Insira o preço do item",
+      "successToast": "{{itemName}} foi adicionado ao inventário",
+      "errorToast": "Falha ao adicionar item de inventário",
+      "cancel": "Cancelar"
     },
     "editItem": {
       "title": "Editar Item",
-      "description": "Atualizar detalhes do item de estoque",
+      "description": "Modificar os detalhes de um item de inventário existente",
       "successToast": "{{itemName}} foi atualizado",
-      "errorToast": "Falha ao atualizar item de estoque"
+      "errorToast": "Falha ao atualizar item de inventário",
+      "cancel": "Cancelar"
     },
     "deleteItem": {
-      "successToast": "Item de estoque foi excluído",
-      "errorToast": "Falha ao excluir item de estoque"
+      "title": "Excluir Item",
+      "description": "Tem certeza de que deseja excluir {{itemName}}? Esta ação não pode ser desfeita.",
+      "successToast": "Item de inventário foi excluído",
+      "errorToast": "Falha ao excluir item de inventário"
+    },
+    "status": {
+      "lowStock": "Estoque Baixo",
+      "inStock": "Em Estoque"
     },
     "buttons": {
       "addItem": "Adicionar Item",
@@ -85,25 +101,13 @@ export const ptTranslations = {
       "cancel": "Cancelar"
     },
     "errors": {
-      "fetchItems": "Falha ao buscar itens de estoque",
-      "addItem": "Falha ao adicionar item de estoque",
-      "deleteItem": "Falha ao excluir item de estoque"
+      "fetchItems": "Falha ao buscar itens de inventário",
+      "addItem": "Falha ao adicionar item de inventário",
+      "deleteItem": "Falha ao excluir item de inventário"
     }
   },
 
-  // Settings
-  "profile": "Perfil",
-  "profileSettingsDescription": "Gerenciar suas informações pessoais e configurações de conta",
-  "notifications": "Notificações",
-  "notificationSettingsDescription": "Configurar como você recebe notificações",
-  "language": "Idioma",
-  "languageSettingsDescription": "Escolha seu idioma preferido",
-  "appearance": "Aparência",
-  "appearanceSettingsDescription": "Personalizar a aparência do aplicativo",
-  "tableMaps": "Mapas de Mesas",
-  "tableMapSettingsDescription": "Criar e gerenciar layouts de mesas do restaurante",
-  "system": "Sistema",
-  "systemSettingsDescription": "Configurar configurações gerais do sistema",
+  
 
   // Profile
   "username": "Nome de usuário",
@@ -220,12 +224,36 @@ export const ptTranslations = {
 
   // Dashboard Translations
   "dashboard": {
-    "title": "Painel Principal",
-    "salesOverview": "Resumo de Vendas",
-    "topSellingItems": "Itens Mais Vendidos",
-    "stockLevel": "Nível de Estoque",
-    "recentOrders": "Pedidos Recentes",
-    "salesTrend": "Tendência de Vendas"
+    "title": "Painel de Controle",
+    "salesOverview": {
+      "title": "Resumo de Vendas",
+      "description": "Resumo de vendas diárias",
+      "totalSales": "Vendas Totais: {{amount}}",
+      "monthlyGrowth": "+{{percentage}}% desde o mês passado",
+      "dailySalesTrend": "Vendas do Dia {{day}}: {{amount}}",
+      "dailySalesTrendFormat": "Dia {{day}}: {{amount}}"
+    },
+    "topSellingItems": {
+      "title": "Itens Mais Vendidos",
+      "description": "Itens mais populares",
+      "orderCount": "{{count, number}} pedidos"
+    },
+    "stockLevel": {
+      "title": "Status do Estoque",
+      "description": "Níveis de estoque atuais",
+      "percentage": "{{percentage}}%",
+      "lowStockItems": "{{count, number}} itens com estoque baixo"
+    }
+  },
+
+  "menu": {
+    "items": {
+      "pizzaMargherita": "Pizza Margherita",
+      "pastaCarbonara": "Pasta Carbonara", 
+      "tiramisu": "Tiramisu",
+      "caesarSalad": "Salada César",
+      "risotto": "Risotto"
+    }
   },
 
   // Orders Page Translations
@@ -261,6 +289,88 @@ export const ptTranslations = {
   "orders.success.statusUpdated": "Estado do pedido atualizado",
   "orders.success.orderDeleted": "Pedido excluído",
 
+  // Orders Page Translations
+  "ordersPage": {
+    "orders": "Pedidos",
+    "newOrder": "Novo Pedido",
+    "search": {
+      "placeholder": "Buscar pedidos..."
+    },
+    "filter": {
+      "allStatuses": "Todos os Estados"
+    },
+    "orderStatus": {
+      "pending": "Pendente",
+      "preparing": "Preparando", 
+      "ready": "Pronto",
+      "delivered": "Entregue",
+      "cancelled": "Cancelado"
+    },
+    "table": {
+      "id": "ID",
+      "table": "Mesa",
+      "waiter": "Garçom",
+      "items": "Itens",
+      "status": "Status",
+      "total": "Total",
+      "actions": "Ações"
+    },
+    "action": {
+      "updateStatus": "Atualizar Status",
+      "updateStatusDescription": "Atualizar status do pedido {{orderId}}",
+      "selectStatus": "Selecionar novo status",
+      "delete": "Excluir Pedido",
+      "deleteOrder": "Excluir Pedido",
+      "deleteOrderConfirmation": "Tem certeza de que deseja excluir o pedido {{orderId}}?"
+    },
+    "noOrdersFound": "Nenhum pedido encontrado",
+    "error": {
+      "fetchFailed": "Falha ao carregar pedidos",
+      "updateStatusFailed": "Falha ao atualizar o status do pedido",
+      "deleteFailed": "Falha ao excluir o pedido"
+    },
+    "success": {
+      "statusUpdated": "Status do pedido atualizado",
+      "orderDeleted": "Pedido excluído"
+    }
+  },
+
+  // New Order Page Translations
+  "newOrderPage": {
+    "title": "Criar Novo Pedido",
+    "orderDetails": "Detalhes do Pedido",
+    "currentOrder": "Pedido Atual",
+    "tableNumber": "Número da Mesa",
+    "tableNumberPlaceholder": "Insira o número da mesa",
+    "selectItem": "Selecionar Item",
+    "selectItemPlaceholder": "Escolha um item para adicionar",
+    "quantity": "Quantidade",
+    "notes": "Notas",
+    "notesPlaceholder": "Instruções especiais",
+    "addToOrder": "Adicionar ao Pedido",
+    "noItemsInOrder": "Nenhum item adicionado ao pedido ainda",
+    "total": "Total",
+    "createOrder": "Enviar Pedido",
+    "table": {
+      "item": "Item",
+      "quantity": "Qtd",
+      "price": "Preço",
+      "total": "Total",
+      "actions": "Ações"
+    },
+    "error": {
+      "title": "Erro",
+      "noItem": "Por favor, selecione um item",
+      "noTable": "Por favor, insira o número da mesa",
+      "noItems": "Por favor, adicione pelo menos um item ao pedido",
+      "orderCreationFailed": "Falha ao criar o pedido"
+    },
+    "success": {
+      "orderCreated": "Pedido Criado",
+      "orderCreatedDescription": "O pedido para a Mesa {{tableNumber}} foi criado com sucesso"
+    }
+  },
+
   // Firebase Test page
   "firebaseTest.pageTitle": "Teste de Configuração do Firebase",
   "firebaseTest.pageDescription": "Teste sua configuração do Firebase para garantir que tudo esteja funcionando corretamente",
@@ -283,7 +393,162 @@ export const ptTranslations = {
   "save": "Salvar",
   "cancel": "Cancelar",
   
-  "error": "Erro"
+  "error": "Erro",
+  
+  "settings": {
+    "language": {
+      "title": "Idioma",
+      "description": "Selecione seu idioma preferido para o aplicativo",
+      "languages": {
+        "en": "Inglês",
+        "es": "Espanhol",
+        "pt": "Português"
+      },
+      "actions": {
+        "saveChanges": "Salvar Alterações",
+        "saving": "Salvando...",
+        "saved": "Idioma Atualizado",
+        "saveSuccess": "Sua preferência de idioma foi atualizada com sucesso."
+      }
+    },
+    "notifications": {
+      "title": "Notificações",
+      "description": "Configure como você recebe notificações",
+      "types": {
+        "newOrders": {
+          "label": "Novos Pedidos",
+          "description": "Receba notificações quando novos pedidos forem realizados"
+        },
+        "orderUpdates": {
+          "label": "Atualizações de Pedidos",
+          "description": "Receba atualizações sobre mudanças no status dos pedidos"
+        },
+        "inventoryAlerts": {
+          "label": "Alertas de Inventário",
+          "description": "Seja informado sobre problemas de estoque ou inventário"
+        },
+        "systemAnnouncements": {
+          "label": "Anúncios do Sistema",
+          "description": "Receba notificações importantes do sistema"
+        },
+        "dailyReports": {
+          "label": "Relatórios Diários",
+          "description": "Obtenha relatórios de resumo diários"
+        }
+      },
+      "deliveryMethods": {
+        "emailNotifications": {
+          "label": "Notificações por E-mail",
+          "description": "Receba notificações por e-mail"
+        },
+        "pushNotifications": {
+          "label": "Notificações Push",
+          "description": "Receba notificações em tempo real no seu dispositivo"
+        },
+        "soundAlerts": {
+          "label": "Alertas de Som",
+          "description": "Reproduzir alertas de som para notificações"
+        }
+      },
+      "actions": {
+        "save": "Salvar Preferências",
+        "saving": "Salvando...",
+        "saved": "Preferências de Notificação Atualizadas",
+        "saveSuccess": "Suas preferências de notificação foram atualizadas com sucesso.",
+        "saveFailed": "Falha ao Atualizar Preferências de Notificação",
+        "saveError": "Ocorreu um erro ao atualizar suas preferências de notificação."
+      }
+    },
+    "appearance": {
+      "title": "Aparência",
+      "description": "Personalize a aparência e a sensação do aplicativo",
+      "modes": {
+        "light": {
+          "label": "Modo Claro",
+          "icon": "sun"
+        },
+        "dark": {
+          "label": "Modo Escuro",
+          "icon": "moon"
+        },
+        "system": {
+          "label": "Modo do Sistema",
+          "icon": "monitor"
+        }
+      },
+      "actions": {
+        "save": "Salvar Alterações",
+        "saving": "Salvando...",
+        "saved": "Preferências de Aparência Atualizadas",
+        "saveSuccess": "Suas preferências de aparência foram atualizadas com sucesso.",
+        "saveFailed": "Falha ao Atualizar Preferências de Aparência",
+        "saveError": "Ocorreu um erro ao atualizar suas preferências de aparência."
+      }
+    },
+    "profile": {
+      "title": "Perfil",
+      "description": "Gerencie suas informações pessoais e configurações de conta",
+      "fields": {
+        "username": "Nome de Usuário",
+        "email": {
+          "label": "E-mail",
+          "cannotBeChanged": "O endereço de e-mail não pode ser alterado"
+        },
+        "phoneNumber": "Número de Telefone",
+        "position": {
+          "label": "Cargo",
+          "placeholder": "Digite seu cargo de trabalho"
+        },
+        "role": {
+          "label": "Função",
+          "placeholder": "Selecione sua função",
+          "options": {
+            "admin": "Administrador",
+            "manager": "Gerente", 
+            "chef": "Chef",
+            "waiter": "Garçom"
+          }
+        }
+      },
+      "actions": {
+        "uploadPhoto": "Enviar Foto",
+        "submit": "Salvar Alterações",
+        "submitting": "Salvando...",
+        "profileUpdated": "Perfil Atualizado",
+        "profileUpdateSuccess": "Seu perfil foi atualizado com sucesso.",
+        "profileUpdateFailed": "Falha ao Atualizar Perfil",
+        "profileUpdateError": "Ocorreu um erro ao atualizar seu perfil."
+      },
+      
+    },
+      "tableMaps": {
+        "title": "Mapas de Mesas",
+        "description": "Criar e gerenciar layouts de mesas do restaurante",
+        "addNew": "Adicionar Novo Mapa",
+        "edit": "Editar Mapa",
+        "delete": "Excluir Mapa"
+      },
+      "system": {
+        "title": "Sistema",
+        "description": "Configurações do sistema"
+      },
+   
+  },
+  
+
+  "sidebar": {
+    "appName": "Gestão de Restaurante",
+    "dashboard": "Painel",
+    "inventory": "Inventário",
+    "users": "Usuários",
+    "settings": "Configurações",
+    "logout": "Sair",
+    "orders": "Pedidos"
+  },
+  
+  
+
+  // Rest of the translations continue...
 };
 
 export default ptTranslations;

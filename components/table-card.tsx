@@ -101,7 +101,7 @@ export function TableCard({
         <CardHeader className="pb-2">
           <CardTitle className="flex justify-between items-center">
             <span>
-              {t("table")} {table.number}
+              {t("tableCard.label")} {table.number}
             </span>
             <Badge variant="outline" className={cn("font-normal", getStatusColor(table.status))}>
               {t(table.status)}
@@ -114,12 +114,12 @@ export function TableCard({
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span>
-                {table.seats} {t("seats")}
+                {table.seats} {t("tableCard.details.seats")}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <ShapeIcon />
-              <span>{t(table.shape)}</span>
+              <span>{t(`tableCard.details.shape.${table.shape}`)}</span>
             </div>
           </div>
 
@@ -137,18 +137,18 @@ export function TableCard({
             <div className="flex gap-2 w-full">
               <Button variant="outline" size="sm" className="flex-1" onClick={onEdit}>
                 <Edit className="h-4 w-4 mr-1" />
-                {t("edit")}
+                {t("tableCard.actions.edit")}
               </Button>
               <Button variant="destructive" size="sm" className="flex-1" onClick={() => setIsDeleteDialogOpen(true)}>
                 <Trash className="h-4 w-4 mr-1" />
-                {t("delete")}
+                {t("tableCard.actions.delete")}
               </Button>
             </div>
           ) : hasActiveOrder ? (
             <div className="flex gap-2 w-full">
               <Button variant="outline" size="sm" className="flex-1" onClick={onViewOrder}>
                 <ClipboardList className="h-4 w-4 mr-1" />
-                {t("viewOrder")}
+                {t("tableCard.actions.viewOrder")}
               </Button>
               {orderStatus === "ready" && (
                 <Button variant="default" size="sm" className="flex-1" onClick={onMarkAsServed}>
@@ -172,7 +172,7 @@ export function TableCard({
               disabled={table.status !== "available"}
             >
               <ClipboardList className="h-4 w-4 mr-1" />
-              {t("createOrder")}
+              {t("tableCard.actions.createOrder")}
             </Button>
           )}
         </CardFooter>
@@ -204,4 +204,3 @@ export function TableCard({
     </>
   )
 }
-

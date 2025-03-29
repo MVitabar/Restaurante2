@@ -83,7 +83,7 @@ export function CollapsibleSidebar() {
     try {
       await signOut(auth)
       toast({
-        title: t("logout"),
+        title: t("sidebar.logout"),
         description: "You have been logged out successfully",
       })
     } catch (error) {
@@ -97,7 +97,7 @@ export function CollapsibleSidebar() {
 
   const navItems = [
     {
-      name: t("dashboard"),
+      name: t("sidebar.dashboard"),
       href: "/dashboard",
       icon: LayoutDashboard,
     },
@@ -107,17 +107,17 @@ export function CollapsibleSidebar() {
       icon: ClipboardList,
     },
     {
-      name: t("inventory"),
+      name: t("sidebar.inventory"),
       href: "/inventory",
       icon: Package,
     },
     {
-      name: t("users"),
+      name: t("sidebar.users"),
       href: "/users",
       icon: Users,
     },
     {
-      name: t("settings"),
+      name: t("sidebar.settings"),
       href: "/settings",
       icon: Settings,
     }
@@ -149,7 +149,7 @@ export function CollapsibleSidebar() {
             {!isCollapsed && (
               <Link href="/dashboard" className="flex items-center">
                 <span className="self-center text-xl font-semibold whitespace-nowrap">
-                  {t("appName")}
+                  {t("sidebar.appName")}
                 </span>
               </Link>
             )}
@@ -200,7 +200,7 @@ export function CollapsibleSidebar() {
               onClick={handleLogout}
             >
               <LogOut className="h-5 w-5 mr-2" />
-              {!isCollapsed && t("logout")}
+              {!isCollapsed && t("sidebar.logout")}
             </Button>
           </div>
         </div>
@@ -220,7 +220,7 @@ export function CollapsibleSidebar() {
               <div className="flex items-center justify-between mb-4">
                 <Link href="/dashboard" className="flex items-center">
                   <span className="self-center text-xl font-semibold whitespace-nowrap">
-                    {t("appName")}
+                    {t("sidebar.appName")}
                   </span>
                 </Link>
                 <Button 
@@ -267,7 +267,7 @@ export function CollapsibleSidebar() {
                   }}
                 >
                   <LogOut className="h-5 w-5 mr-2" />
-                  {t("logout")}
+                  {t("sidebar.logout")}
                 </Button>
               </div>
             </div>

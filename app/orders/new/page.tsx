@@ -71,8 +71,8 @@ export default function NewOrderPage() {
     } catch (error) {
       console.error("Error fetching inventory items:", error)
       toast({
-        title: "Error",
-        description: "Failed to fetch inventory items",
+        title: t("newOrderPage.error.title"),
+        description: t("newOrderPage.error.noItem"),
         variant: "destructive",
       })
     } finally {
@@ -83,8 +83,8 @@ export default function NewOrderPage() {
   const handleAddItem = () => {
     if (!selectedItemId) {
       toast({
-        title: "Error",
-        description: "Please select an item",
+        title: t("newOrderPage.error.title"),
+        description: t("newOrderPage.error.noItem"),
         variant: "destructive",
       })
       return
@@ -144,8 +144,8 @@ export default function NewOrderPage() {
 
     if (!tableNumber) {
       toast({
-        title: "Error",
-        description: "Please enter a table number",
+        title: t("newOrderPage.error.title"),
+        description: t("newOrderPage.error.noTable"),
         variant: "destructive",
       })
       return
@@ -153,8 +153,8 @@ export default function NewOrderPage() {
 
     if (orderItems.length === 0) {
       toast({
-        title: "Error",
-        description: "Please add at least one item to the order",
+        title: t("newOrderPage.error.title"),
+        description: t("newOrderPage.error.noItems"),
         variant: "destructive",
       })
       return
@@ -174,16 +174,16 @@ export default function NewOrderPage() {
       await addDoc(collection(db, "orders"), newOrder)
 
       toast({
-        title: "Order Created",
-        description: `Order for Table ${tableNumber} has been created successfully`,
+        title: t("newOrderPage.success.orderCreated"),
+        description: t("newOrderPage.success.orderCreatedDescription", { tableNumber }),
       })
 
       router.push("/orders")
     } catch (error) {
       console.error("Error creating order:", error)
       toast({
-        title: "Error",
-        description: "Failed to create order",
+        title: t("newOrderPage.error.title"),
+        description: t("newOrderPage.error.orderCreationFailed"),
         variant: "destructive",
       })
     }
@@ -195,159 +195,170 @@ export default function NewOrderPage() {
         <Button variant="outline" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-3xl font-bold">{t("createOrder")}</h1>
+        <h1 className="text-3xl font-bold">{t("newOrderPage.title")}</h1>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Order Details</CardTitle>
+            <CardTitle>{t("newOrderPage.orderDetails")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="table">Table Number</Label>
+              <Label>{t("newOrderPage.tableNumber")}</Label>
               <Input
-                id="table"
                 type="number"
+                placeholder={t("newOrderPage.tableNumberPlaceholder")}
                 value={tableNumber}
                 onChange={(e) => setTableNumber(e.target.value)}
-                placeholder="Enter table number"
-                required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="item">Item</Label>
-              <Select value={selectedItemId} onValueChange={setSelectedItemId}>
+              <Label>{t("newOrderPage.selectItem")}</Label>
+              <Select 
+                value={selectedItemId} 
+                onValueChange={setSelectedItemId}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select an item" />
+                  <SelectValue placeholder={t("newOrderPage.selectItemPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {inventoryItems.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
-                      {item.name} - ${item.price.toFixed(2)}
+                      {item.name} - {t("commons.currency", { value: item.price })} ({item.quantity} {item.unit})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity</Label>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
-                  <Minus className="h-4 w-4" />
-                </Button>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{t("newOrderPage.quantity")}</Label>
+                <div className="flex items-center space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Input 
+                    type="number" 
+                    value={quantity} 
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    className="w-20 text-center"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("newOrderPage.notes")}</Label>
                 <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number.parseInt(e.target.value) || 1)}
-                  className="text-center"
+                  placeholder={t("newOrderPage.notesPlaceholder")}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                 />
-                <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
-                  <Plus className="h-4 w-4" />
-                </Button>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Input
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Special instructions"
-              />
-            </div>
-
-            <Button onClick={handleAddItem} className="w-full">
-              Add to Order
+            <Button 
+              onClick={handleAddItem} 
+              disabled={!selectedItemId}
+              className="w-full"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t("newOrderPage.addToOrder")}
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Order Summary</CardTitle>
+            <CardTitle>{t("newOrderPage.currentOrder")}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {orderItems.length > 0 ? (
+          <CardContent>
+            {orderItems.length === 0 ? (
+              <div className="text-center text-muted-foreground">
+                {t("newOrderPage.noItemsInOrder")}
+              </div>
+            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Item</TableHead>
-                    <TableHead>Qty</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead></TableHead>
+                    <TableHead>{t("newOrderPage.table.item")}</TableHead>
+                    <TableHead>{t("newOrderPage.table.quantity")}</TableHead>
+                    <TableHead>{t("newOrderPage.table.price")}</TableHead>
+                    <TableHead>{t("newOrderPage.table.total")}</TableHead>
+                    <TableHead>{t("newOrderPage.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {orderItems.map((item, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={item.id}>
+                      <TableCell>{item.name}</TableCell>
                       <TableCell>
-                        <div>
-                          <div className="font-medium">{item.name}</div>
-                          {item.notes && <div className="text-xs text-muted-foreground">{item.notes}</div>}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
+                        <div className="flex items-center space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
                             onClick={() => handleQuantityChange(index, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
                           >
-                            <Minus className="h-3 w-3" />
+                            <Minus className="h-4 w-4" />
                           </Button>
                           <span>{item.quantity}</span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
                             onClick={() => handleQuantityChange(index, item.quantity + 1)}
                           >
-                            <Plus className="h-3 w-3" />
+                            <Plus className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
-                      <TableCell>${item.price.toFixed(2)}</TableCell>
-                      <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
+                      <TableCell>{t("commons.currency", { value: item.price })}</TableCell>
+                      <TableCell>{t("commons.currency", { value: item.price * item.quantity })}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-red-500"
+                        <Button 
+                          variant="destructive" 
+                          size="icon" 
                           onClick={() => handleRemoveItem(index)}
                         >
-                          <Trash className="h-3 w-3" />
+                          <Trash className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">No items added to the order yet</div>
             )}
 
-            {orderItems.length > 0 && (
-              <div className="flex justify-between font-bold text-lg border-t pt-4">
-                <span>Total:</span>
-                <span>${calculateTotal().toFixed(2)}</span>
-              </div>
-            )}
-
-            <Button onClick={handleSubmitOrder} className="w-full" disabled={orderItems.length === 0 || !tableNumber}>
-              Submit Order
-            </Button>
+            <div className="mt-4 flex justify-between items-center">
+              <span className="text-lg font-semibold">{t("newOrderPage.total")}</span>
+              <span className="text-xl font-bold">{t("commons.currency", { value: calculateTotal() })}</span>
+            </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="flex justify-end">
+        <Button 
+          onClick={handleSubmitOrder} 
+          disabled={orderItems.length === 0 || !tableNumber}
+          className="w-full md:w-auto"
+        >
+          {t("newOrderPage.createOrder")}
+        </Button>
       </div>
     </div>
   )
 }
-

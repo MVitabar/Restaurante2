@@ -3,7 +3,7 @@
 import * as React from "react"
 import { createContext, useContext, useState } from "react"
 
-type Theme = "light" | "dark" | "system"
+export type Theme = "light" | "dark" | "system"
 
 interface ThemeContextProps {
   theme: Theme
@@ -62,4 +62,3 @@ export function ThemeProvider({
 
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>
 }
-

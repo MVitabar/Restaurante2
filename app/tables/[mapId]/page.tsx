@@ -494,12 +494,12 @@ export default function TableMapPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-10">
             <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium">{t("tableMapNotFound")}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{t("tableMapNotFoundDescription")}</p>
+            <h3 className="text-lg font-medium">{t("tableMap.notFound.title")}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{t("tableMap.notFound.description")}</p>
             <Button asChild>
               <Link href="/settings">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                {t("backToSettings")}
+                {t("tableMap.notFound.backToSettings")}
               </Link>
             </Button>
           </CardContent>
@@ -523,7 +523,7 @@ export default function TableMapPage() {
         <div className="flex flex-col md:flex-row items-center gap-2">
           <div className="flex  md:flex-row items-center gap-2">
           <Badge variant="outline" className="text-sm">
-            {tableMap.tables.filter((t) => t.status === "available").length} {t("available")}
+            {tableMap.tables.filter((t) => t.status === "available").length} {t("tableMap.statuses.available")}
           </Badge>
           <Badge variant="outline" className="text-sm">
             {
@@ -536,10 +536,10 @@ export default function TableMapPage() {
                   t.status === "served",
               ).length
             }{" "}
-            {t("occupied")}
+            {t("tableMap.statuses.occupied")}
           </Badge>
           <Badge variant="outline" className="text-sm">
-            {tableMap.tables.filter((t) => t.status === "reserved").length} {t("reserved")}
+            {tableMap.tables.filter((t) => t.status === "reserved").length} {t("tableMap.statuses.reserved")}
           </Badge>
           </div>
 
@@ -552,7 +552,7 @@ export default function TableMapPage() {
               onClick={() => setViewMode("map")}
             >
               <Map className="h-4 w-4" />
-              <span className="hidden md:inline">{t("mapView")}</span>
+              <span className="hidden md:inline">{t("tableMap.views.map")}</span>
             </Button>
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
@@ -561,7 +561,7 @@ export default function TableMapPage() {
               onClick={() => setViewMode("grid")}
             >
               <Grid2X2 className="h-4 w-4" />
-              <span className="hidden md:inline">{t("gridView")}</span>
+              <span className="hidden md:inline">{t("tableMap.views.grid")}</span>
             </Button>
           </div>
         </div>
@@ -592,7 +592,7 @@ export default function TableMapPage() {
                   <CardHeader>
                     <CardTitle className="flex justify-between items-center">
                       <span>
-                        {t("table")} {selectedTable.number}
+                        {t("tableMap.table.label")} {selectedTable.number}
                       </span>
                       <Badge
                         className={
@@ -613,7 +613,7 @@ export default function TableMapPage() {
                       </Badge>
                     </CardTitle>
                     <CardDescription>
-                      {selectedTable.seats} {t("seats")} • {t(selectedTable.shape)}
+                      {selectedTable.seats} {t("tableMap.table.details.seats")} • {t(selectedTable.shape)}
                     </CardDescription>
                   </CardHeader>
 
@@ -621,17 +621,17 @@ export default function TableMapPage() {
                     {hasActiveOrder(selectedTable.id) ? (
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <h3 className="text-lg font-medium">{t("activeOrder")}</h3>
+                          <h3 className="text-lg font-medium">{t("tableMap.table.details.activeOrder")}</h3>
                           <Badge variant="outline">{getOrderStatus(selectedTable.id)}</Badge>
                         </div>
 
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{t("waiter")}</span>
+                            <span className="text-muted-foreground">{t("tableMap.table.details.waiter")}</span>
                             <span>{getOrderWaiter(selectedTable.id)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{t("orderTime")}</span>
+                            <span className="text-muted-foreground">{t("tableMap.table.details.orderTime")}</span>
                             <span>
                               {getOrderCreatedAt(selectedTable.id)}
                             </span>
@@ -639,7 +639,7 @@ export default function TableMapPage() {
 
                           {getOrderDietaryRestrictions(selectedTable.id).length > 0 && (
                             <div className="flex flex-col gap-1 text-sm">
-                              <span className="text-muted-foreground">{t("dietaryRestrictions")}</span>
+                              <span className="text-muted-foreground">{t("tableMap.table.details.dietaryRestrictions")}</span>
                               <div className="flex flex-wrap gap-1">
                                 {getOrderDietaryRestrictions(selectedTable.id).map((restriction) => (
                                   <Badge key={restriction} variant="outline" className="text-xs">
@@ -654,7 +654,7 @@ export default function TableMapPage() {
                         <Separator />
 
                         <div>
-                          <h4 className="font-medium mb-2">{t("items")}</h4>
+                          <h4 className="font-medium mb-2">{t("tableMap.table.details.items")}</h4>
                           <ul className="space-y-2">
                             {getOrderItems(selectedTable.id).map((item, index) => (
                               <li key={index} className="flex justify-between">
@@ -682,13 +682,13 @@ export default function TableMapPage() {
                         <Separator />
 
                         <div className="flex justify-between font-bold">
-                          <span>{t("total")}</span>
+                          <span>{t("tableMap.table.details.total")}</span>
                           <span>${getOrderTotal(selectedTable.id).toFixed(2)}</span>
                         </div>
 
                         {getOrderSpecialRequests(selectedTable.id) && (
                           <div className="mt-4 p-3 bg-muted rounded-md text-sm">
-                            <div className="font-medium mb-1">{t("specialRequests")}</div>
+                            <div className="font-medium mb-1">{t("tableMap.table.details.specialRequests")}</div>
                             <p>{getOrderSpecialRequests(selectedTable.id)}</p>
                           </div>
                         )}
@@ -696,13 +696,13 @@ export default function TableMapPage() {
                     ) : (
                       <div className="text-center py-6">
                         <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium mb-2">{t("noActiveOrder")}</h3>
+                        <h3 className="text-lg font-medium mb-2">{t("tableMap.table.details.noActiveOrder")}</h3>
                         <p className="text-sm text-muted-foreground mb-4">
                           {selectedTable.status === "available"
-                            ? t("tableAvailableDescription")
+                            ? t("tableMap.table.descriptions.available")
                             : selectedTable.status === "reserved"
-                              ? t("tableReservedDescription")
-                              : t("tableMaintenanceDescription")}
+                              ? t("tableMap.table.descriptions.reserved")
+                              : t("tableMap.table.descriptions.maintenance")}
                         </p>
                       </div>
                     )}
@@ -710,7 +710,7 @@ export default function TableMapPage() {
 
                   <CardFooter className="flex justify-between">
                     <Button variant="outline" onClick={() => setSelectedTable(null)}>
-                      {t("close")}
+                      {t("tableMap.table.actions.close")}
                     </Button>
 
                     {hasActiveOrder(selectedTable.id) ? (
@@ -718,7 +718,7 @@ export default function TableMapPage() {
                         <Button variant="outline" asChild>
                           <Link href={`/orders/${getOrderByTableId(selectedTable.id)?.id}`}>
                             <Edit className="mr-2 h-4 w-4" />
-                            {t("editOrder")}
+                            {t("tableMap.table.actions.editOrder")}
                           </Link>
                         </Button>
 
@@ -727,12 +727,12 @@ export default function TableMapPage() {
                             onClick={() => handleMarkAsServed(getOrderByTableId(selectedTable.id)?.id, selectedTable.id)}
                           >
                             <CheckCircle className="mr-2 h-4 w-4" />
-                            {t("markAsServed")}
+                            {t("tableMap.table.actions.markAsServed")}
                           </Button>
                         ) : getOrderByTableId(selectedTable.id)?.status === "delivered" ? (
                           <Button onClick={() => setIsClosingOrder(true)}>
                             <Receipt className="mr-2 h-4 w-4" />
-                            {t("closeOrder")}
+                            {t("tableMap.table.actions.closeOrder")}
                           </Button>
                         ) : (
                           <Button disabled>{getOrderByTableId(selectedTable.id)?.status}</Button>
@@ -742,7 +742,7 @@ export default function TableMapPage() {
                       selectedTable.status === "available" && (
                         <Button onClick={() => setIsCreatingOrder(true)}>
                           <Plus className="mr-2 h-4 w-4" />
-                          {t("createOrder")}
+                          {t("tableMap.table.actions.createOrder")}
                         </Button>
                       )
                     )}
@@ -751,8 +751,8 @@ export default function TableMapPage() {
               ) : (
                 <CardContent className="flex flex-col items-center justify-center h-full py-12">
                   <ClipboardList className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">{t("selectTable")}</h3>
-                  <p className="text-sm text-muted-foreground text-center max-w-xs">{t("selectTableDescription")}</p>
+                  <h3 className="text-lg font-medium mb-2">{t("tableMap.selectTable")}</h3>
+                  <p className="text-sm text-muted-foreground text-center max-w-xs">{t("tableMap.selectTableDescription")}</p>
                 </CardContent>
               )}
             </Card>
@@ -788,9 +788,9 @@ export default function TableMapPage() {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              {t("createOrderForTable")} {selectedTable?.number}
+              {t("tableMap.createOrderForTable")} {selectedTable?.number}
             </DialogTitle>
-            <DialogDescription>{t("createOrderDescription")}</DialogDescription>
+            <DialogDescription>{t("tableMap.createOrderDescription")}</DialogDescription>
           </DialogHeader>
 
           <OrderForm onSubmit={handleCreateOrder} onCancel={() => setIsCreatingOrder(false)} />
@@ -802,25 +802,25 @@ export default function TableMapPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {t("closeOrderForTable")} {selectedTable?.number}
+              {t("tableMap.closeOrderForTable")} {selectedTable?.number}
             </DialogTitle>
-            <DialogDescription>{t("closeOrderDescription")}</DialogDescription>
+            <DialogDescription>{t("tableMap.closeOrderDescription")}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t("subtotal")}</span>
+              <span className="text-muted-foreground">{t("tableMap.subtotal")}</span>
               <span>${getOrderSubtotal(selectedTable?.id).toFixed(2) || "0.00"}</span>
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t("tax")}</span>
+              <span className="text-muted-foreground">{t("tableMap.tax")}</span>
               <span>${getOrderTax(selectedTable?.id).toFixed(2) || "0.00"}</span>
             </div>
 
             {getOrderDiscount(selectedTable?.id) && (
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{t("discount")}</span>
+                <span className="text-muted-foreground">{t("tableMap.discount")}</span>
                 <span>-${getOrderDiscount(selectedTable?.id).toFixed(2)}</span>
               </div>
             )}
@@ -828,12 +828,12 @@ export default function TableMapPage() {
             <Separator />
 
             <div className="flex justify-between font-bold">
-              <span>{t("total")}</span>
+              <span>{t("tableMap.total")}</span>
               <span>${getOrderTotal(selectedTable?.id).toFixed(2) || "0.00"}</span>
             </div>
 
             <div className="space-y-2 pt-4">
-              <Label htmlFor="paymentMethod">{t("paymentMethod")}</Label>
+              <Label htmlFor="paymentMethod">{t("tableMap.paymentMethod")}</Label>
               <select
                 id="paymentMethod"
                 className="w-full rounded-md border border-input bg-background px-3 py-2"
@@ -842,15 +842,15 @@ export default function TableMapPage() {
                   setPaymentInfo({ ...paymentInfo, method: e.target.value as "cash" | "credit" | "debit" | "other" })
                 }
               >
-                <option value="cash">{t("cash")}</option>
-                <option value="credit">{t("creditCard")}</option>
-                <option value="debit">{t("debitCard")}</option>
-                <option value="other">{t("otherPayment")}</option>
+                <option value="cash">{t("tableMap.cash")}</option>
+                <option value="credit">{t("tableMap.creditCard")}</option>
+                <option value="debit">{t("tableMap.debitCard")}</option>
+                <option value="other">{t("tableMap.otherPayment")}</option>
               </select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paymentAmount">{t("paymentAmount")}</Label>
+              <Label htmlFor="paymentAmount">{t("tableMap.paymentAmount")}</Label>
               <Input
                 id="paymentAmount"
                 type="number"
@@ -862,7 +862,7 @@ export default function TableMapPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tipAmount">{t("tipAmount")}</Label>
+              <Label htmlFor="tipAmount">{t("tableMap.tipAmount")}</Label>
               <Input
                 id="tipAmount"
                 type="number"
@@ -875,10 +875,10 @@ export default function TableMapPage() {
 
             {(paymentInfo.method === "credit" || paymentInfo.method === "debit") && (
               <div className="space-y-2">
-                <Label htmlFor="referenceNumber">{t("referenceNumber")}</Label>
+                <Label htmlFor="referenceNumber">{t("tableMap.referenceNumber")}</Label>
                 <Input
                   id="referenceNumber"
-                  placeholder={t("referenceNumberPlaceholder")}
+                  placeholder={t("tableMap.referenceNumberPlaceholder")}
                   value={paymentInfo.reference || ""}
                   onChange={(e) => setPaymentInfo({ ...paymentInfo, reference: e.target.value })}
                 />
@@ -888,7 +888,7 @@ export default function TableMapPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsClosingOrder(false)}>
-              {t("cancel")}
+              {t("tableMap.cancel")}
             </Button>
             <Button
               onClick={() =>
@@ -898,7 +898,7 @@ export default function TableMapPage() {
               }
             >
               <Receipt className="mr-2 h-4 w-4" />
-              {t("completePayment")}
+              {t("tableMap.completePayment")}
             </Button>
           </DialogFooter>
         </DialogContent>

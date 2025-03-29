@@ -19,21 +19,21 @@ import {
 } from "@/components/ui/select"
 
 export default function SettingsPage() {
-  const { t } = useI18n()
+  const { t } = useI18n() as { t: (key: string) => string }
   const [activeTab, setActiveTab] = useState("profile")
 
   const settingsTabs = [
-    { value: "profile", icon: User, label: t("profile") },
-    { value: "notifications", icon: Bell, label: t("notifications") },
-    { value: "language", icon: Globe, label: t("language") },
-    { value: "appearance", icon: Palette, label: t("appearance") },
-    { value: "tables", icon: Grid, label: t("tableMaps") },
-    { value: "system", icon: Settings, label: t("system") }
+    { value: "profile", icon: User, label: t("settings.profile.title") },
+    { value: "notifications", icon: Bell, label: t("settings.notifications.title") },
+    { value: "language", icon: Globe, label: t("settings.language.title") },
+    { value: "appearance", icon: Palette, label: t("settings.appearance.title") },
+    { value: "tables", icon: Grid, label: t("settings.tableMaps.title") },
+    { value: "system", icon: Settings, label: t("settings.system.title") }
   ]
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold">{t("settings")}</h1>
+      <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         {/* Mobile Dropdown */}

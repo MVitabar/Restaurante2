@@ -91,18 +91,18 @@ export function UserProfile() {
       })
 
       toast({
-        title: t("profileUpdated"),
-        description: t("profileUpdateSuccess"),
+        title: t("settings.profile.actions.profileUpdated"),
+        description: t("settings.profile.actions.profileUpdateSuccess"),
       })
     } catch (error) {
       console.error("Error updating profile:", error)
       toast({
-        title: t("profileUpdateFailed"),
-        description: t("profileUpdateError"),
+        title: t("settings.profile.actions.profileUpdateFailed"),
+        description: t("settings.profile.actions.profileUpdateError"),
         variant: "destructive",
       })
     } finally {
-      setLoading(false)
+      setLoading(false) 
     }
   }
 
@@ -120,8 +120,8 @@ export function UserProfile() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">{t("profile")}</h2>
-        <p className="text-muted-foreground">{t("profileSettingsDescription")}</p>
+        <h2 className="text-2xl font-bold">{t("settings.profile.title")}</h2>
+        <p className="text-muted-foreground">{t("settings.profile.description")}</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -132,14 +132,14 @@ export function UserProfile() {
           </Avatar>
           <Button variant="outline" size="sm" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
-            {t("uploadPhoto")}
+            {t("settings.profile.actions.uploadPhoto")}
           </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="username">{t("username")}</Label>
+              <Label htmlFor="username">{t("settings.profile.fields.username")}</Label>
               <Input
                 id="username"
                 name="username"
@@ -150,13 +150,13 @@ export function UserProfile() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">{t("email")}</Label>
+              <Label htmlFor="email">{t("settings.profile.fields.email.label")}</Label>
               <Input id="email" name="email" value={userData.email} disabled={true} className="bg-muted" />
-              <p className="text-xs text-muted-foreground">{t("emailCannotBeChanged")}</p>
+              <p className="text-xs text-muted-foreground">{t("settings.profile.fields.email.cannotBeChanged")}</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phoneNumber">{t("phoneNumber")}</Label>
+              <Label htmlFor="phoneNumber">{t("settings.profile.fields.phoneNumber")}</Label>
               <Input
                 id="phoneNumber"
                 name="phoneNumber"
@@ -167,28 +167,28 @@ export function UserProfile() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="position">{t("position")}</Label>
+              <Label htmlFor="position">{t("settings.profile.fields.position.label")}</Label>
               <Input
                 id="position"
                 name="position"
                 value={userData.position}
                 onChange={handleChange}
                 disabled={loading}
-                placeholder={t("positionPlaceholder")}
+                placeholder={t("settings.profile.fields.position.placeholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="role">{t("role")}</Label>
+              <Label htmlFor="role">{t("settings.profile.fields.role.label")}</Label>
               <Select value={userData.role} onValueChange={handleRoleChange} disabled={loading}>
                 <SelectTrigger id="role">
-                  <SelectValue placeholder={t("selectRole")} />
+                  <SelectValue placeholder={t("settings.profile.fields.role.placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">{t("admin")}</SelectItem>
-                  <SelectItem value="manager">{t("manager")}</SelectItem>
-                  <SelectItem value="chef">{t("chef")}</SelectItem>
-                  <SelectItem value="waiter">{t("waiter")}</SelectItem>
+                  <SelectItem value="admin">{t("settings.profile.fields.role.options.admin")}</SelectItem>
+                  <SelectItem value="manager">{t("settings.profile.fields.role.options.manager")}</SelectItem>
+                  <SelectItem value="chef">{t("settings.profile.fields.role.options.chef")}</SelectItem>
+                  <SelectItem value="waiter">{t("settings.profile.fields.role.options.waiter")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -201,10 +201,10 @@ export function UserProfile() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t("saving")}
+                  {t("settings.profile.actions.submitting")}
                 </>
               ) : (
-                t("saveChanges")
+                t("settings.profile.actions.submit")
               )}
             </Button>
           </div>
@@ -213,4 +213,3 @@ export function UserProfile() {
     </div>
   )
 }
-

@@ -43,8 +43,7 @@ interface TableGridViewProps {
 
 export function TableGridView({
   tables,
-  orders = {},
-  onTableClick,
+  orders = {}, // Provide a default empty object
   onCreateOrder,
   onViewOrder,
   onMarkAsServed,
@@ -65,7 +64,7 @@ export function TableGridView({
       // Apply search filter
       const matchesSearch =
         table.number.toString().includes(searchQuery) ||
-        t(table.status).toLowerCase().includes(searchQuery.toLowerCase())
+        t(`tables.statuses.${table.status}`).toLowerCase().includes(searchQuery.toLowerCase())
 
       // Apply status filter
       const matchesStatus = statusFilter === "all" || table.status === statusFilter
@@ -94,7 +93,7 @@ export function TableGridView({
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder={t("searchTables")}
+            placeholder={t("tables.search")}
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -105,29 +104,29 @@ export function TableGridView({
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[130px]">
               <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder={t("status")} />
+              <SelectValue placeholder={t("tables.status")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("allStatuses")}</SelectItem>
-              <SelectItem value="available">{t("available")}</SelectItem>
-              <SelectItem value="occupied">{t("occupied")}</SelectItem>
-              <SelectItem value="reserved">{t("reserved")}</SelectItem>
-              <SelectItem value="maintenance">{t("maintenance")}</SelectItem>
-              <SelectItem value="ordering">{t("ordering")}</SelectItem>
-              <SelectItem value="preparing">{t("preparing")}</SelectItem>
-              <SelectItem value="ready">{t("ready")}</SelectItem>
-              <SelectItem value="served">{t("served")}</SelectItem>
+              <SelectItem value="all">{t("tables.allStatuses")}</SelectItem>
+              <SelectItem value="available">{t("tables.statuses.available")}</SelectItem>
+              <SelectItem value="occupied">{t("tables.statuses.occupied")}</SelectItem>
+              <SelectItem value="reserved">{t("tables.statuses.reserved")}</SelectItem>
+              <SelectItem value="maintenance">{t("tables.statuses.maintenance")}</SelectItem>
+              <SelectItem value="ordering">{t("tables.statuses.ordering")}</SelectItem>
+              <SelectItem value="preparing">{t("tables.statuses.preparing")}</SelectItem>
+              <SelectItem value="ready">{t("tables.statuses.ready")}</SelectItem>
+              <SelectItem value="served">{t("tables.statuses.served")}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder={t("sortBy")} />
+              <SelectValue placeholder={t("tables.sortBy")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="number">{t("tableNumber")}</SelectItem>
-              <SelectItem value="seats">{t("seats")}</SelectItem>
-              <SelectItem value="status">{t("status")}</SelectItem>
+              <SelectItem value="number">{t("tables.tableNumber")}</SelectItem>
+              <SelectItem value="seats">{t("tables.seats")}</SelectItem>
+              <SelectItem value="status">{t("tables.status")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -135,7 +134,7 @@ export function TableGridView({
         {isEditing && (
           <Button onClick={onAddTable}>
             <Plus className="h-4 w-4 mr-2" />
-            {t("addTable")}
+            {t("tables.addTable")}
           </Button>
         )}
       </div>
@@ -144,7 +143,8 @@ export function TableGridView({
       {filteredTables.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredTables.map((table) => {
-            const tableOrder = Object.values(orders).find((order) => order.tableId === table.id)
+            // Safely find table order using Object.values and optional chaining
+            const tableOrder = orders ? Object.values(orders).find((order) => order.tableId === table.id) : undefined
 
             return (
               <TableCard
@@ -165,10 +165,9 @@ export function TableGridView({
         </div>
       ) : (
         <div className="text-center py-8 text-muted-foreground">
-          {searchQuery || statusFilter !== "all" ? t("noTablesMatchFilter") : t("noTablesInMap")}
+          {searchQuery || statusFilter !== "all" ? t("tables.noTablesMatchFilter") : t("tables.noTablesInMap")}
         </div>
       )}
     </div>
   )
 }
-

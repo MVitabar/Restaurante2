@@ -96,12 +96,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (['en', 'es', 'pt'].includes(lng)) {
           const validLng = lng as Language;
           
-          // Prevent unexpected language switches
-          if (validLng !== language) {
-            i18n.changeLanguage(language);
-            return;
-          }
-          
+          // Always update state and save language
           setLanguageState(validLng);
           setSavedLanguage(validLng);
         }
@@ -114,7 +109,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         i18n.off('languageChanged', handleLanguageChange);
       };
     }
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, [language]); // Add language to dependency array to re-run if language changes
 
   const changeLanguage = (lang: Language) => {
     // Validate language

@@ -37,7 +37,7 @@ export const esTranslations = {
     "loading": "Cargando...",
     "noItemsFound": "No se encontraron artículos",
     "searchPlaceholder": "Buscar...",
-    "lowStockWarning": "{{count}} {{count, plural, one {artículo} other {artículos}}} con stock bajo",
+    "lowStockWarning": "{{count, number}} {{count, plural, one {artículo} other {artículos}}} con stock bajo",
     "confirmDelete": "¿Está seguro de que desea eliminar este elemento? Esta acción no se puede deshacer.",
     "validation": {
       "minLength": "Debe tener al menos {min} caracteres",
@@ -49,19 +49,34 @@ export const esTranslations = {
     "terms": {
       "accept": "Acepto los Términos y Condiciones",
       "required": "Debe aceptar los términos y condiciones"
-    }
+    },
+    "currency": "{{value}}"
   },
 
   // Dashboard Translations
   "dashboard": {
-    "title": "Panel Principal",
-    "overview": {
-      "sales": "Ventas",
-      "orders": "Pedidos",
-      "inventory": "Inventario",
-      "revenue": "Ingresos",
-      "expenses": "Gastos"
+    "title": "Panel de Control",
+    "salesOverview": {
+      "title": "Resumen de Ventas",
+      "description": "Resumen de ventas diarias",
+      "totalSales": "Ventas Totales: {{amount}}",
+      "monthlyGrowth": "+{{percentage}}% desde el mes pasado",
+      "dailySalesTrend": "Ventas del Día {{day}}: {{amount}}",
+      "dailySalesTrendFormat": "Día {{day}}: {{amount}}"
     },
+    "topSellingItems": {
+      "title": "Artículos Más Vendidos",
+      "description": "Artículos más populares",
+      "orderCount": "{{count, number}} pedidos"
+    },
+    "stockLevel": {
+      "title": "Estado del Inventario",
+      "description": "Niveles de stock actuales",
+      "percentage": "{{percentage}}%",
+      "lowStockItems": "{{count, number}} artículos con stock bajo"
+    },
+    "recentOrders": "Pedidos Recientes",
+    "salesTrend": "Tendencia de Ventas",
     "quickActions": {
       "title": "Acciones Rápidas",
       "newOrder": "Nuevo Pedido",
@@ -90,12 +105,7 @@ export const esTranslations = {
     "errors": {
       "fetchFailed": "Error al cargar datos",
       "noData": "No hay datos disponibles"
-    },
-    "salesOverview": "Resumen de Ventas",
-    "topSellingItems": "Artículos Más Vendidos",
-    "stockLevel": "Nivel de Inventario",
-    "recentOrders": "Pedidos Recientes",
-    "salesTrend": "Tendencia de Ventas"
+    }
   },
 
   // Inventory Translations
@@ -108,7 +118,7 @@ export const esTranslations = {
       "category": "Categoría", 
       "quantity": "Cantidad",
       "unit": "Unidad",
-      "minQuantity": "Cant. Mínima",
+      "minQuantity": "Cantidad Mínima",
       "price": "Precio",
       "actions": "Acciones",
       "status": "Estado"
@@ -116,18 +126,26 @@ export const esTranslations = {
     "addItem": {
       "title": "Agregar Artículo",
       "description": "Agregar un nuevo artículo al inventario",
-      "successToast": "{{itemName}} ha sido agregado al inventario",
-      "errorToast": "Error al agregar el artículo de inventario"
+      "namePlaceholder": "Ingrese el nombre del artículo",
+      "categoryPlaceholder": "Seleccione la categoría del artículo",
+      "quantityPlaceholder": "Ingrese la cantidad",
+      "unitPlaceholder": "Ingrese la unidad (ej. kg, pzs)",
+      "minQuantityPlaceholder": "Ingrese la cantidad mínima de stock",
+      "pricePlaceholder": "Ingrese el precio del artículo",
+      "cancel": "Cancelar",
     },
     "editItem": {
       "title": "Editar Artículo",
-      "description": "Actualizar detalles del artículo de inventario",
-      "successToast": "{{itemName}} ha sido actualizado",
-      "errorToast": "Error al actualizar el artículo de inventario"
+      "description": "Modificar los detalles de un artículo de inventario existente",
+      "cancel": "Cancelar"
     },
     "deleteItem": {
-      "successToast": "El artículo de inventario ha sido eliminado",
-      "errorToast": "Error al eliminar el artículo de inventario"
+      "title": "Eliminar Artículo",
+      "description": "¿Está seguro que desea eliminar {{itemName}}? Esta acción no se puede deshacer."
+    },
+    "status": {
+      "lowStock": "Stock Bajo",
+      "inStock": "En Stock"
     },
     "buttons": {
       "addItem": "Agregar Artículo",
@@ -152,52 +170,130 @@ export const esTranslations = {
   // Settings Translations
   "settings": {
     "title": "Configuraciones",
+    "description": "Administre su información personal y configuración de cuenta",
     "profile": {
       "title": "Perfil",
-      "description": "Administrar información personal",
-      "username": "Nombre de usuario",
-      "email": "Correo electrónico",
-      "phoneNumber": "Número de teléfono",
-      "position": "Puesto",
-      "positionPlaceholder": "p. ej. Camarero principal, Barman",
-      "role": "Rol",
-      "selectRole": "Seleccionar un rol",
-      "uploadPhoto": "Subir foto",
-      "emailCannotBeChanged": "El correo electrónico no puede ser modificado",
-      "saveChanges": "Guardar cambios",
-      "saving": "Guardando...",
-      "profileUpdated": "Perfil actualizado",
-      "profileUpdateSuccess": "Su perfil ha sido actualizado con éxito",
-      "profileUpdateFailed": "Actualización de perfil fallida",
-      "profileUpdateError": "Hubo un error al actualizar su perfil"
+      "description": "Administre su información personal y configuración de cuenta",
+      "fields": {
+        "username": "Nombre de Usuario",
+        "email": {
+          "label": "Correo Electrónico",
+          "cannotBeChanged": "La dirección de correo electrónico no puede ser modificada"
+        },
+        "phoneNumber": "Número de Teléfono",
+        "position": {
+          "label": "Posición",
+          "placeholder": "Ingrese su puesto de trabajo"
+        },
+        "role": {
+          "label": "Rol",
+          "placeholder": "Seleccione su rol",
+          "options": {
+            "admin": "Administrador",
+            "manager": "Gerente", 
+            "chef": "Chef",
+            "waiter": "Mesero"
+          }
+        }
+      },
+      "actions": {
+        "uploadPhoto": "Subir Foto",
+        "submit": "Guardar Cambios",
+        "submitting": "Guardando...",
+        "profileUpdated": "Perfil Actualizado",
+        "profileUpdateSuccess": "Su perfil ha sido actualizado correctamente.",
+        "profileUpdateFailed": "Error al Actualizar Perfil",
+        "profileUpdateError": "Ocurrió un error al actualizar su perfil."
+      }
     },
     "notifications": {
       "title": "Notificaciones",
-      "description": "Configurar cómo recibe notificaciones",
-      "email": "Notificaciones por correo electrónico",
-      "push": "Notificaciones push",
-      "sms": "Notificaciones por SMS"
+      "description": "Configure cómo recibe notificaciones",
+      "types": {
+        "newOrders": {
+          "label": "Nuevos Pedidos",
+          "description": "Reciba notificaciones cuando se realicen nuevos pedidos"
+        },
+        "orderUpdates": {
+          "label": "Actualizaciones de Pedidos",
+          "description": "Reciba actualizaciones sobre cambios en el estado de los pedidos"
+        },
+        "inventoryAlerts": {
+          "label": "Alertas de Inventario",
+          "description": "Sea informado sobre problemas de stock o inventario"
+        },
+        "systemAnnouncements": {
+          "label": "Anuncios del Sistema",
+          "description": "Reciba notificaciones importantes del sistema"
+        },
+        "dailyReports": {
+          "label": "Informes Diarios",
+          "description": "Obtenga informes de resumen diarios"
+        }
+      },
+      "deliveryMethods": {
+        "emailNotifications": {
+          "label": "Notificaciones por Correo Electrónico",
+          "description": "Reciba notificaciones por correo electrónico"
+        },
+        "pushNotifications": {
+          "label": "Notificaciones Push",
+          "description": "Reciba notificaciones en tiempo real en su dispositivo"
+        },
+        "soundAlerts": {
+          "label": "Alertas de Sonido",
+          "description": "Reproducir alertas de sonido para notificaciones"
+        }
+      },
+      "actions": {
+        "save": "Guardar Preferencias",
+        "saving": "Guardando...",
+        "saved": "Preferencias de Notificación Actualizadas",
+        "saveSuccess": "Sus preferencias de notificación han sido actualizadas correctamente.",
+        "saveFailed": "Error al Actualizar Preferencias de Notificación",
+        "saveError": "Ocurrió un error al actualizar sus preferencias de notificación."
+      }
     },
     "language": {
       "title": "Idioma",
-      "description": "Elija su idioma preferido",
-      "current": "Idioma actual",
-      "options": {
-        "spanish": "Español",
-        "portuguese": "Portugués",
-        "english": "Inglés"
+      "description": "Seleccione su idioma preferido para la aplicación",
+      "languages": {
+        "en": "Inglés",
+        "es": "Español",
+        "pt": "Portugués"
+      },
+      "actions": {
+        "saveChanges": "Guardar Cambios",
+        "saving": "Guardando...",
+        "saved": "Idioma Actualizado",
+        "saveSuccess": "Su preferencia de idioma ha sido actualizada correctamente."
       }
     },
     "appearance": {
       "title": "Apariencia",
-      "description": "Personalizar la apariencia de la aplicación",
-      "theme": {
-        "light": "Tema Claro",
-        "dark": "Tema Oscuro",
-        "system": "Tema del Sistema"
+      "description": "Personalice el aspecto y la sensación de la aplicación",
+      "modes": {
+        "light": {
+          "label": "Modo Claro",
+          "icon": "sun"
+        },
+        "dark": {
+          "label": "Modo Oscuro",
+          "icon": "moon"
+        },
+        "system": {
+          "label": "Modo Sistema",
+          "icon": "monitor"
+        }
       },
-      "fontSize": "Tamaño de Fuente",
-      "color": "Esquema de Color"
+      "actions": {
+        "save": "Guardar Cambios",
+        "saving": "Guardando...",
+        "saved": "Preferencias de Apariencia Actualizadas",
+        "saveSuccess": "Sus preferencias de apariencia han sido actualizadas correctamente.",
+        "saveFailed": "Error al Actualizar Preferencias de Apariencia",
+        "saveError": "Ocurrió un error al actualizar sus preferencias de apariencia."
+      }
     },
     "tableMaps": {
       "title": "Mapas de Mesas",
@@ -316,7 +412,7 @@ export const esTranslations = {
   "newOrder": "Nuevo Pedido",
   
   "orderStatus.pending": "Pendiente",
-  "orderStatus.preparing": "Preparando",
+  "orderStatus.preparing": "Preparando", 
   "orderStatus.ready": "Listo",
   "orderStatus.delivered": "Entregado",
   "orderStatus.cancelled": "Cancelado",
@@ -366,6 +462,261 @@ export const esTranslations = {
   "save": "Guardar",
   "cancel": "Cancelar",
  
+  "sidebar": {
+    "appName": "Gestión de Restaurante",
+    "dashboard": "Panel",
+    "inventory": "Inventario",
+    "users": "Usuarios",
+    "settings": "Configuraciones",
+    "logout": "Cerrar Sesión",
+    "orders": "Pedidos"
+  },
+  
+  "tables": {
+    "search": "Buscar mesas",
+    "status": "Estado",
+    "allStatuses": "Todos los estados",
+    "sortBy": "Ordenar por",
+    "tableNumber": "Número de mesa",
+    "seats": "Asientos",
+    "addTable": "Agregar Mesa",
+    "noTablesMatchFilter": "No hay mesas que coincidan con el filtro",
+    "noTablesInMap": "No hay mesas en el mapa",
+    
+    "statuses": {
+      "available": "Disponible",
+      "occupied": "Ocupada",
+      "reserved": "Reservada",
+      "maintenance": "Mantenimiento",
+      "ordering": "Ordenando",
+      "preparing": "Preparando",
+      "ready": "Lista",
+      "served": "Servida"
+    }
+  },
+  
+  "tableMap": {
+    "notFound": {
+      "title": "Mapa de Mesas No Encontrado",
+      "description": "El mapa de mesas que está buscando no existe.",
+      "backToSettings": "Volver a Configuraciones"
+    },
+    "views": {
+      "map": "Vista de Mapa",
+      "grid": "Vista de Cuadrícula"
+    },
+    "statuses": {
+      "available": "Disponible",
+      "occupied": "Ocupada",
+      "reserved": "Reservada"
+    },
+    "table": {
+      "label": "Mesa",
+      "details": {
+        "seats": "Asientos",
+        "activeOrder": "Pedido Activo",
+        "noActiveOrder": "Sin Pedido Activo",
+        "waiter": "Mesero",
+        "orderTime": "Hora del Pedido",
+        "dietaryRestrictions": "Restricciones Dietéticas",
+        "items": "Artículos",
+        "total": "Total",
+        "specialRequests": "Solicitudes Especiales"
+      },
+      "actions": {
+        "close": "Cerrar",
+        "editOrder": "Editar Pedido",
+        "markAsServed": "Marcar como Servido",
+        "closeOrder": "Cerrar Pedido",
+        "createOrder": "Crear Pedido"
+      },
+      "descriptions": {
+        "available": "Esta mesa está actualmente disponible para un nuevo pedido.",
+        "reserved": "Esta mesa está actualmente reservada.",
+        "maintenance": "Esta mesa está actualmente en mantenimiento."
+      }
+    }
+  },
+  
+  "tableCard": {
+    "label": "Mesa",
+    "details": {
+      "seats": "Asientos",
+      "shape": {
+        "square": "Cuadrada",
+        "rectangle": "Rectangular",
+        "circle": "Circular"
+      }
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "viewOrder": "Ver Pedido"
+    }
+  },
+
+  "userProfile": {
+    "title": "Perfil",
+    "description": "Administre su configuración e información de perfil",
+    "actions": {
+      "uploadPhoto": "Subir Foto",
+      "saveChanges": "Guardar Cambios",
+      "saving": "Guardando...",
+      "profileUpdated": "Perfil Actualizado",
+      "profileUpdateSuccess": "Su perfil se ha actualizado correctamente.",
+      "profileUpdateFailed": "Error al Actualizar el Perfil",
+      "profileUpdateError": "Ocurrió un error al actualizar su perfil."
+    },
+    "fields": {
+      "username": "Nombre de Usuario",
+      "email": {
+        "label": "Correo Electrónico",
+        "cannotBeChanged": "El correo electrónico no puede ser modificado"
+      },
+      "phoneNumber": "Número de Teléfono",
+      "position": {
+        "label": "Cargo",
+        "placeholder": "Ingrese su cargo"
+      },
+      "role": {
+        "label": "Rol",
+        "placeholder": "Seleccione un rol",
+        "options": {
+          "admin": "Administrador",
+          "manager": "Gerente", 
+          "chef": "Chef",
+          "waiter": "Mesero"
+        }
+      }
+    }
+  },
+
+  "tableMapSettings": {
+    "title": "Mapas de Mesas",
+    "description": "Administre y configure los mapas de mesas de su restaurante",
+    "actions": {
+      "create": "Crear",
+      "cancel": "Cancelar",
+      "createTableMap": "Crear Mapa de Mesas",
+      "viewTableMap": "Ver Mapa de Mesas",
+      "editTableMap": "Editar Mapa de Mesas",
+      "deleteTableMap": "Eliminar Mapa de Mesas"
+    },
+    "form": {
+      "mapName": {
+        "label": "Nombre del Mapa",
+        "placeholder": "Ingrese el nombre del mapa"
+      },
+      "mapDescription": {
+        "label": "Descripción del Mapa",
+        "placeholder": "Ingrese la descripción del mapa"
+      }
+    },
+    "empty": {
+      "title": "No se Encontraron Mapas de Mesas",
+      "description": "Cree su primer mapa de mesas para comenzar"
+    },
+    "notifications": {
+      "mapCreated": "Mapa de Mesas Creado",
+      "mapUpdated": "Mapa de Mesas Actualizado",
+      "mapDeleted": "Mapa de Mesas Eliminado",
+      "mapCreationFailed": "Error al Crear el Mapa de Mesas",
+      "mapUpdateFailed": "Error al Actualizar el Mapa de Mesas",
+      "mapDeletionFailed": "Error al Eliminar el Mapa de Mesas"
+    }
+  },
+
+  "menu": {
+    "items": {
+      "pizzaMargherita": "Pizza Margherita",
+      "pastaCarbonara": "Pasta Carbonara", 
+      "tiramisu": "Tiramisu",
+      "caesarSalad": "Ensalada César",
+      "risotto": "Risotto"
+    }
+  },
+
+  "ordersPage": {
+    "orders": "Pedidos",
+    "newOrder": "Nuevo Pedido",
+    "search": {
+      "placeholder": "Buscar pedidos..."
+    },
+    "filter": {
+      "allStatuses": "Todos los Estados"
+    },
+    "orderStatus": {
+      "pending": "Pendiente",
+      "preparing": "Preparando", 
+      "ready": "Listo",
+      "delivered": "Entregado",
+      "cancelled": "Cancelado"
+    },
+    "table": {
+      "id": "ID",
+      "table": "Mesa",
+      "waiter": "Mesero",
+      "items": "Artículos",
+      "status": "Estado",
+      "total": "Total",
+      "actions": "Acciones"
+    },
+    "action": {
+      "updateStatus": "Actualizar Estado",
+      "updateStatusDescription": "Actualizar estado del pedido {{orderId}}",
+      "selectStatus": "Seleccionar nuevo estado",
+      "delete": "Eliminar Pedido",
+      "deleteOrder": "Eliminar Pedido",
+      "deleteOrderConfirmation": "¿Está seguro que desea eliminar el pedido {{orderId}}?"
+    },
+    "noOrdersFound": "No se encontraron pedidos",
+    "error": {
+      "fetchFailed": "Error al cargar los pedidos",
+      "updateStatusFailed": "Error al actualizar el estado del pedido",
+      "deleteFailed": "Error al eliminar el pedido"
+    },
+    "success": {
+      "statusUpdated": "Estado del pedido actualizado",
+      "orderDeleted": "Pedido eliminado"
+    }
+  },
+
+  "newOrderPage": {
+    "title": "Crear Nuevo Pedido",
+    "orderDetails": "Detalles del Pedido",
+    "currentOrder": "Pedido Actual",
+    "tableNumber": "Número de Mesa",
+    "tableNumberPlaceholder": "Ingrese el número de mesa",
+    "selectItem": "Seleccionar Artículo",
+    "selectItemPlaceholder": "Elija un artículo para agregar",
+    "quantity": "Cantidad",
+    "notes": "Notas",
+    "notesPlaceholder": "Instrucciones especiales",
+    "addToOrder": "Agregar al Pedido",
+    "noItemsInOrder": "Aún no se han agregado artículos al pedido",
+    "total": "Total",
+    "createOrder": "Enviar Pedido",
+    "table": {
+      "item": "Artículo",
+      "quantity": "Cant",
+      "price": "Precio",
+      "total": "Total",
+      "actions": "Acciones"
+    },
+    "error": {
+      "title": "Error",
+      "noItem": "Por favor, seleccione un artículo",
+      "noTable": "Por favor, ingrese un número de mesa",
+      "noItems": "Por favor, agregue al menos un artículo al pedido",
+      "orderCreationFailed": "No se pudo crear el pedido"
+    },
+    "success": {
+      "orderCreated": "Pedido Creado",
+      "orderCreatedDescription": "El pedido para la Mesa {{tableNumber}} se ha creado con éxito"
+    }
+  },
+
+  // Rest of the translations continue...
 };
 
 export default esTranslations;
