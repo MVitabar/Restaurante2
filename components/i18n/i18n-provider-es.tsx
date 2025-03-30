@@ -553,16 +553,15 @@ export const esTranslations = {
     "statuses": {
       "available": "Disponible",
       "occupied": "Ocupada",
-      "reserved": "Reservada",
-      "maintenance": "Mantenimiento",
       "ordering": "Ordenando",
       "preparing": "Preparando",
-      "ready": "Lista",
+      "ready": "Listo",
       "served": "Servida"
     }
   },
   
   "tableMap": {
+    "name": "Mapa de Mesas",
     "notFound": {
       "title": "Mapa de Mesas No Encontrado",
       "description": "El mapa de mesas que está buscando no existe.",
@@ -574,8 +573,7 @@ export const esTranslations = {
     },
     "statuses": {
       "available": "Disponible",
-      "occupied": "Ocupada",
-      "reserved": "Reservada"
+      "occupied": "Ocupada"
     },
     "table": {
       "label": "Mesa",
@@ -598,9 +596,12 @@ export const esTranslations = {
         "createOrder": "Crear Pedido"
       },
       "descriptions": {
-        "available": "Esta mesa está actualmente disponible para un nuevo pedido.",
-        "reserved": "Esta mesa está actualmente reservada.",
-        "maintenance": "Esta mesa está actualmente en mantenimiento."
+        "available": "Esta mesa está actualmente disponible.",
+        "occupied": "Esta mesa está actualmente ocupada.",
+        "ordering": "Esta mesa está tomando un pedido.",
+        "preparing": "El pedido de esta mesa está siendo preparado.",
+        "ready": "El pedido de esta mesa está listo para ser servido.",
+        "served": "El pedido de esta mesa ha sido servido."
       }
     }
   },
@@ -813,6 +814,29 @@ export const esTranslations = {
     },
     "errors": {
       "fetchUsers": "Error al buscar usuarios"
+    }
+  },
+
+  "orderForm": {
+    "title": "Crear Pedido",
+    "selectTable": "Seleccione la Mesa",
+    "selectCategory": "Seleccione la Categoría",
+    "selectItem": "Seleccione el Artículo",
+    "quantity": "Cantidad",
+    "notes": "Observaciones",
+    "addItem": "Agregar Artículo",
+    "orderItems": "Artículos del Pedido",
+    "noItemsAdded": "Ningún artículo agregado",
+    "dietaryRestrictions": {
+      "title": "Restricciones Dietéticas",
+      "vegetarian": "Vegetariano",
+      "vegan": "Vegano",
+      "glutenFree": "Sin Gluten",
+      "lactoseFree": "Sin Lactosa"
+    },
+    "specialInstructions": {
+      "label": "Instrucciones Especiales",
+      "hasInstructions": "¿Tiene instrucciones especiales?"
     }
   },
 

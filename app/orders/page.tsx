@@ -30,7 +30,8 @@ type OrderStatus = "pending" | "preparing" | "ready" | "delivered" | "cancelled"
 // Order interface
 interface Order {
   id: string
-  table: number
+  tableNumber: number
+  tableMapName: string
   waiter: string
   status: OrderStatus
   items: Array<{
@@ -219,7 +220,7 @@ export default function OrdersPage() {
   const filteredOrders = orders.filter(
     (order) =>
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.table.toString().includes(searchQuery) ||
+      order.tableNumber.toString().includes(searchQuery) ||
       order.waiter.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.status.toLowerCase().includes(searchQuery.toLowerCase()),
   )
@@ -288,7 +289,7 @@ export default function OrdersPage() {
                 {filteredOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>#{order.id.substring(0, 6)}</TableCell>
-                    <TableCell>{order.table}</TableCell>
+                    <TableCell>{order.tableMapName} #{order.tableNumber}</TableCell>
                     <TableCell>{order.waiter}</TableCell>
                     <TableCell>
                       {order.items.map((item) => `${item.name} (${item.quantity})`).join(", ")}

@@ -1,6 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import type { 
+  DocumentReference, 
+  DocumentData, 
+  DocumentSnapshot 
+} from "firebase/firestore"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"
 import { useFirebase } from "@/components/firebase-provider"
@@ -22,18 +27,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TableMapViewer } from "@/components/table-map/table-map-viewer"
 import { TableGridView } from "@/components/table-map/table-grid-view"
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  addDoc,
-  query,
-  where,
-  serverTimestamp,
-  type Timestamp,
-  onSnapshot,
-} from "firebase/firestore"
+import { doc, collection, addDoc, updateDoc, serverTimestamp, getDoc, setDoc } from "firebase/firestore"
+import { Timestamp } from "firebase/firestore"
+import { query, where, onSnapshot } from "firebase/firestore"
+
 import {
   Loader2,
   ArrowLeft,
@@ -48,6 +45,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { OrderForm } from "@/components/orders/order-form"
+import { OrderDetailsDialog } from "@/components/OrderDetailsDialog"
 
 interface TableMap {
   id: string
@@ -65,7 +63,7 @@ interface TableItem {
   height: number
   x: number
   y: number
-  status: "available" | "occupied" | "reserved" | "maintenance" | "ordering" | "preparing" | "ready" | "served"
+  status: "available" | "occupied" | "ordering" | "preparing" | "ready" | "served"
 }
 
 // Add a new interface for payment information
@@ -83,29 +81,55 @@ interface OrderItem {
   price: number
   quantity: number
   notes?: string
-  dietaryRestrictions?: string[]
+  // Replace string array with boolean flags for specific dietary restrictions
+  isVegetarian?: boolean
+  isVegan?: boolean
+  isGlutenFree?: boolean
+  isLactoseFree?: boolean
 }
 
 // Update the Order interface to include payment and closure information
 interface Order {
-  id: string
+  id: string  // Make id a required string
   mapId: string
   tableId: string
   tableNumber: number
+  tableMapId: string
+  tableMapName: string
   status: "pending" | "preparing" | "ready" | "delivered" | "cancelled" | "closed"
   items: OrderItem[]
   total: number
   subtotal: number
   tax?: number
-  discount?: number
   waiter: string
   waiterId: string
   createdAt: any
   updatedAt: any
   closedAt?: any
-  specialRequests?: string
-  dietaryRestrictions?: string[]
+  hasSpecialInstructions: boolean  // New boolean flag
   payment?: PaymentInfo
+}
+
+// Type for Firestore order data
+type FirestoreOrderData = {
+  mapId: string
+  tableId: string
+  tableNumber: number
+  tableMapId: string
+  tableMapName: string
+  status: "pending" | "preparing" | "ready" | "delivered" | "cancelled" | "closed"
+  items: OrderItem[]
+  total: number
+  subtotal: number
+  tax?: number
+  waiter: string
+  waiterId: string
+  createdAt: any
+  updatedAt: any
+  closedAt?: any
+  hasSpecialInstructions: boolean
+  payment?: PaymentInfo
+  id?: string
 }
 
 export default function TableMapPage() {
@@ -131,6 +155,9 @@ export default function TableMapPage() {
     amount: 0,
     tip: 0,
   })
+
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
 
   useEffect(() => {
     if (db && params.mapId) {
@@ -214,48 +241,52 @@ export default function TableMapPage() {
   const getTableStatusFromOrder = (orderStatus: string): TableItem["status"] => {
     switch (orderStatus) {
       case "pending":
-        return "ordering"
       case "preparing":
         return "preparing"
       case "ready":
         return "ready"
       case "delivered":
         return "served"
+      case "cancelled":
+        return "available"
       default:
-        return "occupied"
+        return "available"
     }
   }
 
   // Update table status in the database and local state
   const updateTableStatus = async (tableId: string, status: TableItem["status"]) => {
-    if (!tableMap) return
+    if (!db) return
 
-    // Check if the table exists and status is different
-    const tableIndex = tableMap.tables.findIndex((t) => t.id === tableId)
-    if (tableIndex === -1 || tableMap.tables[tableIndex].status === status) return
+    try {
+      // Check if the table document exists
+      const tableRef = doc(db, "tables", tableId)
+      const tableDoc = await getDoc(tableRef)
 
-    // Update local state
-    const updatedTables = [...tableMap.tables]
-    updatedTables[tableIndex] = {
-      ...updatedTables[tableIndex],
-      status,
-    }
-
-    setTableMap({
-      ...tableMap,
-      tables: updatedTables,
-    })
-
-    // Update database
-    if (db) {
-      try {
-        await updateDoc(doc(db, "tableMaps", tableMap.id), {
-          tables: updatedTables,
-          updatedAt: new Date(),
+      if (!tableDoc.exists()) {
+        // If the document doesn't exist, create it with the initial status
+        await setDoc(tableRef, {
+          id: tableId,
+          number: selectedTable?.number ?? 0,
+          mapId: tableMap?.id ?? '',
+          status: status,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         })
-      } catch (error) {
-        console.error("Error updating table status:", error)
+      } else {
+        // If the document exists, update its status
+        await updateDoc(tableRef, {
+          status: status,
+          updatedAt: serverTimestamp(),
+        })
       }
+    } catch (error) {
+      console.error("Error updating table status:", error)
+      toast({
+        title: t("commons.error"),
+        description: t("tables.error.statusUpdateFailed"),
+        variant: "destructive",
+      })
     }
   }
 
@@ -293,11 +324,6 @@ export default function TableMapPage() {
     return order?.tax ?? 0
   }
 
-  const getOrderDiscount = (tableId?: string | null): number => {
-    const order = getOrderByTableId(tableId)
-    return order?.discount ?? 0
-  }
-
   const getOrderWaiter = (tableId?: string | null): string => {
     const order = getOrderByTableId(tableId)
     return order?.waiter ?? ''
@@ -308,9 +334,20 @@ export default function TableMapPage() {
     return order?.createdAt?.toDate ? new Date(order.createdAt.toDate()).toLocaleTimeString() : 'N/A'
   }
 
-  const getOrderDietaryRestrictions = (tableId?: string | null): string[] => {
+  const getOrderDietaryRestrictions = (tableId?: string | null): boolean[] => {
     const order = getOrderByTableId(tableId)
-    return order?.dietaryRestrictions ?? []
+    
+    // If no order or no items, return an array of false values
+    if (!order || !order.items || order.items.length === 0) {
+      return [false, false, false, false]
+    }
+
+    return [
+      Boolean(order.items.some((item) => item.isVegetarian)),
+      Boolean(order.items.some((item) => item.isVegan)),
+      Boolean(order.items.some((item) => item.isGlutenFree)),
+      Boolean(order.items.some((item) => item.isLactoseFree)),
+    ]
   }
 
   const getOrderItems = (tableId?: string | null): OrderItem[] => {
@@ -318,9 +355,27 @@ export default function TableMapPage() {
     return order?.items ?? []
   }
 
-  const getOrderSpecialRequests = (tableId?: string | null): string => {
-    const order = getOrderByTableId(tableId)
-    return order?.specialRequests ?? ''
+  // Helper function to calculate subtotal
+  const calculateSubtotal = (items: OrderItem[]): number => {
+    return Number(
+      items
+        .reduce((total, item: OrderItem) => total + (item.price * item.quantity), 0)
+        .toFixed(2)
+    )
+  }
+
+  // Helper function to calculate tax
+  const calculateTax = (items: OrderItem[]): number => {
+    const subtotal = calculateSubtotal(items)
+    const taxRate = 0.1 // 10% tax rate - could be configurable
+    return Number((subtotal * taxRate).toFixed(2))
+  }
+
+  // Helper function to calculate total
+  const calculateTotal = (items: OrderItem[]): number => {
+    const subtotal = calculateSubtotal(items)
+    const tax = calculateTax(items)
+    return Number((subtotal + tax).toFixed(2))
   }
 
   const handleMarkAsServed = async (orderId?: string, tableId?: string) => {
@@ -350,6 +405,16 @@ export default function TableMapPage() {
   }
 
   const handleTableClick = (table: TableItem) => {
+    // Prevent selecting tables that are not available
+    if (table.status !== "available" && table.status !== "occupied") {
+      toast({
+        title: t("commons.error"),
+        description: t("tables.error.tableNotAvailable"),
+        variant: "destructive",
+      })
+      return
+    }
+
     setSelectedTable(table)
 
     // If table has an active order, show it
@@ -424,60 +489,110 @@ export default function TableMapPage() {
     }
   }
 
-  const handleCreateOrder = async (orderData: any) => {
-    if (!db || !user || !selectedTable || !tableMap) return
+  const setActiveOrderForTable = (tableId: string, order: Order) => {
+    setActiveOrders(prev => ({
+      ...prev,
+      [tableId]: {
+        ...order,
+        id: order.id || '', // Ensure id is always a string
+      }
+    }))
+  }
+
+  const handleCreateOrder = async (initialOrderData: any) => {
+    console.log("Selected Table:", selectedTable)
+    console.log("Order Data (Raw):", initialOrderData)
+
+    if (!db || !user || !selectedTable || !tableMap) {
+      console.error("Missing required data:", {
+        db: !!db,
+        user: !!user,
+        selectedTable: !!selectedTable,
+        tableMap: !!tableMap,
+      })
+      return
+    }
+
+    setIsCreatingOrder(true)
 
     try {
-      // Calculate subtotal and tax
-      const subtotal = orderData.total
-      const taxRate = 0.1 // 10% tax rate - this could be configurable
-      const tax = Number.parseFloat((subtotal * taxRate).toFixed(2))
-      const total = Number.parseFloat((subtotal + tax).toFixed(2))
+      // Prepare order items with notes, with explicit typing
+      const items: OrderItem[] = initialOrderData.items.map((item: Partial<OrderItem>) => ({
+        id: item.id || '',
+        name: item.name || '',
+        price: Number(item.price) || 0,
+        quantity: Number(item.quantity) || 0,
+        notes: item.notes?.trim() || '',
+        isVegetarian: item.isVegetarian || false,
+        isVegan: item.isVegan || false,
+        isGlutenFree: item.isGlutenFree || false,
+        isLactoseFree: item.isLactoseFree || false,
+      }))
 
-      const newOrder = {
+      // Calculate if there are any special instructions
+      const hasSpecialInstructions = items.some(item => 
+        item.notes !== undefined && item.notes.trim() !== ''
+      )
+
+      // Prepare sanitized order data, removing any undefined fields
+      const sanitizedOrderData: Partial<FirestoreOrderData> = {
         mapId: tableMap.id,
         tableId: selectedTable.id,
-        tableNumber: selectedTable.number,
+        tableNumber: selectedTable.number ?? 0,
+        tableMapId: tableMap.id,
+        tableMapName: tableMap.name, // Add table map name
         status: "pending",
-        waiter: user.displayName || user.email,
+        items: items,
+        subtotal: calculateSubtotal(items),
+        total: calculateTotal(items),
+        tax: calculateTax(items),
+        waiter: user.displayName || '',
         waiterId: user.uid,
-        ...orderData,
-        subtotal: subtotal,
-        tax: tax,
-        total: total,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
+        hasSpecialInstructions: hasSpecialInstructions,
+        // Remove any fields that might be undefined
+        ...(initialOrderData.discount && { discount: initialOrderData.discount }),
+        ...(initialOrderData.dietaryRestrictions && { dietaryRestrictions: initialOrderData.dietaryRestrictions }),
       }
 
-      const orderRef = await addDoc(collection(db, "orders"), newOrder)
+      // Remove any undefined values from the order data
+      const cleanOrderData = Object.fromEntries(
+        Object.entries(sanitizedOrderData)
+          .filter(([_, v]) => v !== undefined)
+      )
 
-      // Update table status to "ordering"
+      // Create the order in Firestore
+      const orderRef = await addDoc(collection(db, "orders"), cleanOrderData)
+
+      // Update table status
       await updateTableStatus(selectedTable.id, "ordering")
 
-      setActiveOrders({
-        ...activeOrders,
-        [selectedTable.id]: {
-          id: orderRef.id,
-          ...newOrder,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as Order,
-      })
-
+      // Reset order data and close the order creation modal
       setIsCreatingOrder(false)
+      setSelectedTable(null)
 
+      // Show success toast
       toast({
-        title: "Success",
-        description: `Order created for Table ${selectedTable.number}`,
+        title: t("orderForm.orderCreated"),
+        description: t("orderForm.orderCreatedDescription"),
+        variant: "default",
       })
     } catch (error) {
       console.error("Error creating order:", error)
       toast({
-        title: "Error",
-        description: "Failed to create order",
+        title: t("commons.error"),
+        description: t("orderForm.errorCreatingOrder"),
         variant: "destructive",
       })
     }
+  }
+
+  const handleViewOrder = (table: TableItem) => {
+    // Find the order for this table
+    const order = activeOrders[table.id]
+    setSelectedOrder(order || null)
+    setIsOrderDialogOpen(true)
   }
 
   if (loading) {
@@ -522,25 +637,22 @@ export default function TableMapPage() {
 
         <div className="flex flex-col md:flex-row items-center gap-2">
           <div className="flex  md:flex-row items-center gap-2">
-          <Badge variant="outline" className="text-sm">
-            {tableMap.tables.filter((t) => t.status === "available").length} {t("tableMap.statuses.available")}
-          </Badge>
-          <Badge variant="outline" className="text-sm">
-            {
-              tableMap.tables.filter(
-                (t) =>
-                  t.status === "occupied" ||
-                  t.status === "ordering" ||
-                  t.status === "preparing" ||
-                  t.status === "ready" ||
-                  t.status === "served",
-              ).length
-            }{" "}
-            {t("tableMap.statuses.occupied")}
-          </Badge>
-          <Badge variant="outline" className="text-sm">
-            {tableMap.tables.filter((t) => t.status === "reserved").length} {t("tableMap.statuses.reserved")}
-          </Badge>
+            <Badge variant="outline" className="text-sm">
+              {tableMap.tables.filter((t) => t.status === "available").length} {t("tableMap.statuses.available")}
+            </Badge>
+            <Badge variant="outline" className="text-sm">
+              {
+                tableMap.tables.filter(
+                  (t) =>
+                    t.status === "occupied" ||
+                    t.status === "ordering" ||
+                    t.status === "preparing" ||
+                    t.status === "ready" ||
+                    t.status === "served",
+                ).length
+              }{" "}
+              {t("tableMap.statuses.occupied")}
+            </Badge>
           </div>
 
           {/* View mode toggle */}
@@ -604,9 +716,7 @@ export default function TableMapPage() {
                                 selectedTable.status === "ready" ||
                                 selectedTable.status === "served"
                               ? "bg-red-100 text-red-800 border-red-200"
-                              : selectedTable.status === "reserved"
-                                ? "bg-blue-100 text-blue-800 border-blue-200"
-                                : "bg-gray-100 text-gray-800 border-gray-200"
+                              : "bg-gray-100 text-gray-800 border-gray-200"
                         }
                       >
                         {t(selectedTable.status)}
@@ -637,14 +747,16 @@ export default function TableMapPage() {
                             </span>
                           </div>
 
-                          {getOrderDietaryRestrictions(selectedTable.id).length > 0 && (
+                          {getOrderDietaryRestrictions(selectedTable.id).some((restriction) => restriction) && (
                             <div className="flex flex-col gap-1 text-sm">
                               <span className="text-muted-foreground">{t("tableMap.table.details.dietaryRestrictions")}</span>
                               <div className="flex flex-wrap gap-1">
-                                {getOrderDietaryRestrictions(selectedTable.id).map((restriction) => (
-                                  <Badge key={restriction} variant="outline" className="text-xs">
-                                    {t(restriction)}
-                                  </Badge>
+                                {getOrderDietaryRestrictions(selectedTable.id).map((restriction, index) => (
+                                  restriction && (
+                                    <Badge key={index} variant="outline" className="text-xs">
+                                      {index === 0 ? t("vegetarian") : index === 1 ? t("vegan") : index === 2 ? t("glutenFree") : t("lactoseFree")}
+                                    </Badge>
+                                  )
                                 ))}
                               </div>
                             </div>
@@ -663,13 +775,28 @@ export default function TableMapPage() {
                                     {item.quantity}x {item.name}
                                   </div>
                                   {item.notes && <div className="text-xs text-muted-foreground">{item.notes}</div>}
-                                  {item.dietaryRestrictions && item.dietaryRestrictions.length > 0 && (
+                                  {(item.isVegetarian || item.isVegan || item.isGlutenFree || item.isLactoseFree) && (
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                      {item.dietaryRestrictions.map((restriction) => (
-                                        <Badge key={restriction} variant="outline" className="text-xs">
-                                          {t(restriction)}
+                                      {item.isVegetarian && (
+                                        <Badge variant="outline" className="text-xs">
+                                          {t("vegetarian")}
                                         </Badge>
-                                      ))}
+                                      )}
+                                      {item.isVegan && (
+                                        <Badge variant="outline" className="text-xs">
+                                          {t("vegan")}
+                                        </Badge>
+                                      )}
+                                      {item.isGlutenFree && (
+                                        <Badge variant="outline" className="text-xs">
+                                          {t("glutenFree")}
+                                        </Badge>
+                                      )}
+                                      {item.isLactoseFree && (
+                                        <Badge variant="outline" className="text-xs">
+                                          {t("lactoseFree")}
+                                        </Badge>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -686,12 +813,6 @@ export default function TableMapPage() {
                           <span>${getOrderTotal(selectedTable.id).toFixed(2)}</span>
                         </div>
 
-                        {getOrderSpecialRequests(selectedTable.id) && (
-                          <div className="mt-4 p-3 bg-muted rounded-md text-sm">
-                            <div className="font-medium mb-1">{t("tableMap.table.details.specialRequests")}</div>
-                            <p>{getOrderSpecialRequests(selectedTable.id)}</p>
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <div className="text-center py-6">
@@ -700,9 +821,7 @@ export default function TableMapPage() {
                         <p className="text-sm text-muted-foreground mb-4">
                           {selectedTable.status === "available"
                             ? t("tableMap.table.descriptions.available")
-                            : selectedTable.status === "reserved"
-                              ? t("tableMap.table.descriptions.reserved")
-                              : t("tableMap.table.descriptions.maintenance")}
+                            : t("tableMap.table.descriptions.maintenance")}
                         </p>
                       </div>
                     )}
@@ -769,10 +888,7 @@ export default function TableMapPage() {
                 setSelectedTable(table)
                 setIsCreatingOrder(true)
               }}
-              onViewOrder={(table) => {
-                setSelectedTable(table)
-                setIsViewingOrder(true)
-              }}
+              onViewOrder={handleViewOrder}
               onMarkAsServed={(table, orderId) => handleMarkAsServed(orderId, table.id)}
               onCloseOrder={(table, orderId) => {
                 setSelectedTable(table)
@@ -793,7 +909,15 @@ export default function TableMapPage() {
             <DialogDescription>{t("tableMap.createOrderDescription")}</DialogDescription>
           </DialogHeader>
 
-          <OrderForm onSubmit={handleCreateOrder} onCancel={() => setIsCreatingOrder(false)} />
+          <OrderForm 
+            onSubmit={handleCreateOrder} 
+            onCancel={() => setIsCreatingOrder(false)} 
+            initialTable={selectedTable ? {
+              id: selectedTable.id,
+              number: selectedTable.number,
+              mapId: tableMap.id  // Pass the current table map ID
+            } : undefined}
+          />
         </DialogContent>
       </Dialog>
 
@@ -817,13 +941,6 @@ export default function TableMapPage() {
               <span className="text-muted-foreground">{t("tableMap.tax")}</span>
               <span>${getOrderTax(selectedTable?.id).toFixed(2) || "0.00"}</span>
             </div>
-
-            {getOrderDiscount(selectedTable?.id) && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{t("tableMap.discount")}</span>
-                <span>-${getOrderDiscount(selectedTable?.id).toFixed(2)}</span>
-              </div>
-            )}
 
             <Separator />
 
@@ -903,6 +1020,13 @@ export default function TableMapPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <OrderDetailsDialog 
+        open={isOrderDialogOpen}
+        onOpenChange={setIsOrderDialogOpen}
+        order={selectedOrder}
+        table={{ number: selectedOrder?.tableNumber || 0 }}
+      />
     </div>
   )
 }

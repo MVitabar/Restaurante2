@@ -18,6 +18,7 @@ import {
   Receipt,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Toast } from "@/components/ui/toast"
 
 interface TableItem {
   id: string
@@ -66,18 +67,14 @@ export function TableCard({
         return "bg-green-50 border-green-200 text-green-700"
       case "occupied":
         return "bg-red-50 border-red-200 text-red-700"
-      case "reserved":
-        return "bg-blue-50 border-blue-200 text-blue-700"
-      case "maintenance":
-        return "bg-gray-50 border-gray-200 text-gray-700"
       case "ordering":
         return "bg-yellow-50 border-yellow-200 text-yellow-700"
       case "preparing":
         return "bg-orange-50 border-orange-200 text-orange-700"
       case "ready":
-        return "bg-purple-50 border-purple-200 text-purple-700"
+        return "bg-blue-50 border-blue-200 text-blue-700"
       case "served":
-        return "bg-indigo-50 border-indigo-200 text-indigo-700"
+        return "bg-green-50 border-green-200 text-green-700"
       default:
         return "bg-gray-50 border-gray-200 text-gray-700"
     }
@@ -95,9 +92,64 @@ export function TableCard({
     }
   }
 
+  // Comprehensive logging and error checking for onViewOrder
+  const safeOnViewOrder = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent any parent event interference
+    
+    // Extensive logging
+    console.group('TableCard View Order Debug')
+    console.log('Table Number:', table.number)
+    console.log('Has Active Order:', hasActiveOrder)
+    console.log('Order Status:', orderStatus)
+    console.log('onViewOrder Prop:', typeof onViewOrder)
+    console.log('onViewOrder Function:', onViewOrder)
+    
+    try {
+      // Verify onViewOrder is a function before calling
+      if (typeof onViewOrder !== 'function') {
+        console.error('onViewOrder is not a valid function')
+        console.warn('onViewOrder prop is:', onViewOrder)
+        
+        // Throw an error to trigger catch block
+        throw new Error('onViewOrder is not a function')
+      }
+
+      // Call the view order function
+      onViewOrder()
+      
+      console.log('onViewOrder called successfully')
+    } catch (error) {
+      console.error('Error in onViewOrder:', error)
+    } finally {
+      console.groupEnd()
+    }
+  }
+
+  // Wrapper functions to add logging and prevent potential event propagation issues
+  const safeOnCreateOrder = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    console.log('Create Order clicked for table', table.number)
+    if (onCreateOrder) onCreateOrder()
+  }
+
+  const safeOnMarkAsServed = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    console.log('Mark as Served clicked for table', table.number)
+    if (onMarkAsServed) onMarkAsServed()
+  }
+
+  const safeOnCloseOrder = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    console.log('Close Order clicked for table', table.number)
+    if (onCloseOrder) onCloseOrder()
+  }
+
   return (
     <>
-      <Card className={cn("transition-all hover:shadow-md", getStatusColor(table.status))}>
+      <Card 
+        className={cn("transition-all hover:shadow-md", getStatusColor(table.status))}
+        onClick={() => console.log('Card clicked for table', table.number)}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="flex justify-between items-center">
             <span>
@@ -135,29 +187,62 @@ export function TableCard({
         <CardFooter className="pt-0">
           {isEditing ? (
             <div className="flex gap-2 w-full">
-              <Button variant="outline" size="sm" className="flex-1" onClick={onEdit}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1" 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  console.log('Edit clicked for table', table.number)
+                  if (onEdit) onEdit()
+                }}
+              >
                 <Edit className="h-4 w-4 mr-1" />
                 {t("tableCard.actions.edit")}
               </Button>
-              <Button variant="destructive" size="sm" className="flex-1" onClick={() => setIsDeleteDialogOpen(true)}>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="flex-1" 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsDeleteDialogOpen(true)
+                }}
+              >
                 <Trash className="h-4 w-4 mr-1" />
                 {t("tableCard.actions.delete")}
               </Button>
             </div>
           ) : hasActiveOrder ? (
             <div className="flex gap-2 w-full">
-              <Button variant="outline" size="sm" className="flex-1" onClick={onViewOrder}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1" 
+                onClick={safeOnViewOrder}
+                disabled={!hasActiveOrder || !onViewOrder}
+              >
                 <ClipboardList className="h-4 w-4 mr-1" />
                 {t("tableCard.actions.viewOrder")}
               </Button>
               {orderStatus === "ready" && (
-                <Button variant="default" size="sm" className="flex-1" onClick={onMarkAsServed}>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="flex-1" 
+                  onClick={safeOnMarkAsServed}
+                >
                   <CheckCircle className="h-4 w-4 mr-1" />
                   {t("serve")}
                 </Button>
               )}
               {orderStatus === "delivered" && (
-                <Button variant="default" size="sm" className="flex-1" onClick={onCloseOrder}>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="flex-1" 
+                  onClick={safeOnCloseOrder}
+                >
                   <Receipt className="h-4 w-4 mr-1" />
                   {t("close")}
                 </Button>
@@ -168,7 +253,7 @@ export function TableCard({
               variant="default"
               size="sm"
               className="w-full"
-              onClick={onCreateOrder}
+              onClick={safeOnCreateOrder}
               disabled={table.status !== "available"}
             >
               <ClipboardList className="h-4 w-4 mr-1" />
@@ -186,12 +271,19 @@ export function TableCard({
           </DialogHeader>
           <p>{t("deleteTableConfirmation").replace("{table}", table.number.toString())}</p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsDeleteDialogOpen(false)
+              }}
+            >
               {t("cancel")}
             </Button>
             <Button
               variant="destructive"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
                 if (onDelete) onDelete()
                 setIsDeleteDialogOpen(false)
               }}

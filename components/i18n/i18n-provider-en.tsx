@@ -446,8 +446,12 @@ export const enTranslations = {
       "addNew": "Add New Map",
       "edit": "Edit Map",
       "delete": "Delete Map",
-      
-
+      "name": "Table Map",
+      "notFound": {
+        "title": "Table Map Not Found",
+        "description": "The table map you are looking for does not exist.",
+        "backToSettings": "Back to Settings"
+      }
     },
     "system": {
       "title": "System",
@@ -664,7 +668,6 @@ export const enTranslations = {
   },
 
   "tables": {
-  
     "search": "Search tables",
     "status": "Status",
     "allStatuses": "All statuses",
@@ -674,16 +677,26 @@ export const enTranslations = {
     "addTable": "Add Table",
     "noTablesMatchFilter": "No tables match the filter",
     "noTablesInMap": "No tables in the map",
-    
     "statuses": {
       "available": "Available",
       "occupied": "Occupied",
-      "reserved": "Reserved",
-      "maintenance": "Maintenance",
       "ordering": "Ordering",
       "preparing": "Preparing",
       "ready": "Ready",
       "served": "Served"
+    },
+    "table": {
+      "descriptions": {
+        "available": "This table is currently available for seating.",
+        "occupied": "This table is currently occupied.",
+        "ordering": "This table is currently taking an order.",
+        "preparing": "This table's order is being prepared.",
+        "ready": "This table's order is ready to be served.",
+        "served": "This table's order has been served."
+      },
+      "error": {
+        "tableNotAvailable": "This table is not available for selection."
+      }
     }
   },
 
@@ -699,8 +712,7 @@ export const enTranslations = {
     },
     "statuses": {
       "available": "Available",
-      "occupied": "Occupied",
-      "reserved": "Reserved"
+      "occupied": "Occupied"
     },
     "table": {
       "label": "Table",
@@ -724,8 +736,11 @@ export const enTranslations = {
       },
       "descriptions": {
         "available": "This table is currently available for a new order.",
-        "reserved": "This table is currently reserved.",
-        "maintenance": "This table is currently under maintenance."
+        "occupied": "This table is currently occupied.",
+        "ordering": "This table is currently taking an order.",
+        "preparing": "This table's order is being prepared.",
+        "ready": "This table's order is ready to be served.",
+        "served": "This table's order has been served."
       }
     }
   },
@@ -892,6 +907,29 @@ export const enTranslations = {
     },
     "errors": {
       "fetchUsers": "Error fetching users"
+    }
+  },
+
+  "orderForm": {
+    "title": "Create Order",
+    "selectTable": "Select Table",
+    "selectCategory": "Select Category",
+    "selectItem": "Select Item",
+    "quantity": "Quantity",
+    "notes": "Notes",
+    "addItem": "Add Item",
+    "orderItems": "Order Items",
+    "noItemsAdded": "No items added",
+    "dietaryRestrictions": {
+      "title": "Dietary Restrictions",
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan",
+      "glutenFree": "Gluten Free",
+      "lactoseFree": "Lactose Free"
+    },
+    "specialInstructions": {
+      "label": "Special Instructions",
+      "hasInstructions": "Do you have special instructions?"
     }
   },
 

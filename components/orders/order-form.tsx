@@ -11,13 +11,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
-import { collection, query, orderBy, getDocs, where } from "firebase/firestore"
+import { doc, collection, getDocs, query, orderBy } from "firebase/firestore"
 import { Loader2, Plus, Minus, Trash } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
 
 interface OrderFormProps {
   onSubmit: (orderData: any) => void
   onCancel: () => void
   initialData?: any
+  initialTable?: {
+    id: string
+    number: number
+    mapId: string
+  }
 }
 
 // Update the OrderItem interface to include more detailed information
@@ -44,17 +50,36 @@ interface MenuItem {
 }
 
 // Add state for order-level discount
-export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
+export function OrderForm({ 
+  onSubmit, 
+  onCancel, 
+  initialData, 
+  initialTable 
+}: OrderFormProps) {
   const { db } = useFirebase()
   const { t } = useI18n()
 
   const [loading, setLoading] = useState(true)
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>('entradas')
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialData?.items || [])
   const [specialRequests, setSpecialRequests] = useState(initialData?.specialRequests || "")
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>(initialData?.dietaryRestrictions || [])
-  const [discount, setDiscount] = useState<number>(initialData?.discount || 0)
+  const [discount, setDiscount] = useState(initialData?.discount || 0)
   const [discountType, setDiscountType] = useState<"percentage" | "fixed">("percentage")
+
+  const [selectedTable, setSelectedTable] = useState<{
+    id: string
+    mapId: string
+    number: number
+  } | null>(
+    initialTable ? {
+      id: initialTable.id,
+      mapId: initialTable.mapId,
+      number: initialTable.number
+    } : null
+  )
+  const [tables, setTables] = useState<{id: string, mapId: string, number: number}[]>([])
 
   const [selectedItem, setSelectedItem] = useState<string>(
     menuItems.length > 0 ? menuItems[0].id : ""
@@ -63,75 +88,9 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
   const [notes, setNotes] = useState("")
   const [itemDietaryRestrictions, setItemDietaryRestrictions] = useState<string[]>([])
 
-  const [selectedTable, setSelectedTable] = useState<string | null>(null)
-  const [tables, setTables] = useState<{id: string, number: number}[]>([])
-
-  useEffect(() => {
-    if (db) {
-      fetchMenuItems()
-      fetchTables()
-    }
-  }, [db])
-
-  const fetchMenuItems = async () => {
-    if (!db) return
-
-    setLoading(true)
-    try {
-      const inventoryRef = collection(db, "inventory")
-      const q = query(
-        inventoryRef, 
-        where("category", "==", "menu_item"),
-        orderBy("name")
-      )
-      const querySnapshot = await getDocs(q)
-
-      const items: MenuItem[] = []
-      querySnapshot.forEach((doc) => {
-        const item = { 
-          id: doc.id, 
-          ...doc.data(),
-          price: doc.data().price || 0  // Ensure price exists
-        } as MenuItem
-        items.push(item)
-      })
-
-      setMenuItems(items)
-      
-      // Automatically select first item if available
-      if (items.length > 0) {
-        setSelectedItem(items[0].id)
-      }
-    } catch (error) {
-      console.error("Error fetching menu items:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchTables = async () => {
-    if (!db) return
-
-    try {
-      const tablesRef = collection(db, "tables")
-      const q = query(tablesRef, where("status", "==", "available"))
-      const querySnapshot = await getDocs(q)
-
-      const availableTables = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        number: doc.data().number
-      }))
-
-      setTables(availableTables)
-      
-      // Automatically select first available table if none selected
-      if (availableTables.length > 0 && !selectedTable) {
-        setSelectedTable(availableTables[0].id)
-      }
-    } catch (error) {
-      console.error("Error fetching tables:", error)
-    }
-  }
+  const filteredMenuItems = menuItems.filter(
+    item => item.category === selectedCategory
+  )
 
   const handleAddItem = () => {
     const menuItem = menuItems.find((item) => item.id === selectedItem)
@@ -170,6 +129,84 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
     setItemDietaryRestrictions([])
   }
 
+  // Fetch menu items from Firestore
+  const fetchMenuItems = async () => {
+    if (!db) return;
+
+    try {
+      setLoading(true)
+      const menuItems: MenuItem[] = []
+
+      // List of categories to fetch
+      const categories = [
+        'entradas', 
+        'pratosPrincipais', 
+        'saladas', 
+        'bebidas', 
+        'sobremesas', 
+        'porcoesExtras'
+      ]
+
+      // Fetch items from each category
+      for (const category of categories) {
+        const categoryRef = doc(db, 'inventory', category)
+        const itemsRef = collection(categoryRef, 'items')
+        const itemsSnapshot = await getDocs(itemsRef)
+
+        const categoryItems = itemsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name,
+          price: doc.data().price,
+          category: category,
+          description: doc.data().description,
+          unit: doc.data().unit,
+          stock: doc.data().quantity
+        }))
+
+        menuItems.push(...categoryItems)
+      }
+
+      setMenuItems(menuItems)
+      setLoading(false)
+    } catch (error) {
+      console.error("Error fetching menu items:", error)
+      setLoading(false)
+    }
+  }
+
+  // Fetch menu items when component mounts
+  useEffect(() => {
+    if (db) {
+      fetchMenuItems()
+      fetchTables()
+    }
+  }, [db])
+
+  // Fetch tables
+  const fetchTables = async () => {
+    if (!db) return
+
+    try {
+      const tablesRef = collection(db, "tables")
+      const q = query(tablesRef, orderBy("number"))
+      const querySnapshot = await getDocs(q)
+
+      const availableTables = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        mapId: doc.data().mapId,
+        number: doc.data().number as number
+      }))
+
+      setTables(availableTables)
+      
+      if (availableTables.length > 0 && !selectedTable) {
+        setSelectedTable(availableTables[0])
+      }
+    } catch (error) {
+      console.error("Error fetching tables:", error)
+    }
+  }
+
   const handleRemoveItem = (index: number) => {
     const updatedItems = [...orderItems]
     updatedItems.splice(index, 1)
@@ -184,17 +221,14 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
     setOrderItems(updatedItems)
   }
 
-  // Update the calculateTotal function to account for discounts
   const calculateTotal = () => {
     const subtotal = orderItems.reduce((total, item) => total + item.price * item.quantity, 0)
 
     if (discount > 0) {
       if (discountType === "percentage") {
-        // Cap percentage discount at 100%
         const discountRate = Math.min(discount, 100) / 100
         return subtotal * (1 - discountRate)
       } else {
-        // Fixed amount discount, capped at subtotal
         return Math.max(subtotal - discount, 0)
       }
     }
@@ -202,48 +236,81 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
     return subtotal
   }
 
-  // Update the handleSubmit function to include discount information
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // Validate order items
     if (orderItems.length === 0) {
-      // Show error that order cannot be empty
+      toast({
+        title: "Pedido Vazio",
+        description: "Adicione itens ao pedido antes de continuar",
+        variant: "destructive"
+      })
       return
     }
 
+    // Validate table selection
     if (!selectedTable) {
-      // Show error that table must be selected
+      toast({
+        title: "Mesa Não Selecionada",
+        description: "Por favor, selecione uma mesa para o pedido",
+        variant: "destructive"
+      })
       return
     }
 
-    const subtotal = orderItems.reduce((total, item) => total + item.price * item.quantity, 0)
-    let discountAmount = 0
-
-    if (discount > 0) {
-      if (discountType === "percentage") {
-        const discountRate = Math.min(discount, 100) / 100
-        discountAmount = Number.parseFloat((subtotal * discountRate).toFixed(2))
-      } else {
-        discountAmount = Math.min(discount, subtotal)
+    // Validate order details
+    try {
+      // Prepare order data
+      const orderData = {
+        items: orderItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          notes: item.notes,
+          dietaryRestrictions: item.dietaryRestrictions
+        })),
+        tableId: selectedTable.id,
+        tableNumber: selectedTable.number,
+        tableMapId: selectedTable.mapId,
+        total: calculateTotal(),
+        subtotal: orderItems.reduce((total, item) => total + item.price * item.quantity, 0),
+        discount: {
+          type: discountType,
+          amount: discount
+        },
+        specialRequests: specialRequests || undefined,
+        dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
+        status: "ordering",
+        createdAt: new Date()
       }
+
+      // Call onSubmit prop with order data
+      await onSubmit(orderData)
+
+      // Reset form after successful submission
+      setOrderItems([])
+      setSpecialRequests("")
+      setDietaryRestrictions([])
+      setDiscount(0)
+      setDiscountType("percentage")
+      setSelectedTable(null)
+
+      // Show success toast
+      toast({
+        title: "Pedido Criado",
+        description: "Seu pedido foi criado com sucesso",
+        variant: "default"
+      })
+    } catch (error) {
+      // Handle submission errors
+      console.error("Order submission error:", error)
+      toast({
+        title: "Erro ao Criar Pedido",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive"
+      })
     }
-
-    onSubmit({
-      items: orderItems.map((item) => ({
-        ...item,
-        category: menuItems.find((mi) => mi.id === item.id)?.category || "unknown",
-      })),
-      table: selectedTable,
-      tableNumber: tables.find(t => t.id === selectedTable)?.number,
-      subtotal: subtotal,
-      discount: discountAmount > 0 ? discountAmount : undefined,
-      total: calculateTotal(),
-      specialRequests: specialRequests || undefined,
-      dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
-      status: "ordering", // Initial order status
-      createdAt: new Date()
-    })
   }
-
-  const filteredMenuItems = menuItems
 
   if (loading) {
     return (
@@ -260,11 +327,31 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
           {/* Left Column: Item Selection */}
           <div className="space-y-4">
             <div>
+              <Label>{t("selectCategory")}</Label>
+              <Select 
+                value={selectedCategory} 
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("selectCategory")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="entradas">Entradas</SelectItem>
+                  <SelectItem value="pratosPrincipais">Pratos Principais</SelectItem>
+                  <SelectItem value="saladas">Saladas</SelectItem>
+                  <SelectItem value="bebidas">Bebidas</SelectItem>
+                  <SelectItem value="sobremesas">Sobremesas</SelectItem>
+                  <SelectItem value="porcoesExtras">Porções Extras</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
               <Label>{t("selectItem")}</Label>
               <Select 
                 value={selectedItem} 
                 onValueChange={setSelectedItem}
-                disabled={menuItems.length === 0}
+                disabled={filteredMenuItems.length === 0}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("selectItem")} />
@@ -272,12 +359,12 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
                 <SelectContent>
                   {filteredMenuItems.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
-                      {item.name} - ${item.price.toFixed(2)} {item.unit ? `(${item.unit})` : ''}
+                      {item.name} - R$ {item.price.toFixed(2)} {item.unit ? `(${item.unit})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {menuItems.length === 0 && (
+              {filteredMenuItems.length === 0 && (
                 <p className="text-destructive text-sm mt-2">
                   {t("noMenuItemsAvailable")}
                 </p>
@@ -329,7 +416,6 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
             <div className="space-y-2">
               <Label>{t("itemDietaryRestrictions")}</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {/* Dietary Restrictions Checkboxes */}
                 {[
                   { id: "gluten-free-item", key: "glutenFree" },
                   { id: "lactose-free-item", key: "lactoseFree" },
@@ -363,71 +449,108 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
           </div>
 
           {/* Right Column: Order Summary */}
-          <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-            <div>
-              <h3 className="text-lg font-medium mb-2 sticky top-0 bg-background z-10">{t("orderSummary")}</h3>
-              {orderItems.length > 0 ? (
-                <div className="overflow-x-auto">
+          <div className="space-y-4 bg-muted/50 p-4 rounded-lg">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">{t("orderSummary")}</h2>
+              {orderItems.length > 0 && (
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => setOrderItems([])}
+                  className="text-xs"
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  {t("clearOrder")}
+                </Button>
+              )}
+            </div>
+
+            {orderItems.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">
+                <p>{t("noItemsInOrder")}</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="max-h-[50vh] overflow-y-auto">
                   <Table>
-                    <TableHeader className="sticky top-8 bg-background z-10">
+                    <TableHeader className="sticky top-0 bg-background">
                       <TableRow>
-                        <TableHead className="w-1/2">{t("item")}</TableHead>
-                        <TableHead className="text-right w-1/4">{t("quantity")}</TableHead>
-                        <TableHead className="text-right w-1/4">{t("price")}</TableHead>
-                        <TableHead className="w-10"></TableHead>
+                        <TableHead className="w-[40%]">{t("item")}</TableHead>
+                        <TableHead className="w-[20%] text-center">{t("quantity")}</TableHead>
+                        <TableHead className="w-[20%] text-right">{t("price")}</TableHead>
+                        <TableHead className="w-[20%] text-right">{t("total")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {orderItems.map((item, index) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium truncate max-w-[150px]">{item.name}</div>
-                              {item.notes && <div className="text-xs text-muted-foreground truncate">{item.notes}</div>}
+                        <TableRow key={`${item.id}-${index}`}>
+                          <TableCell className="font-medium">
+                            <div className="flex flex-col">
+                              <span>{item.name}</span>
+                              {item.notes && (
+                                <span className="text-xs text-muted-foreground">
+                                  {item.notes}
+                                </span>
+                              )}
                               {item.dietaryRestrictions && item.dietaryRestrictions.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1">
-                                  {item.dietaryRestrictions.map((restriction) => (
-                                    <div key={restriction} className="text-xs px-1.5 py-0.5 bg-muted rounded-sm">
+                                  {item.dietaryRestrictions.map(restriction => (
+                                    <span 
+                                      key={restriction} 
+                                      className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded"
+                                    >
                                       {t(restriction)}
-                                    </div>
+                                    </span>
                                   ))}
                                 </div>
                               )}
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-1">
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2">
                               <Button
-                                type="button"
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
                                 className="h-6 w-6"
-                                onClick={() => handleQuantityChange(index, item.quantity - 1)}
+                                onClick={() => {
+                                  const updatedItems = [...orderItems]
+                                  updatedItems[index].quantity = Math.max(1, item.quantity - 1)
+                                  setOrderItems(updatedItems)
+                                }}
                               >
-                                <Minus className="h-3 w-3" />
+                                <Minus className="h-4 w-4" />
                               </Button>
                               <span>{item.quantity}</span>
                               <Button
-                                type="button"
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
                                 className="h-6 w-6"
-                                onClick={() => handleQuantityChange(index, item.quantity + 1)}
+                                onClick={() => {
+                                  const updatedItems = [...orderItems]
+                                  updatedItems[index].quantity += 1
+                                  setOrderItems(updatedItems)
+                                }}
                               >
-                                <Plus className="h-3 w-3" />
+                                <Plus className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">${(item.price * item.quantity).toFixed(2)}</TableCell>
-                          <TableCell>
+                          <TableCell className="text-right">
+                            R$ {item.price.toFixed(2)}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold">
+                            R$ {(item.price * item.quantity).toFixed(2)}
+                          </TableCell>
+                          <TableCell className="text-right">
                             <Button
-                              type="button"
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 text-red-500"
-                              onClick={() => handleRemoveItem(index)}
+                              onClick={() => {
+                                const updatedItems = orderItems.filter((_, i) => i !== index)
+                                setOrderItems(updatedItems)
+                              }}
                             >
-                              <Trash className="h-3 w-3" />
+                              <Trash className="h-4 w-4 text-destructive" />
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -435,70 +558,69 @@ export function OrderForm({ onSubmit, onCancel, initialData }: OrderFormProps) {
                     </TableBody>
                   </Table>
                 </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-4">{t("emptyOrderMessage")}</p>
-              )}
-            </div>
 
-            {/* Sticky bottom section for table selection, discount, and submit */}
-            <div className="sticky bottom-0 bg-background pt-4 space-y-4 border-t">
-              {/* Table Selection */}
-              <div className="space-y-2">
-                <Label>{t("selectTable")}</Label>
-                <Select value={selectedTable || ""} onValueChange={setSelectedTable}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("selectTablePlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tables.map((table) => (
-                      <SelectItem key={table.id} value={table.id}>
-                        {t("tableNumber", { number: table.number })}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <Separator className="my-4" />
 
-              {/* Discount Section */}
-              <div className="space-y-2">
-                <Label>{t("discount")}</Label>
-                <div className="flex items-center gap-2">
-                  <Select value={discountType} onValueChange={(value: "percentage" | "fixed") => setDiscountType(value)}>
-                    <SelectTrigger className="w-1/3">
-                      <SelectValue placeholder={t("discountType")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="percentage">{t("percentage")}</SelectItem>
-                      <SelectItem value="fixed">{t("fixedAmount")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="number"
-                    value={discount}
-                    onChange={(e) => setDiscount(Number.parseFloat(e.target.value) || 0)}
-                    className="flex-grow"
-                    placeholder={t("discountAmount")}
-                    min="0"
-                    max={discountType === "percentage" ? 100 : undefined}
-                  />
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>{t("subtotal")}</span>
+                    <span className="font-semibold">
+                      R$ {orderItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label>{t("discount")}</Label>
+                    <div className="flex items-center gap-2">
+                      <Select 
+                        value={discountType} 
+                        onValueChange={(value: "percentage" | "fixed") => setDiscountType(value)}
+                      >
+                        <SelectTrigger className="w-[100px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="percentage">%</SelectItem>
+                          <SelectItem value="fixed">R$</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        value={discount}
+                        onChange={(e) => setDiscount(Number(e.target.value))}
+                        min="0"
+                        className="w-[100px]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>{t("total")}</span>
+                    <span className="text-xl font-bold">
+                      R$ {calculateTotal().toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </div>
+            )}
 
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold">{t("order.subtotal")}</span>
-                  <span>${calculateTotal().toFixed(2)}</span>
-                </div>
-                
-                <Button 
-                  onClick={handleSubmit} 
-                  disabled={orderItems.length === 0 || !selectedTable}
-                  className="w-full"
-                >
-                  {t("order.createOrder")}
-                </Button>
-              </div>
-            </div>
+            <Button 
+              onClick={handleSubmit} 
+              className="w-full" 
+              disabled={orderItems.length === 0 || !selectedTable}
+            >
+              {t("createOrder")}
+            </Button>
+            {orderItems.length === 0 && (
+              <p className="text-sm text-red-500 mt-2">
+                {t("errors.noItemsInOrder")}
+              </p>
+            )}
+            {!selectedTable && (
+              <p className="text-sm text-red-500 mt-2">
+                {t("errors.noTableSelected")}
+              </p>
+            )}
           </div>
         </div>
       </div>

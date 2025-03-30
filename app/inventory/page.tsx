@@ -79,55 +79,269 @@ export default function InventoryPage() {
 
     try {
       // Check if items already exist
-      const inventoryQuery = query(
-        collection(db, 'inventory'), 
-        where('category', '==', 'menu_item')
-      );
-      const existingItems = await getDocs(inventoryQuery);
+      const inventoryRef = collection(db, 'inventory');
+      const inventorySnapshot = await getDocs(inventoryRef);
 
-      if (existingItems.empty) {
-        // Hardcode initial menu items directly in the function
-        const allMenuItems = [
-          {
-            id: "e1",
-            name: "Bruschetta de Tomate e Manjericão",
-            description: "Fatias de pão italiano grelhado com tomate, manjericão fresco e azeite extra virgem",
-            price: 28.9,
-          },
-          {
-            id: "e2",
-            name: "Carpaccio de Filé Mignon",
-            description: "Finas fatias de filé mignon com molho de alcaparras, mostarda Dijon e lascas de parmesão",
-            price: 42.9,
-          },
-          // Add more initial items as needed
-        ];
+      if (inventorySnapshot.empty) {
+        // Comprehensive list of menu items organized by category
+        const menuCategories = {
+          entradas: [
+            {
+              id: "e1",
+              name: "Bruschetta de Tomate e Manjericão",
+              description: "Fatias de pão italiano grelhado com tomate, manjericão fresco e azeite extra virgem",
+              price: 28.9,
+            },
+            {
+              id: "e2",
+              name: "Carpaccio de Filé Mignon",
+              description: "Finas fatias de filé mignon com molho de alcaparras, mostarda Dijon e lascas de parmesão",
+              price: 42.9,
+            },
+            {
+              id: "e3",
+              name: "Camarão Empanado",
+              description: "Camarões empanados servidos com molho tártaro caseiro",
+              price: 54.9,
+            },
+            {
+              id: "e4",
+              name: "Bolinho de Bacalhau",
+              description: "Bolinhos de bacalhau crocantes por fora e macios por dentro (6 unidades)",
+              price: 38.9,
+            },
+            {
+              id: "e5",
+              name: "Provolone à Milanesa",
+              description: "Queijo provolone empanado e frito, servido com geleia de pimenta",
+              price: 36.9,
+            },
+            {
+              id: "e6",
+              name: "Ceviche de Peixe Branco",
+              description: "Cubos de peixe branco marinados em limão, cebola roxa, pimenta e coentro",
+              price: 46.9,
+            }
+          ],
+          pratosPrincipais: [
+            {
+              id: "p1",
+              name: "Filé Mignon ao Molho Madeira",
+              description: "Medalhão de filé mignon grelhado, coberto com molho madeira e acompanhado de batata rústica e legumes salteados",
+              price: 89.9,
+            },
+            {
+              id: "p2",
+              name: "Risoto de Camarão",
+              description: "Arroz arbóreo cremoso com camarões, tomate, ervilhas e finalizado com parmesão",
+              price: 78.9,
+            },
+            {
+              id: "p3",
+              name: "Salmão Grelhado",
+              description: "Filé de salmão grelhado com crosta de ervas, purê de batata doce e aspargos",
+              price: 82.9,
+            },
+            {
+              id: "p4",
+              name: "Fettuccine ao Molho Alfredo",
+              description: "Massa fresca com molho cremoso de queijo e cogumelos, finalizado com frango grelhado",
+              price: 62.9,
+            },
+            {
+              id: "p5",
+              name: "Picanha na Brasa",
+              description: "Picanha grelhada na brasa, acompanhada de arroz, feijão tropeiro e vinagrete",
+              price: 92.9,
+            },
+            {
+              id: "p6",
+              name: "Moqueca de Peixe",
+              description: "Tradicional moqueca de peixe com camarões, pimentões, tomate e leite de coco, servida com arroz branco e pirão",
+              price: 86.9,
+            }
+          ],
+          saladas: [
+            {
+              id: "s1",
+              name: "Salada Caesar",
+              description: "Alface romana, croutons, lascas de parmesão e molho Caesar caseiro. Opção com frango grelhado",
+              price: 42.9,
+            },
+            {
+              id: "s2",
+              name: "Salada Caprese",
+              description: "Tomate, mussarela de búfala, manjericão fresco e redução de balsâmico",
+              price: 38.9,
+            },
+            {
+              id: "s3",
+              name: "Salada Mediterrânea",
+              description: "Mix de folhas, pepino, tomate cereja, azeitonas, queijo feta e molho de iogurte com ervas",
+              price: 44.9,
+            },
+            {
+              id: "s4",
+              name: "Salada de Quinoa",
+              description: "Quinoa, abacate, tomate, pepino, ervilhas e molho de limão com azeite",
+              price: 46.9,
+            }
+          ],
+          bebidas: [
+            {
+              id: "b1",
+              name: "Água Mineral (com/sem gás)",
+              description: "Garrafa 500ml",
+              price: 6.9,
+            },
+            {
+              id: "b2",
+              name: "Refrigerante",
+              description: "Lata 350ml (Coca-Cola, Guaraná, Sprite, Fanta)",
+              price: 7.9,
+            },
+            {
+              id: "b3",
+              name: "Suco Natural",
+              description: "Copo 300ml (Laranja, Limão, Abacaxi, Maracujá)",
+              price: 12.9,
+            },
+            {
+              id: "b4",
+              name: "Caipirinha",
+              description: "Cachaça, limão, açúcar e gelo",
+              price: 24.9,
+            },
+            {
+              id: "b5",
+              name: "Cerveja",
+              description: "Long neck (Heineken, Stella Artois, Corona)",
+              price: 14.9,
+            },
+            {
+              id: "b6",
+              name: "Vinho Tinto/Branco",
+              description: "Taça 150ml",
+              price: 28.9,
+            },
+            {
+              id: "b7",
+              name: "Café Espresso",
+              description: "Xícara 50ml",
+              price: 8.9,
+            },
+            {
+              id: "b8",
+              name: "Chá",
+              description: "Xícara (Camomila, Hortelã, Frutas Vermelhas)",
+              price: 9.9,
+            }
+          ],
+          sobremesas: [
+            {
+              id: "d1",
+              name: "Pudim de Leite Condensado",
+              description: "Clássico pudim de leite condensado com calda de caramelo",
+              price: 22.9,
+            },
+            {
+              id: "d2",
+              name: "Petit Gateau",
+              description: "Bolo quente de chocolate com centro derretido, servido com sorvete de creme",
+              price: 28.9,
+            },
+            {
+              id: "d3",
+              name: "Cheesecake de Frutas Vermelhas",
+              description: "Torta cremosa de cream cheese com calda de frutas vermelhas",
+              price: 26.9,
+            },
+            {
+              id: "d4",
+              name: "Tiramisu",
+              description: "Sobremesa italiana com camadas de biscoito champagne, café e creme de mascarpone",
+              price: 24.9,
+            },
+            {
+              id: "d5",
+              name: "Sorvete Artesanal",
+              description: "Duas bolas de sorvete artesanal (Chocolate, Creme, Morango, Pistache)",
+              price: 18.9,
+            }
+          ],
+          porcoesExtras: [
+            {
+              id: "pe1",
+              name: "Batata Frita",
+              description: "Porção de batatas fritas crocantes",
+              price: 32.9,
+            },
+            {
+              id: "pe2",
+              name: "Mandioca Frita",
+              description: "Mandioca frita crocante com molho especial",
+              price: 34.9,
+            },
+            {
+              id: "pe3",
+              name: "Polenta Frita",
+              description: "Palitos de polenta frita com parmesão ralado",
+              price: 30.9,
+            },
+            {
+              id: "pe4",
+              name: "Arroz Biro-Biro",
+              description: "Arroz com bacon crocante, ovos e batata palha",
+              price: 36.9,
+            },
+            {
+              id: "pe5",
+              name: "Farofa Especial",
+              description: "Farofa caseira com bacon, ovos e temperos especiais",
+              price: 24.9,
+            },
+            {
+              id: "pe6",
+              name: "Legumes Salteados",
+              description: "Mix de legumes da estação salteados na manteiga",
+              price: 28.9,
+            }
+          ]
+        };
 
         // Use batch write for efficiency
         const batch = writeBatch(db);
 
-        allMenuItems.forEach(item => {
-          const newItemRef = doc(collection(db, 'inventory'));
-          batch.set(newItemRef, {
-            id: item.id,
-            name: item.name,
-            description: item.description,
-            category: 'menu_item',
-            quantity: 10, // Default initial quantity
-            unit: 'unidade',
-            minQuantity: 5,
-            price: item.price,
+        // Create category documents and their item subcollections
+        for (const [categoryName, items] of Object.entries(menuCategories)) {
+          // Create a document for each category
+          const categoryDocRef = doc(inventoryRef, categoryName);
+          batch.set(categoryDocRef, { 
+            name: categoryName, 
             createdAt: new Date(),
             updatedAt: new Date()
           });
-        });
+
+          // Add items to the category's subcollection
+          items.forEach(item => {
+            const itemRef = doc(collection(categoryDocRef, 'items'), item.id);
+            batch.set(itemRef, {
+              ...item,
+              quantity: 10, // Default initial quantity
+              unit: 'unidade',
+              minQuantity: 5,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            });
+          });
+        }
 
         // Commit the batch
         await batch.commit();
 
         toast({
           title: t("inventory.initialLoad.success"),
-          description: t("inventory.initialLoad.description", { count: allMenuItems.length })
+          description: t("inventory.initialLoad.description", { count: Object.values(menuCategories).flat().length })
         });
       }
     } catch (error) {
@@ -149,23 +363,32 @@ export default function InventoryPage() {
       await loadInitialInventoryItems();
 
       // Then fetch all inventory items
-      const querySnapshot = await getDocs(collection(db, 'inventory'));
-      const inventoryData = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: data.name || '',
-          category: data.category || 'uncategorized',
-          quantity: data.quantity || 0,
-          unit: data.unit || 'unidade',
-          minQuantity: data.minQuantity || 5,
-          price: data.price || 0,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date()
-        } as InventoryItem;
-      });
+      const inventoryRef = collection(db, 'inventory');
+      const inventorySnapshot = await getDocs(inventoryRef);
 
-      setItems(inventoryData);
+      const inventoryData = await Promise.all(inventorySnapshot.docs.map(async (categoryDoc) => {
+        const categoryData = categoryDoc.data();
+        const itemsRef = collection(categoryDoc.ref, 'items');
+        const itemsSnapshot = await getDocs(itemsRef);
+        const itemsData = itemsSnapshot.docs.map((itemDoc) => {
+          const itemData = itemDoc.data();
+          return {
+            id: itemDoc.id,
+            name: itemData.name || '',
+            category: categoryData.name || 'uncategorized',
+            quantity: itemData.quantity || 0,
+            unit: itemData.unit || 'unidade',
+            minQuantity: itemData.minQuantity || 5,
+            price: itemData.price || 0,
+            createdAt: itemData.createdAt?.toDate() || new Date(),
+            updatedAt: itemData.updatedAt?.toDate() || new Date()
+          } as InventoryItem;
+        });
+
+        return itemsData;
+      }));
+
+      setItems(inventoryData.flat());
       setLoading(false);
     } catch (error) {
       console.error("Error fetching inventory:", error);
@@ -205,9 +428,10 @@ export default function InventoryPage() {
     if (!db) return
 
     try {
-      const newItemRef = await addDoc(collection(db, 'inventory'), {
+      const categoryRef = doc(db, 'inventory', formData.category);
+      const itemRef = await addDoc(collection(categoryRef, 'items'), {
         name: formData.name,
-        category: formData.category,
+        description: formData.description,
         quantity: formData.quantity,
         unit: formData.unit,
         minQuantity: formData.minQuantity,
@@ -217,7 +441,7 @@ export default function InventoryPage() {
       })
 
       const newItem: InventoryItem = {
-        id: newItemRef.id,
+        id: itemRef.id,
         name: formData.name,
         category: formData.category,
         quantity: formData.quantity,
@@ -258,10 +482,11 @@ export default function InventoryPage() {
     if (!db || !selectedItem) return
 
     try {
-      const itemRef = doc(db, 'inventory', selectedItem.id)
+      const categoryRef = doc(db, 'inventory', selectedItem.category);
+      const itemRef = doc(collection(categoryRef, 'items'), selectedItem.id);
       await updateDoc(itemRef, {
         name: formData.name,
-        category: formData.category,
+        description: formData.description,
         quantity: formData.quantity,
         unit: formData.unit,
         minQuantity: formData.minQuantity,
@@ -272,7 +497,7 @@ export default function InventoryPage() {
       setItems(prevItems => 
         prevItems.map(item => 
           item.id === selectedItem.id 
-            ? { ...formData, id: selectedItem.id, updatedAt: new Date() } 
+            ? { ...formData, id: selectedItem.id, category: selectedItem.category, updatedAt: new Date() } 
             : item
         )
       )
@@ -322,29 +547,38 @@ export default function InventoryPage() {
     if (!db) return;
 
     try {
+      // Find the item's category
+      const foundItem = items.find(item => item.id === itemId);
+      
+      // If item not found, throw an error
+      if (!foundItem) {
+        toast({
+          title: t("inventory.errors.itemNotFound"),
+          description: t("inventory.errors.itemNotFoundDescription", { itemId }),
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Reference to the specific item document
-      const itemDocRef = doc(db, 'inventory', itemId);
+      const categoryRef = doc(db, 'inventory', foundItem.category);
+      const itemDocRef = doc(collection(categoryRef, 'items'), itemId);
 
       // Delete the document
       await deleteDoc(itemDocRef);
 
-      // Update local state to remove the item
+      // Update local state by filtering out the deleted item
       setItems(prevItems => prevItems.filter(item => item.id !== itemId));
 
-      // Show success toast
       toast({
-        title: t("inventory.deleteItem.successToast"),
-        description: t("inventory.deleteItem.successDescription"),
-        variant: "default"
+        title: t("inventory.deleteItem.success"),
+        description: t("inventory.deleteItem.description", { itemName: foundItem.name })
       });
     } catch (error) {
-      // Log the error for debugging
       console.error("Error deleting inventory item:", error);
-
-      // Show error toast
       toast({
-        title: t("inventory.deleteItem.errorToast"),
-        description: t("inventory.deleteItem.errorDescription"),
+        title: t("inventory.errors.deleteItem"),
+        description: error instanceof Error ? error.message : "Unknown error",
         variant: "destructive"
       });
     }

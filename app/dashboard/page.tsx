@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useI18n } from "@/components/i18n-provider"
 import { useFirebase } from "@/components/firebase-provider"
-import { collection, query, orderBy, limit, getDocs } from "firebase/firestore"
+import { collection, query, orderBy, limit, getDocs, getCountFromServer } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, LineChart, PieChart } from "lucide-react"
@@ -11,19 +11,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 // Define types for our dashboard data
 type SalesData = {
-  date: Date
+  date: string
   amount: number
 }
 
 type TopSellingItem = {
   id: string
   name: string
-  orders: number
+  quantity: number
+  totalSales: number
 }
 
 type InventoryData = {
   level: number
-  lowStockItems?: string[]
+  lowStockItems: Array<{
+    id: string
+    name: string
+    currentStock: number
+    minimumStock: number
+  }>
 }
 
 export default function DashboardPage() {
@@ -38,7 +44,7 @@ export default function DashboardPage() {
   const [salesTrend, setSalesTrend] = useState<number[]>([])
   const [topSellingItems, setTopSellingItems] = useState<TopSellingItem[]>([])
   const [inventoryLevel, setInventoryLevel] = useState<number>(0)
-  const [lowStockItems, setLowStockItems] = useState<string[]>([])
+  const [lowStockItems, setLowStockItems] = useState<InventoryData["lowStockItems"]>([])
   const [activeTab, setActiveTab] = useState<"recent" | "sales" | "categories">("recent")
 
   useEffect(() => {
@@ -78,7 +84,7 @@ export default function DashboardPage() {
         const querySnapshot = await getDocs(q)
 
         const salesData: SalesData[] = querySnapshot.docs.map((doc) => ({
-          date: doc.data().date.toDate(),
+          date: doc.data().date,
           amount: doc.data().amount,
         }))
 
@@ -104,13 +110,14 @@ export default function DashboardPage() {
 
       try {
         const itemsRef = collection(db!, "items")
-        const q = query(itemsRef, orderBy("orders", "desc"), limit(5))
+        const q = query(itemsRef, orderBy("quantity", "desc"), limit(5))
         const querySnapshot = await getDocs(q)
 
         const topSellingItems: TopSellingItem[] = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
-          orders: doc.data().orders,
+          quantity: doc.data().quantity,
+          totalSales: doc.data().totalSales,
         }))
 
         setTopSellingItems(topSellingItems)
@@ -127,7 +134,21 @@ export default function DashboardPage() {
 
       try {
         const inventoryRef = collection(db!, "inventory")
-        const q = query(inventoryRef, orderBy("level", "desc"), limit(1))
+        
+        // First, check total number of documents in the collection
+        const totalDocsQuery = await getCountFromServer(inventoryRef)
+        console.log("Total inventory documents:", totalDocsQuery.data().count)
+
+        // If no documents, set default state
+        if (totalDocsQuery.data().count === 0) {
+          console.warn("No inventory documents exist")
+          setInventoryLevel(0)
+          setLowStockItems([])
+          return
+        }
+
+        // Try a more flexible query without ordering
+        const q = query(inventoryRef, limit(1))
         const querySnapshot = await getDocs(q)
         
         // Log the query snapshot for debugging
@@ -163,6 +184,9 @@ export default function DashboardPage() {
           return
         }
 
+        // Log the entire document data for inspection
+        console.log("First Inventory Document:", docData)
+
         // Type assertion with additional checks
         const inventoryData = docData as InventoryData
 
@@ -171,6 +195,8 @@ export default function DashboardPage() {
         setLowStockItems(inventoryData.lowStockItems || [])
       } catch (error) {
         console.error("Error fetching inventory data:", error)
+        setInventoryLevel(0)
+        setLowStockItems([])
       }
     }
 
@@ -244,7 +270,7 @@ export default function DashboardPage() {
                   <span>{t(`menu.items.${item.id}`, { defaultValue: item.name })}</span>
                   <span className="text-sm text-muted-foreground">
                     {t("dashboard.topSellingItems.orderCount", { 
-                      count: item.orders 
+                      count: item.quantity 
                     })}
                   </span>
                 </div>

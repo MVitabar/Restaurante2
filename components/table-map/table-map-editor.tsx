@@ -13,6 +13,8 @@ import { TableMapViewer } from "@/components/table-map/table-map-viewer"
 import { doc, updateDoc } from "firebase/firestore"
 import { Save, X, Plus, Trash } from "lucide-react"
 
+type TableStatus = "available" | "occupied" | "ordering" | "preparing" | "ready" | "served"
+
 interface TableItem {
   id: string
   number: number
@@ -22,7 +24,7 @@ interface TableItem {
   height: number
   x: number
   y: number
-  status: "available" | "occupied" | "reserved" | "maintenance" | "ordering" | "preparing" | "ready" | "served"
+  status: TableStatus
 }
 
 interface TableMapEditorProps {
@@ -319,8 +321,6 @@ export function TableMapEditor({ mapId, tables, isEditing, setIsEditing, onTable
                           status: value as
                             | "available"
                             | "occupied"
-                            | "reserved"
-                            | "maintenance"
                             | "ordering"
                             | "preparing"
                             | "ready"
@@ -334,12 +334,10 @@ export function TableMapEditor({ mapId, tables, isEditing, setIsEditing, onTable
                       <SelectContent>
                         <SelectItem value="available">{t("available")}</SelectItem>
                         <SelectItem value="occupied">{t("occupied")}</SelectItem>
-                        <SelectItem value="reserved">{t("reserved")}</SelectItem>
                         <SelectItem value="ordering">{t("ordering")}</SelectItem>
                         <SelectItem value="preparing">{t("preparing")}</SelectItem>
                         <SelectItem value="ready">{t("ready")}</SelectItem>
                         <SelectItem value="served">{t("served")}</SelectItem>
-                        <SelectItem value="maintenance">{t("maintenance")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -523,4 +521,3 @@ export function TableMapEditor({ mapId, tables, isEditing, setIsEditing, onTable
     </div>
   )
 }
-

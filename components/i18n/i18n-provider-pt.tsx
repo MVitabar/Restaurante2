@@ -675,7 +675,37 @@ export const ptTranslations = {
     "errors": {
       "fetchUsers": "Erro ao buscar usuários"
     }
-  }
+  },
+  "orderForm": {
+    "title": "Criar Pedido",
+    "selectTable": "Selecione a Mesa",
+    "selectCategory": "Selecione a Categoria",
+    "selectItem": "Selecione o Item",
+    "quantity": "Quantidade",
+    "notes": "Observações",
+    "addItem": "Adicionar Item",
+    "orderItems": "Itens do Pedido",
+    "noItemsAdded": "Nenhum item adicionado",
+    "dietaryRestrictions": {
+      "title": "Restrições Dietéticas",
+      "vegetarian": "Vegetariano",
+      "vegan": "Vegano",
+      "glutenFree": "Sem Glúten",
+      "lactoseFree": "Sem Lactose"
+    },
+    "specialInstructions": {
+      "label": "Instruções Especiais",
+      "hasInstructions": "Tem instruções especiais?"
+    }
+  },
+  "tableMap": {
+    "name": "Mapa de Mesas",
+    "notFound": {
+      "title": "Mapa de Mesas Não Encontrado",
+      "description": "O mapa de mesas que você está procurando não existe.",
+      "backToSettings": "Voltar para Configurações"
+    }
+  },
 };
 
 export default ptTranslations;

@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Filter, Plus } from "lucide-react"
 
+type TableStatus = "available" | "occupied" | "ordering" | "preparing" | "ready" | "served"
+
 interface TableItem {
   id: string
   number: number
@@ -17,7 +19,7 @@ interface TableItem {
   height: number
   x: number
   y: number
-  status: "available" | "occupied" | "reserved" | "maintenance" | "ordering" | "preparing" | "ready" | "served"
+  status: TableStatus
 }
 
 interface Order {
@@ -111,8 +113,6 @@ export function TableGridView({
               <SelectItem value="all">{t("allStatuses")}</SelectItem>
               <SelectItem value="available">{t("available")}</SelectItem>
               <SelectItem value="occupied">{t("occupied")}</SelectItem>
-              <SelectItem value="reserved">{t("reserved")}</SelectItem>
-              <SelectItem value="maintenance">{t("maintenance")}</SelectItem>
               <SelectItem value="ordering">{t("ordering")}</SelectItem>
               <SelectItem value="preparing">{t("preparing")}</SelectItem>
               <SelectItem value="ready">{t("ready")}</SelectItem>
@@ -156,7 +156,16 @@ export function TableGridView({
                 onEdit={() => onEditTable && onEditTable(table)}
                 onDelete={() => onDeleteTable && onDeleteTable(table)}
                 onCreateOrder={() => onCreateOrder && onCreateOrder(table)}
-                onViewOrder={() => onViewOrder && onViewOrder(table)}
+                onViewOrder={() => {
+                  console.group('TableGridView onViewOrder Debug')
+                  console.log('Table:', table)
+                  console.log('onViewOrder Prop:', typeof onViewOrder)
+                  console.log('onViewOrder Function:', onViewOrder)
+
+                  onViewOrder && onViewOrder(table)
+                  
+                  console.groupEnd()
+                }}
                 onMarkAsServed={() => tableOrder && onMarkAsServed && onMarkAsServed(table, tableOrder.id)}
                 onCloseOrder={() => tableOrder && onCloseOrder && onCloseOrder(table, tableOrder.id)}
               />
@@ -171,4 +180,3 @@ export function TableGridView({
     </div>
   )
 }
-

@@ -144,36 +144,40 @@ export function TableCard({
                 {t("delete")}
               </Button>
             </div>
-          ) : hasActiveOrder ? (
-            <div className="flex gap-2 w-full">
-              <Button variant="outline" size="sm" className="flex-1" onClick={onViewOrder}>
-                <ClipboardList className="h-4 w-4 mr-1" />
-                {t("viewOrder")}
-              </Button>
-              {orderStatus === "ready" && (
-                <Button variant="default" size="sm" className="flex-1" onClick={onMarkAsServed}>
-                  <CheckCircle className="h-4 w-4 mr-1" />
-                  {t("serve")}
-                </Button>
-              )}
-              {orderStatus === "delivered" && (
-                <Button variant="default" size="sm" className="flex-1" onClick={onCloseOrder}>
-                  <Receipt className="h-4 w-4 mr-1" />
-                  {t("close")}
+          ) : (
+            <div className="flex flex-col space-y-2 w-full">
+              {hasActiveOrder ? (
+                <>
+                  <Button variant="secondary" size="sm" className="w-full" onClick={onViewOrder}>
+                    <Receipt className="h-4 w-4 mr-1" />
+                    {t("viewOrder")}
+                  </Button>
+                  {orderStatus === "ready" && (
+                    <Button variant="default" size="sm" className="w-full" onClick={onMarkAsServed}>
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      {t("serve")}
+                    </Button>
+                  )}
+                  {orderStatus === "delivered" && (
+                    <Button variant="default" size="sm" className="w-full" onClick={onCloseOrder}>
+                      <Receipt className="h-4 w-4 mr-1" />
+                      {t("close")}
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="w-full"
+                  onClick={onCreateOrder}
+                  disabled={table.status !== "available"}
+                >
+                  <ClipboardList className="h-4 w-4 mr-1" />
+                  {t("createOrder")}
                 </Button>
               )}
             </div>
-          ) : (
-            <Button
-              variant="default"
-              size="sm"
-              className="w-full"
-              onClick={onCreateOrder}
-              disabled={table.status !== "available"}
-            >
-              <ClipboardList className="h-4 w-4 mr-1" />
-              {t("createOrder")}
-            </Button>
           )}
         </CardFooter>
       </Card>
@@ -204,4 +208,3 @@ export function TableCard({
     </>
   )
 }
-

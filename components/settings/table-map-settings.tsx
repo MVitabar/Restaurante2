@@ -33,6 +33,8 @@ interface TableMap {
   tables: TableItem[]
 }
 
+type TableStatus = "available" | "occupied" | "ordering" | "preparing" | "ready" | "served"
+
 interface TableItem {
   id: string
   number: number
@@ -42,7 +44,7 @@ interface TableItem {
   height: number
   x: number
   y: number
-  status: "available" | "occupied" | "reserved" | "maintenance" | "ordering" | "preparing" | "ready" | "served"
+  status: TableStatus
 }
 
 export function TableMapSettings() {

@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ZoomIn, ZoomOut, Move, RefreshCw } from "lucide-react"
 
+type TableStatus = "available" | "occupied" | "ordering" | "preparing" | "ready" | "served"
+
 interface TableItem {
   id: string
   number: number
@@ -18,7 +20,7 @@ interface TableItem {
   height: number
   x: number
   y: number
-  status: "available" | "occupied" | "reserved" | "maintenance" | "ordering" | "preparing" | "ready" | "served"
+  status: TableStatus
 }
 
 interface TableMapViewerProps {
@@ -196,10 +198,6 @@ export function TableMapViewer({
         return "bg-green-100 border-green-500 hover:bg-green-200"
       case "occupied":
         return "bg-red-100 border-red-500 hover:bg-red-200"
-      case "reserved":
-        return "bg-blue-100 border-blue-500 hover:bg-blue-200"
-      case "maintenance":
-        return "bg-gray-100 border-gray-500 hover:bg-gray-200"
       case "ordering":
         return "bg-yellow-100 border-yellow-500 hover:bg-yellow-200"
       case "preparing":
@@ -219,10 +217,6 @@ export function TableMapViewer({
       case "available":
         return "●"
       case "occupied":
-        return "●"
-      case "reserved":
-        return "●"
-      case "maintenance":
         return "●"
       case "ordering":
         return "●"
@@ -343,9 +337,6 @@ export function TableMapViewer({
           <Badge variant="outline" className="bg-red-100 border-red-500">
             {t("occupied")}
           </Badge>
-          <Badge variant="outline" className="bg-blue-100 border-blue-500">
-            {t("reserved")}
-          </Badge>
           <Badge variant="outline" className="bg-yellow-100 border-yellow-500">
             {t("ordering")}
           </Badge>
@@ -358,12 +349,8 @@ export function TableMapViewer({
           <Badge variant="outline" className="bg-indigo-100 border-indigo-500">
             {t("served")}
           </Badge>
-          <Badge variant="outline" className="bg-gray-100 border-gray-500">
-            {t("maintenance")}
-          </Badge>
         </div>
       )}
     </div>
   )
 }
-
