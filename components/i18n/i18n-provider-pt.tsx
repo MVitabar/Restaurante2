@@ -6,6 +6,7 @@ export const ptTranslations = {
       "edit": "Editar",
       "delete": "Excluir",
       "cancel": "Cancelar",
+      "save": "Salvar",
       "submit": "Enviar",
       "loading": "Carregando...",
       "sending": "Enviando..."
@@ -55,7 +56,12 @@ export const ptTranslations = {
     "pageTitle": "Gestão de Inventário",
     "searchPlaceholder": "Buscar no inventário...",
     "noItemsFound": "Nenhum item encontrado no inventário",
-    "headers": {
+    "categories": {
+      "drinks": "Bebidas",
+      "food": "Comida",
+      "menu_item": "Item de Menú"
+    },
+    "formLabels": {
       "name": "Nome",
       "category": "Categoria", 
       "quantity": "Quantidade",
@@ -104,6 +110,13 @@ export const ptTranslations = {
       "fetchItems": "Falha ao buscar itens de inventário",
       "addItem": "Falha ao adicionar item de inventário",
       "deleteItem": "Falha ao excluir item de inventário"
+    },
+    "noItems": "Nenhum item no inventário",
+    "noMatchingItems": "Nenhum item encontrado",
+    "initialLoad": {
+      "success": "Itens do menu carregados com sucesso",
+      "description": "{{count}} itens foram adicionados ao inventário",
+      "error": "Erro ao carregar itens iniciais"
     }
   },
 
@@ -260,12 +273,34 @@ export const ptTranslations = {
   "orders": "Pedidos",
   "newOrder": "Novo Pedido",
   
-  "orderStatus.pending": "Pendente",
-  "orderStatus.preparing": "Preparando",
-  "orderStatus.ready": "Pronto",
-  "orderStatus.delivered": "Entregue",
-  "orderStatus.cancelled": "Cancelado",
-  
+  "orderStatus": {
+    "01": "Pendente",
+    "02": "Em Preparação",
+    "03": "Pronto para Servir",
+    "04": "Entregue",
+    "05": "Cancelado",
+    "06": "Pago",
+    "07": "Enviado",
+    "08": "Em Trânsito",
+    "09": "Concluído",
+    "10": "Reembolsado",
+    "11": "Aguardando",
+    "12": "Agendado",
+    "13": "Parcialmente Pago",
+    "14": "Erro de Pagamento",
+    "15": "Rejeitado",
+    "16": "Processando",
+    "17": "Confirmado",
+    "18": "Preparação Iniciada",
+    "19": "Quase Pronto",
+    "20": "Aguardando Cliente",
+    "21": "Serviço de Mesa",
+    "22": "Para Viagem",
+    "23": "Entrega",
+    "24": "Reserva",
+    "25": "Urgente",
+    "70": "Status Final"
+  },
   "orders.table.id": "ID",
   "orders.table.table": "Mesa",
   "orders.table.waiter": "Garçom",
@@ -300,14 +335,35 @@ export const ptTranslations = {
       "allStatuses": "Todos os Estados"
     },
     "orderStatus": {
-      "pending": "Pendente",
-      "preparing": "Preparando", 
-      "ready": "Pronto",
-      "delivered": "Entregue",
-      "cancelled": "Cancelado"
+      "01": "Pendente",
+      "02": "Em Preparação",
+      "03": "Pronto para Servir",
+      "04": "Entregue",
+      "05": "Cancelado",
+      "06": "Pago",
+      "07": "Enviado",
+      "08": "Em Trânsito",
+      "09": "Concluído",
+      "10": "Reembolsado",
+      "11": "Aguardando",
+      "12": "Agendado",
+      "13": "Parcialmente Pago",
+      "14": "Erro de Pagamento",
+      "15": "Rejeitado",
+      "16": "Processando",
+      "17": "Confirmado",
+      "18": "Preparação Iniciada",
+      "19": "Quase Pronto",
+      "20": "Aguardando Cliente",
+      "21": "Serviço de Mesa",
+      "22": "Para Viagem",
+      "23": "Entrega",
+      "24": "Reserva",
+      "25": "Urgente",
+      "70": "Status Final"
     },
     "table": {
-      "id": "ID",
+      "id": "ID", 
       "table": "Mesa",
       "waiter": "Garçom",
       "items": "Itens",

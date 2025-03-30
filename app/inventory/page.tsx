@@ -5,7 +5,18 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useI18n } from "@/components/i18n-provider"
 import { useFirebase } from "@/components/firebase-provider"
-import { collection, query, orderBy, getDocs, doc, updateDoc, addDoc, deleteDoc } from "firebase/firestore"
+import { 
+  collection, 
+  query, 
+  orderBy, 
+  getDocs, 
+  doc, 
+  updateDoc, 
+  addDoc, 
+  deleteDoc, 
+  where, 
+  writeBatch
+} from "firebase/firestore"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,9 +35,10 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Search, AlertTriangle } from "lucide-react"
 
 // Inventory item interface
-interface InventoryItem {
+export interface InventoryItem {
   id: string
   name: string
+  description?: string
   category: string
   quantity: number
   unit: string
@@ -37,9 +49,10 @@ interface InventoryItem {
 }
 
 export default function InventoryPage() {
-  const { t } = useI18n() as { t: (key: string) => string }
+  const { t } = useI18n() as { t: (key: string, options?: any) => string }
   const { db } = useFirebase()
   const { toast } = useToast()
+
   const [items, setItems] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
@@ -60,36 +73,123 @@ export default function InventoryPage() {
     updatedAt: new Date()
   })
 
-  useEffect(() => {
-    fetchInventory()
-  }, [db])
+  // Function to load initial menu items to Firestore if needed
+  const loadInitialInventoryItems = async () => {
+    if (!db) return;
 
-  const fetchInventory = async () => {
-    if (!db) return
-
-    setLoading(true)
     try {
-      const inventoryRef = collection(db, "inventory")
-      const q = query(inventoryRef, orderBy("name"))
-      const querySnapshot = await getDocs(q)
+      // Check if items already exist
+      const inventoryQuery = query(
+        collection(db, 'inventory'), 
+        where('category', '==', 'menu_item')
+      );
+      const existingItems = await getDocs(inventoryQuery);
 
-      const fetchedItems = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as InventoryItem[]
+      if (existingItems.empty) {
+        // Hardcode initial menu items directly in the function
+        const allMenuItems = [
+          {
+            id: "e1",
+            name: "Bruschetta de Tomate e Manjericão",
+            description: "Fatias de pão italiano grelhado com tomate, manjericão fresco e azeite extra virgem",
+            price: 28.9,
+          },
+          {
+            id: "e2",
+            name: "Carpaccio de Filé Mignon",
+            description: "Finas fatias de filé mignon com molho de alcaparras, mostarda Dijon e lascas de parmesão",
+            price: 42.9,
+          },
+          // Add more initial items as needed
+        ];
 
-      setItems(fetchedItems)
+        // Use batch write for efficiency
+        const batch = writeBatch(db);
+
+        allMenuItems.forEach(item => {
+          const newItemRef = doc(collection(db, 'inventory'));
+          batch.set(newItemRef, {
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            category: 'menu_item',
+            quantity: 10, // Default initial quantity
+            unit: 'unidade',
+            minQuantity: 5,
+            price: item.price,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+        });
+
+        // Commit the batch
+        await batch.commit();
+
+        toast({
+          title: t("inventory.initialLoad.success"),
+          description: t("inventory.initialLoad.description", { count: allMenuItems.length })
+        });
+      }
     } catch (error) {
-      console.error("Error fetching inventory:", error)
+      console.error("Error loading initial inventory items:", error);
       toast({
-        title: t("commons.error"),
-        description: t("commons.error.fetchItems"),
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
+        title: t("inventory.initialLoad.error"),
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      });
     }
-  }
+  };
+
+  // Fetch inventory items from Firestore
+  const fetchInventory = async () => {
+    if (!db) return;
+
+    try {
+      // First, attempt to load initial items if needed
+      await loadInitialInventoryItems();
+
+      // Then fetch all inventory items
+      const querySnapshot = await getDocs(collection(db, 'inventory'));
+      const inventoryData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || '',
+          category: data.category || 'uncategorized',
+          quantity: data.quantity || 0,
+          unit: data.unit || 'unidade',
+          minQuantity: data.minQuantity || 5,
+          price: data.price || 0,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        } as InventoryItem;
+      });
+
+      setItems(inventoryData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
+      toast({
+        title: t("inventory.errors.fetchItems"),
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      });
+      setLoading(false);
+    }
+  };
+
+  // Fetch inventory when component mounts or db changes
+  useEffect(() => {
+    fetchInventory();
+  }, [db]);
+
+  // Filter items based on search query
+  const filteredItems = searchQuery 
+    ? items.filter(item => 
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : items;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -203,24 +303,50 @@ export default function InventoryPage() {
     }
   }
 
-  const handleDeleteItem = async (itemId: string) => {
-    if (!db) return
+  const handleDeleteItem = (itemId: string) => {
+    const item = items.find(item => item.id === itemId);
+    if (!item) return;
+
+    const confirmDelete = confirm(
+      t("inventory.deleteItem.description", { 
+        itemName: item.name 
+      })
+    );
+    
+    if (confirmDelete) {
+      deleteInventoryItem(itemId);
+    }
+  }
+
+  const deleteInventoryItem = async (itemId: string) => {
+    if (!db) return;
 
     try {
-      const itemRef = doc(db, 'inventory', itemId)
-      await deleteDoc(itemRef)
+      // Reference to the specific item document
+      const itemDocRef = doc(db, 'inventory', itemId);
 
-      setItems(prevItems => prevItems.filter(item => item.id !== itemId))
+      // Delete the document
+      await deleteDoc(itemDocRef);
 
+      // Update local state to remove the item
+      setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+
+      // Show success toast
       toast({
         title: t("inventory.deleteItem.successToast"),
+        description: t("inventory.deleteItem.successDescription"),
         variant: "default"
-      })
+      });
     } catch (error) {
+      // Log the error for debugging
+      console.error("Error deleting inventory item:", error);
+
+      // Show error toast
       toast({
         title: t("inventory.deleteItem.errorToast"),
+        description: t("inventory.deleteItem.errorDescription"),
         variant: "destructive"
-      })
+      });
     }
   }
 
@@ -260,68 +386,79 @@ export default function InventoryPage() {
   }
 
   const renderInventoryTable = () => {
-    const filteredItems = items.filter(item => 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-
     return (
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t("inventory.headers.name")}</TableHead>
-            <TableHead>{t("inventory.headers.category")}</TableHead>
-            <TableHead>{t("inventory.headers.quantity")}</TableHead>
-            <TableHead>{t("inventory.headers.unit")}</TableHead>
-            <TableHead>{t("inventory.headers.minQuantity")}</TableHead>
-            <TableHead>{t("inventory.headers.price")}</TableHead>
-            <TableHead>{t("inventory.headers.status")}</TableHead>
-            <TableHead className="text-right">{t("inventory.headers.actions")}</TableHead>
+            <TableHead>{t("inventory.formLabels.name")}</TableHead>
+            <TableHead>{t("inventory.formLabels.category")}</TableHead>
+            <TableHead>{t("inventory.formLabels.quantity")}</TableHead>
+            <TableHead>{t("inventory.formLabels.unit")}</TableHead>
+            <TableHead>{t("inventory.formLabels.minQuantity")}</TableHead>
+            <TableHead>{t("inventory.formLabels.price")}</TableHead>
+            <TableHead>{t("inventory.formLabels.status")}</TableHead>
+            <TableHead className="text-right">{t("inventory.formLabels.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredItems.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell>{item.category}</TableCell>
-              <TableCell>{item.quantity}</TableCell>
-              <TableCell>{item.unit}</TableCell>
-              <TableCell>{item.minQuantity}</TableCell>
-              <TableCell>{t(`commons.currency.${item.price}`)}</TableCell>
-              <TableCell>
-                {item.quantity <= item.minQuantity ? (
-                  <Badge className="bg-red-100 text-red-800 border-red-200">
-                    {t("inventory.status.lowStock")}
-                  </Badge>
-                ) : (
-                  <Badge className="bg-green-100 text-green-800 border-green-200">
-                    {t("inventory.status.inStock")}
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => openEditDialog(item)}
-                  >
-                    {t("inventory.actions.edit")}
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm" 
-                    onClick={() => handleDeleteItem(item.id)}
-                  >
-                    {t("inventory.actions.delete")}
-                  </Button>
-                </div>
+          {filteredItems.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center">
+                {searchQuery 
+                  ? t("inventory.noMatchingItems") 
+                  : t("inventory.noItems")
+                }
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            filteredItems.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium">{item.name}</TableCell>
+                <TableCell>{t(`inventory.categories.${item.category.toLowerCase()}`)}</TableCell>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>{item.unit}</TableCell>
+                <TableCell>{item.minQuantity}</TableCell>
+                <TableCell>{item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                <TableCell>
+                  {item.quantity <= item.minQuantity ? (
+                    <Badge className="bg-red-100 text-red-800 border-red-200">
+                      {t("inventory.status.lowStock")}
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-green-100 text-green-800 border-green-200">
+                      {t("inventory.status.inStock")}
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => openEditDialog(item)}
+                    >
+                      {t("inventory.actions.edit")}
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleDeleteItem(item.id)}
+                    >
+                      {t("inventory.actions.delete")}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     )
+  }
+
+  // Render loading state if items are still loading
+  if (loading) {
+    return <div>{t("commons.loading")}</div>
   }
 
   return (
@@ -354,11 +491,7 @@ export default function InventoryPage() {
           <CardTitle>{t("inventory.pageTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="text-center py-4">{t("commons.loading")}</div>
-          ) : (
-            renderInventoryTable()
-          )}
+          {renderInventoryTable()}
         </CardContent>
       </Card>
 

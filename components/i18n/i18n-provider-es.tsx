@@ -5,6 +5,7 @@ export const esTranslations = {
       "add": "Agregar",
       "edit": "Editar",
       "delete": "Eliminar",
+      "save": "Guardar",
       "cancel": "Cancelar",
       "submit": "Enviar",
       "loading": "Cargando...",
@@ -50,7 +51,10 @@ export const esTranslations = {
       "accept": "Acepto los Términos y Condiciones",
       "required": "Debe aceptar los términos y condiciones"
     },
-    "currency": "{{value}}"
+    "currency": {
+      "8": "8",
+      // Add more currency translations as needed
+    }
   },
 
   // Dashboard Translations
@@ -113,15 +117,30 @@ export const esTranslations = {
     "pageTitle": "Gestión de Inventario",
     "searchPlaceholder": "Buscar en inventario...",
     "noItemsFound": "No se encontraron artículos en el inventario",
-    "headers": {
+    "noItems": "No hay artículos en el inventario",
+    "noMatchingItems": "No se encontraron artículos",
+    "formLabels": {
       "name": "Nombre",
       "category": "Categoría", 
       "quantity": "Cantidad",
       "unit": "Unidad",
       "minQuantity": "Cantidad Mínima",
       "price": "Precio",
-      "actions": "Acciones",
-      "status": "Estado"
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "lowStock": "Bajo Stock",
+      "inStock": "En Stock"
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "categories": {
+      "drinks": "Bebidas",
+      "food": "Comida",
+      "menu_item": "Item de Menú"
     },
     "addItem": {
       "title": "Agregar Artículo",
@@ -140,12 +159,11 @@ export const esTranslations = {
       "cancel": "Cancelar"
     },
     "deleteItem": {
-      "title": "Eliminar Artículo",
-      "description": "¿Está seguro que desea eliminar {{itemName}}? Esta acción no se puede deshacer."
-    },
-    "status": {
-      "lowStock": "Stock Bajo",
-      "inStock": "En Stock"
+      "description": "¿Está seguro de que desea eliminar {{itemName}}? Esta acción no se puede deshacer.",
+      "successToast": "Artículo Eliminado",
+      "successDescription": "El artículo de inventario se eliminó correctamente.",
+      "errorToast": "Error al Eliminar",
+      "errorDescription": "Hubo un error al eliminar el artículo de inventario."
     },
     "buttons": {
       "addItem": "Agregar Artículo",
@@ -164,6 +182,11 @@ export const esTranslations = {
     "alerts": {
       "lowStock": "Artículos con stock bajo",
       "outOfStock": "Artículos agotados"
+    },
+    "initialLoad": {
+      "success": "Artículos del menú cargados con éxito",
+      "description": "{{count}} artículos fueron agregados al inventario",
+      "error": "Error al cargar artículos iniciales"
     }
   },
 
@@ -410,35 +433,62 @@ export const esTranslations = {
   // Orders Page Translations
   "orders": "Pedidos",
   "newOrder": "Nuevo Pedido",
+  "orderStatus": {
+    "01": "Pendiente",
+    "02": "En preparación",
+    "03": "Listo para servir",
+    "04": "Entregado",
+    "05": "Cancelado",
+    "06": "Pagado",
+    "07": "Enviado",
+    "08": "En camino",
+    "09": "Completado",
+    "10": "Reembolsado",
+    "11": "En espera",
+    "12": "Programado",
+    "13": "Parcialmente pagado",
+    "14": "Error de pago",
+    "15": "Rechazado",
+    "16": "Procesando",
+    "17": "Confirmado",
+    "18": "Preparación iniciada",
+    "19": "Casi listo",
+    "20": "Esperando cliente",
+    "21": "Servicio en mesa",
+    "22": "Para llevar",
+    "23": "Delivery",
+    "24": "Reserva",
+    "25": "Urgente",
+    "70": "Estado final"
+  },
   
-  "orderStatus.pending": "Pendiente",
-  "orderStatus.preparing": "Preparando", 
-  "orderStatus.ready": "Listo",
-  "orderStatus.delivered": "Entregado",
-  "orderStatus.cancelled": "Cancelado",
-  
-  "orders.table.id": "ID",
-  "orders.table.table": "Mesa",
-  "orders.table.waiter": "Mesero",
-  "orders.table.status": "Estado",
-  "orders.table.total": "Total",
-  "orders.table.actions": "Acciones",
-  
-  "orders.action.updateStatus": "Actualizar Estado",
-  "orders.action.delete": "Eliminar Pedido",
-  
-  "orders.statusDialog.title": "Cambiar Estado del Pedido",
-  "orders.statusDialog.description": "Seleccione el nuevo estado para el pedido",
-  
-  "orders.search.placeholder": "Buscar pedidos...",
-  "orders.filter.allStatuses": "Todos los Estados",
-  
-  "orders.error.fetchFailed": "No se pudieron cargar los pedidos",
-  "orders.error.updateStatusFailed": "No se pudo actualizar el estado del pedido",
-  "orders.error.deleteFailed": "No se pudo eliminar el pedido",
-  
-  "orders.success.statusUpdated": "Estado del pedido actualizado",
-  "orders.success.orderDeleted": "Pedido eliminado",
+  "noOrdersFound": "No se encontraron pedidos",
+  "table": {
+    "id": "ID",
+    "table": "Mesa",
+    "waiter": "Mesero",
+    "items": "Artículos",
+    "status": "Estado",
+    "total": "Total",
+    "actions": "Acciones"
+  },
+  "action": {
+    "updateStatus": "Actualizar Estado",
+    "updateStatusDescription": "Actualizar estado del pedido {{orderId}}",
+    "selectStatus": "Seleccionar nuevo estado",
+    "delete": "Eliminar Pedido",
+    "deleteOrder": "Eliminar Pedido",
+    "deleteOrderConfirmation": "¿Está seguro de que desea eliminar el pedido {{orderId}}?"
+  },
+  "error": {
+    "fetchFailed": "Error al cargar los pedidos",
+    "updateStatusFailed": "Error al actualizar el estado del pedido",
+    "deleteFailed": "Error al eliminar el pedido"
+  },
+  "success": {
+    "statusUpdated": "Estado del pedido actualizado",
+    "orderDeleted": "Pedido eliminado"
+  },
 
   // Firebase Test page
   "firebaseTest.pageTitle": "Prueba de Configuración de Firebase",
@@ -643,23 +693,35 @@ export const esTranslations = {
       "placeholder": "Buscar pedidos..."
     },
     "filter": {
-      "allStatuses": "Todos los Estados"
+      "allStatuses": "Todos los estados"
     },
     "orderStatus": {
-      "pending": "Pendiente",
-      "preparing": "Preparando", 
-      "ready": "Listo",
-      "delivered": "Entregado",
-      "cancelled": "Cancelado"
-    },
-    "table": {
-      "id": "ID",
-      "table": "Mesa",
-      "waiter": "Mesero",
-      "items": "Artículos",
-      "status": "Estado",
-      "total": "Total",
-      "actions": "Acciones"
+      "01": "Pendiente",
+      "02": "En preparación",
+      "03": "Listo para servir",
+      "04": "Entregado",
+      "05": "Cancelado",
+      "06": "Pagado",
+      "07": "Enviado",
+      "08": "En camino", 
+      "09": "Completado",
+      "10": "Reembolsado",
+      "11": "En espera",
+      "12": "Programado",
+      "13": "Parcialmente pagado",
+      "14": "Error de pago",
+      "15": "Rechazado",
+      "16": "Procesando",
+      "17": "Confirmado",
+      "18": "Preparación iniciada",
+      "19": "Casi listo",
+      "20": "Esperando cliente",
+      "21": "Servicio en mesa",
+      "22": "Para llevar",
+      "23": "Delivery",
+      "24": "Reserva",
+      "25": "Urgente",
+      "70": "Estado final"
     },
     "action": {
       "updateStatus": "Actualizar Estado",
@@ -667,18 +729,9 @@ export const esTranslations = {
       "selectStatus": "Seleccionar nuevo estado",
       "delete": "Eliminar Pedido",
       "deleteOrder": "Eliminar Pedido",
-      "deleteOrderConfirmation": "¿Está seguro que desea eliminar el pedido {{orderId}}?"
+      "deleteOrderConfirmation": "¿Está seguro de que desea eliminar el pedido {{orderId}}?"
     },
-    "noOrdersFound": "No se encontraron pedidos",
-    "error": {
-      "fetchFailed": "Error al cargar los pedidos",
-      "updateStatusFailed": "Error al actualizar el estado del pedido",
-      "deleteFailed": "Error al eliminar el pedido"
-    },
-    "success": {
-      "statusUpdated": "Estado del pedido actualizado",
-      "orderDeleted": "Pedido eliminado"
-    }
+    "noOrdersFound": "No se encontraron pedidos"
   },
 
   "newOrderPage": {

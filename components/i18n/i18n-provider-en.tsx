@@ -30,7 +30,11 @@ export const enTranslations = {
     "noItemsFound": "No items found",
     "searchPlaceholder": "Search...",
     "confirmDelete": "Are you sure you want to delete this item? This action cannot be undone.",
-    "currency": "{{value}}"
+    "currency": {
+      "{{value}}": "{{value}}",
+      "8": "8",
+      // Add more currency translations as needed
+    }
     
   },
 
@@ -39,16 +43,6 @@ export const enTranslations = {
     "pageTitle": "Inventory Management",
     "searchPlaceholder": "Search inventory...",
     "noItemsFound": "No inventory items found",
-    "headers": {
-      "name": "Name",
-      "category": "Category", 
-      "quantity": "Quantity",
-      "unit": "Unit",
-      "minQuantity": "Min Quantity",
-      "price": "Price",
-      "actions": "Actions",
-      "status": "Status"
-    },
     "addItem": {
       "title": "Add Item",
       "description": "Add a new item to the inventory",
@@ -72,8 +66,10 @@ export const enTranslations = {
     "deleteItem": {
       "title": "Delete Item",
       "description": "Are you sure you want to delete {{itemName}}? This action cannot be undone.",
-      "successToast": "Inventory item has been deleted",
-      "errorToast": "Failed to delete inventory item"
+      "successToast": "Item Deleted",
+      "successDescription": "The inventory item was successfully removed.",
+      "errorToast": "Delete Failed",
+      "errorDescription": "There was an error deleting the inventory item."
     },
     "formLabels": {
       "name": "Name",
@@ -81,7 +77,9 @@ export const enTranslations = {
       "quantity": "Quantity",
       "unit": "Unit",
       "minQuantity": "Minimum Quantity",
-      "price": "Price"
+      "price": "Price",
+      "status": "Status",
+      "actions": "Actions"
     },
     "buttons": {
       "addItem": "Add Item",
@@ -95,6 +93,22 @@ export const enTranslations = {
     "status": {
       "lowStock": "Low Stock",
       "inStock": "In Stock"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "categories": {
+      "drinks": "Drinks",
+      "food": "Food",
+      "menu_item": "Menu Item"
+    },
+    "noItems": "No items in inventory",
+    "noMatchingItems": "No matching items found",
+    "initialLoad": {
+      "success": "Menu items loaded successfully",
+      "description": "{{count}} items were added to the inventory",
+      "error": "Error loading initial items"
     }
   },
 
@@ -555,11 +569,32 @@ export const enTranslations = {
       "allStatuses": "All Statuses"
     },
     "orderStatus": {
-      "pending": "Pending",
-      "preparing": "Preparing", 
-      "ready": "Ready",
-      "delivered": "Delivered",
-      "cancelled": "Cancelled"
+      "01": "Pending",
+      "02": "In Preparation",
+      "03": "Ready to Serve",
+      "04": "Delivered",
+      "05": "Cancelled",
+      "06": "Paid",
+      "07": "Sent",
+      "08": "In Transit",
+      "09": "Completed",
+      "10": "Refunded",
+      "11": "Waiting",
+      "12": "Scheduled",
+      "13": "Partially Paid",
+      "14": "Payment Error",
+      "15": "Rejected",
+      "16": "Processing",
+      "17": "Confirmed",
+      "18": "Preparation Started",
+      "19": "Almost Ready",
+      "20": "Waiting for Customer",
+      "21": "Table Service",
+      "22": "Take Away",
+      "23": "Delivery",
+      "24": "Reservation",
+      "25": "Urgent",
+      "70": "Final Status"
     },
     "table": {
       "id": "ID",
@@ -569,7 +604,7 @@ export const enTranslations = {
       "status": "Status",
       "total": "Total",
       "actions": "Actions"
-    },
+    }, 
     "action": {
       "updateStatus": "Update Status",
       "updateStatusDescription": "Update status for order {{orderId}}",

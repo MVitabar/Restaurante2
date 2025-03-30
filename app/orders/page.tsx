@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, MoreHorizontal, Edit, Trash } from "lucide-react"
 import Link from "next/link"
+import { TFunction } from 'i18next';
 
 // Order status types
 type OrderStatus = "pending" | "preparing" | "ready" | "delivered" | "cancelled"
@@ -43,8 +44,61 @@ interface Order {
   updatedAt: any
 }
 
+// Language codes
+type LanguageCode = 'en' | 'es' | 'pt';
+
+// Status Translation Type
+type StatusTranslation = {
+  [key in LanguageCode]: string;
+};
+
+// Comprehensive Status Translation Mapping
+const STATUS_TRANSLATIONS: Record<OrderStatus, StatusTranslation> = {
+  "pending": {
+    en: "Pending",
+    es: "Pendiente", 
+    pt: "Pendente"
+  },
+  "preparing": {
+    en: "In Preparation",
+    es: "En preparación", 
+    pt: "Em Preparação"
+  },
+  "ready": {
+    en: "Ready to Serve",
+    es: "Listo para servir", 
+    pt: "Pronto para Servir"
+  },
+  "delivered": {
+    en: "Delivered",
+    es: "Entregado", 
+    pt: "Entregue"
+  },
+  "cancelled": {
+    en: "Cancelled",
+    es: "Cancelado", 
+    pt: "Cancelado"
+  }
+};
+
+// Translation Utility
+const translateStatus = (
+  status: string | OrderStatus, 
+  language: LanguageCode = 'en'
+): string => {
+  // Check if status is a valid OrderStatus
+  const validStatus = Object.keys(STATUS_TRANSLATIONS).includes(status as OrderStatus)
+    ? status as OrderStatus
+    : undefined;
+
+  // Look up translation, with fallback to the input status
+  return validStatus 
+    ? STATUS_TRANSLATIONS[validStatus][language]
+    : status.toString();
+};
+
 export default function OrdersPage() {
-  const { t, i18n } = useI18n()
+  const { t, i18n }: { t: TFunction, i18n: any } = useI18n()
   const { db } = useFirebase()
   const { toast } = useToast()
   const [orders, setOrders] = useState<Order[]>([])
@@ -105,7 +159,7 @@ export default function OrdersPage() {
 
       toast({
         title: t("orders.success.statusUpdated"),
-        description: `${t("orders.table.id")} #${selectedOrder.id.substring(0, 6)} ${t("orders.action.updateStatus")} ${t(`orderStatus.${newStatus}`)}`,
+        description: `${t("orders.table.id")} #${selectedOrder.id.substring(0, 6)} ${t("orders.action.updateStatus")} ${translateStatus(newStatus, i18n?.language)}`,
       })
 
       setIsStatusDialogOpen(false)
@@ -199,9 +253,9 @@ export default function OrdersPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t("ordersPage.filter.allStatuses")}</SelectItem>
-            {Object.keys(t("ordersPage.orderStatus")).map((status) => (
+            {Object.keys(STATUS_TRANSLATIONS).map((status) => (
               <SelectItem key={status} value={status}>
-                {t(`ordersPage.orderStatus.${status}`)}
+                {translateStatus(status, i18n?.language)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -240,11 +294,11 @@ export default function OrdersPage() {
                       {order.items.map((item) => `${item.name} (${item.quantity})`).join(", ")}
                     </TableCell>
                     <TableCell>
-                      <Badge 
+                      <Badge
                         variant="outline" 
                         className={getStatusBadgeVariant(order.status)}
                       >
-                        {t(`ordersPage.orderStatus.${order.status}`)}
+                        {translateStatus(order.status, i18n?.language)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -312,9 +366,9 @@ export default function OrdersPage() {
               <SelectValue placeholder={t("ordersPage.action.selectStatus")} />
             </SelectTrigger>
             <SelectContent>
-              {Object.keys(t("ordersPage.orderStatus")).map((status) => (
+              {Object.keys(STATUS_TRANSLATIONS).map((status) => (
                 <SelectItem key={status} value={status}>
-                  {t(`ordersPage.orderStatus.${status}`)}
+                  {translateStatus(status, i18n?.language)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -324,10 +378,10 @@ export default function OrdersPage() {
               variant="outline" 
               onClick={() => setIsStatusDialogOpen(false)}
             >
-              {t("commons.cancel")}
+              {t("commons.button.cancel")}
             </Button>
             <Button onClick={handleUpdateStatus}>
-              {t("commons.save")}
+              {t("commons.button.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

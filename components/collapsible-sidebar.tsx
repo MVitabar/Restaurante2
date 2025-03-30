@@ -21,6 +21,7 @@ import {
   FileSpreadsheet,
   ChevronLeft,
   ChevronRight,
+  Globe,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -189,6 +190,48 @@ export function CollapsibleSidebar() {
             </ul>
           </nav>
 
+          {/* Language Switcher */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <span className={cn("text-sm font-medium", isCollapsed && "hidden")}>
+                {t("language")}
+              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className={cn(
+                      "h-8", 
+                      isCollapsed && "w-full justify-center px-0"
+                    )}
+                  >
+                    {!isCollapsed && (
+                      <>
+                        {language === "en" && t("english")}
+                        {language === "es" && t("spanish")}
+                        {language === "pt" && t("portuguese")}
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                      </>
+                    )}
+                    {isCollapsed && <Globe className="h-5 w-5" />}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setLanguage("en")}>
+                    {t("english")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage("es")}>
+                    {t("spanish")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage("pt")}>
+                    {t("portuguese")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
           {/* Logout Button */}
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <Button 
@@ -255,6 +298,34 @@ export function CollapsibleSidebar() {
                   ))}
                 </ul>
               </nav>
+
+              {/* Language Switcher */}
+              <div className="mb-4 px-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">{t("language")}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8">
+                        {language === "en" && t("english")}
+                        {language === "es" && t("spanish")}
+                        {language === "pt" && t("portuguese")}
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setLanguage("en")}>
+                        {t("english")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setLanguage("es")}>
+                        {t("spanish")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setLanguage("pt")}>
+                        {t("portuguese")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
 
               {/* Logout Button */}
               <div className="absolute bottom-0 left-0 right-0 p-4">
