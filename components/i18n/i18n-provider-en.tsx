@@ -349,21 +349,22 @@ export const enTranslations = {
       "title": "Notifications",
       "description": "Configure how you receive notifications",
       "types": {
+        "title": "Notification Types",
         "newOrders": {
           "label": "New Orders",
           "description": "Get notified when new orders are placed"
         },
         "orderUpdates": {
-          "label": "Order Updates",
-          "description": "Receive updates on order status changes"
+          "label": "Order Updates", 
+          "description": "Receive updates about order status changes"
         },
         "inventoryAlerts": {
           "label": "Inventory Alerts",
-          "description": "Be informed about low stock or inventory issues"
+          "description": "Be informed about inventory or stock issues"
         },
         "systemAnnouncements": {
           "label": "System Announcements",
-          "description": "Receive important system-wide notifications"
+          "description": "Receive important system notifications"
         },
         "dailyReports": {
           "label": "Daily Reports",
@@ -371,22 +372,30 @@ export const enTranslations = {
         }
       },
       "deliveryMethods": {
+        "title": "Delivery Methods",
         "emailNotifications": {
           "label": "Email Notifications",
           "description": "Receive notifications via email"
         },
         "pushNotifications": {
           "label": "Push Notifications",
-          "description": "Get real-time notifications on your device"
+          "description": "Receive real-time notifications on your device"
         },
         "soundAlerts": {
           "label": "Sound Alerts",
           "description": "Play sound alerts for notifications"
         }
       },
+      "frequency": {
+        "immediate": "Immediate",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "never": "Never"
+      },
       "actions": {
         "save": "Save Preferences",
         "saving": "Saving...",
+        "submit": "Submit",
         "saved": "Notification Preferences Updated",
         "saveSuccess": "Your notification preferences have been successfully updated.",
         "saveFailed": "Failed to Update Notification Preferences",

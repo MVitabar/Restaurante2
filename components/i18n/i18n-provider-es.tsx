@@ -233,12 +233,13 @@ export const esTranslations = {
       "title": "Notificaciones",
       "description": "Configure cómo recibe notificaciones",
       "types": {
+        "title": "Tipos de Notificación",
         "newOrders": {
           "label": "Nuevos Pedidos",
-          "description": "Reciba notificaciones cuando se realicen nuevos pedidos"
+          "description": "Sea notificado cuando se realicen nuevos pedidos"
         },
         "orderUpdates": {
-          "label": "Actualizaciones de Pedidos",
+          "label": "Actualizaciones de Pedidos", 
           "description": "Reciba actualizaciones sobre cambios en el estado de los pedidos"
         },
         "inventoryAlerts": {
@@ -255,6 +256,7 @@ export const esTranslations = {
         }
       },
       "deliveryMethods": {
+        "title": "Métodos de Entrega",
         "emailNotifications": {
           "label": "Notificaciones por Correo Electrónico",
           "description": "Reciba notificaciones por correo electrónico"
@@ -268,14 +270,25 @@ export const esTranslations = {
           "description": "Reproducir alertas de sonido para notificaciones"
         }
       },
+      "frequency": {
+        "immediate": "Inmediato",
+        "daily": "Diario",
+        "weekly": "Semanal",
+        "never": "Nunca"
+      },
       "actions": {
         "save": "Guardar Preferencias",
         "saving": "Guardando...",
+        "submit": "Enviar",
         "saved": "Preferencias de Notificación Actualizadas",
         "saveSuccess": "Sus preferencias de notificación han sido actualizadas correctamente.",
         "saveFailed": "Error al Actualizar Preferencias de Notificación",
         "saveError": "Ocurrió un error al actualizar sus preferencias de notificación."
       }
+    },
+    "system": {
+      "title": "Sistema",
+      "description": "Configurar ajustes del sistema"
     },
     "language": {
       "title": "Idioma",
@@ -325,14 +338,25 @@ export const esTranslations = {
       "edit": "Editar Mapa",
       "delete": "Eliminar Mapa"
     },
-    "system": {
-      "title": "Sistema",
-      "description": "Configurar ajustes generales del sistema",
-      "version": "Versión de la Aplicación",
-      "updates": "Buscar Actualizaciones",
-      "backup": "Realizar Copia de Seguridad",
-      "restore": "Restaurar Configuración"
-    }
+    "deliveryMethods": {
+      "title": "Métodos de Entrega",
+      "emailNotifications": {
+        "label": "Notificaciones por E-mail",
+        "description": "Receba notificações por e-mail"
+      },
+      "pushNotifications": {
+        "label": "Notificaciones Push",
+        "description": "Receba notificações em tempo real no seu dispositivo"
+      },
+      "soundAlerts": {
+        "label": "Alertas de Som",
+        "description": "Receba alertas sonoros para notificações"
+      }
+    },
+    
+    
+   
+    
   },
 
   // Login Page Translations
@@ -632,7 +656,7 @@ export const esTranslations = {
         "placeholder": "Seleccione un rol",
         "options": {
           "admin": "Administrador",
-          "manager": "Gerente", 
+          "manager": "Gerente",
           "chef": "Chef",
           "waiter": "Mesero"
         }

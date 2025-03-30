@@ -120,8 +120,6 @@ export const ptTranslations = {
     }
   },
 
-  
-
   // Profile
   "username": "Nome de usuário",
   "email": "E-mail",
@@ -471,12 +469,13 @@ export const ptTranslations = {
       "title": "Notificações",
       "description": "Configure como você recebe notificações",
       "types": {
+        "title": "Tipos de Notificação",
         "newOrders": {
           "label": "Novos Pedidos",
-          "description": "Receba notificações quando novos pedidos forem realizados"
+          "description": "Seja notificado quando novos pedidos forem realizados"
         },
         "orderUpdates": {
-          "label": "Atualizações de Pedidos",
+          "label": "Atualizações de Pedidos", 
           "description": "Receba atualizações sobre mudanças no status dos pedidos"
         },
         "inventoryAlerts": {
@@ -493,6 +492,7 @@ export const ptTranslations = {
         }
       },
       "deliveryMethods": {
+        "title": "Métodos de Entrega",
         "emailNotifications": {
           "label": "Notificações por E-mail",
           "description": "Receba notificações por e-mail"
@@ -506,13 +506,39 @@ export const ptTranslations = {
           "description": "Reproduzir alertas de som para notificações"
         }
       },
+      "frequency": {
+        "immediate": "Imediato",
+        "daily": "Diário",
+        "weekly": "Semanal",
+        "never": "Nunca"
+      },
       "actions": {
         "save": "Salvar Preferências",
         "saving": "Salvando...",
+        "submit": "Enviar",
         "saved": "Preferências de Notificação Atualizadas",
         "saveSuccess": "Suas preferências de notificação foram atualizadas com sucesso.",
         "saveFailed": "Falha ao Atualizar Preferências de Notificação",
         "saveError": "Ocorreu um erro ao atualizar suas preferências de notificação."
+      }
+    },
+    "system": {
+      "title": "Sistema",
+      "description": "Configurar configurações do sistema"
+    },
+    "deliveryMethods": {
+      "title": "Métodos de Entrega",
+      "emailNotifications": {
+        "label": "Notificações por E-mail",
+        "description": "Receba notificações por e-mail"
+      },
+      "pushNotifications": {
+        "label": "Notificações Push",
+        "description": "Receba notificações em tempo real no seu dispositivo"
+      },
+      "soundAlerts": {
+        "label": "Alertas de Som",
+        "description": "Reproduzir alertas de som para notificações"
       }
     },
     "appearance": {
@@ -582,12 +608,12 @@ export const ptTranslations = {
         "description": "Criar e gerenciar layouts de mesas do restaurante",
         "addNew": "Adicionar Novo Mapa",
         "edit": "Editar Mapa",
+        
+
+
         "delete": "Excluir Mapa"
       },
-      "system": {
-        "title": "Sistema",
-        "description": "Configurações do sistema"
-      },
+      
    
   },
   
