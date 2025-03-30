@@ -413,6 +413,7 @@ export const enTranslations = {
       "actions": {
         "saveChanges": "Save Changes",
         "saving": "Saving...",
+        "submit": "Submit",
         "saved": "Language Updated",
         "saveSuccess": "Your language preference has been successfully updated."
       }

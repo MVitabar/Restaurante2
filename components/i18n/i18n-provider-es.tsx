@@ -301,6 +301,7 @@ export const esTranslations = {
       "actions": {
         "saveChanges": "Guardar Cambios",
         "saving": "Guardando...",
+        "submit": "Enviar",
         "saved": "Idioma Actualizado",
         "saveSuccess": "Su preferencia de idioma ha sido actualizada correctamente."
       }

@@ -461,6 +461,7 @@ export const ptTranslations = {
       "actions": {
         "saveChanges": "Salvar Alterações",
         "saving": "Salvando...",
+        "submit": "Enviar",
         "saved": "Idioma Atualizado",
         "saveSuccess": "Sua preferência de idioma foi atualizada com sucesso."
       }

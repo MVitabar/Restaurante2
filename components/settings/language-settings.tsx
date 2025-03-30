@@ -178,7 +178,7 @@ export function LanguageSettings() {
             t("settings.language.actions.submit")
           )}
         </Button>
-      </div>
+      </div> 
     </div>
   )
 }
