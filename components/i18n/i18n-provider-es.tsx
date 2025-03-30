@@ -51,10 +51,9 @@ export const esTranslations = {
       "accept": "Acepto los Términos y Condiciones",
       "required": "Debe aceptar los términos y condiciones"
     },
-    "currency": {
-      "8": "8",
+    "currency": "{{value}}",
       // Add more currency translations as needed
-    }
+    
   },
 
   // Dashboard Translations

@@ -30,11 +30,7 @@ export const enTranslations = {
     "noItemsFound": "No items found",
     "searchPlaceholder": "Search...",
     "confirmDelete": "Are you sure you want to delete this item? This action cannot be undone.",
-    "currency": {
-      "{{value}}": "{{value}}",
-      "8": "8",
-      // Add more currency translations as needed
-    }
+    "currency": "{{value}}"
     
   },
 
