@@ -25,148 +25,152 @@ interface User {
 }
 
 export default function UsersPage() {
-  const { t } = useI18n()
+  const { t } = useI18n() as { t: (key: string, options?: any) => string }
   const { db } = useFirebase()
   const { toast } = useToast()
+
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Fetch users from Firestore
+  const fetchUsers = async () => {
+    if (!db) return;
+
+    try {
+      const usersRef = collection(db, "users")
+      const q = query(usersRef, orderBy("createdAt", "desc"))
+      const querySnapshot = await getDocs(q)
+
+      const fetchedUsers = querySnapshot.docs.map((doc) => ({
+        uid: doc.id,
+        ...doc.data(),
+      })) as User[]
+
+      setUsers(fetchedUsers)
+      setLoading(false)
+    } catch (error) {
+      console.error("Error fetching users:", error)
+      toast({
+        title: t("users.errors.fetchUsers"),
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      })
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     fetchUsers()
   }, [db])
 
-  const fetchUsers = async () => {
-    if (!db) return
+  // Filter users based on search query
+  const filteredUsers = users.filter(user => 
+    user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    setLoading(true)
-    try {
-      const usersRef = collection(db, "users")
-      const q = query(usersRef, orderBy("username"))
-      const querySnapshot = await getDocs(q)
-
-      const fetchedUsers = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-      })) as User[]
-
-      setUsers(fetchedUsers)
-    } catch (error) {
-      console.error("Error fetching users:", error)
-      toast({
-        title: "Error",
-        description: "Failed to fetch users",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
+  // Render loading state
+  if (loading) {
+    return <div>{t("commons.loading")}</div>
   }
-
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "bg-purple-100 text-purple-800 border-purple-200"
-      case "manager":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      case "chef":
-        return "bg-green-100 text-green-800 border-green-200"
-      case "waiter":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
-    }
-  }
-
-  const filteredUsers = users.filter(
-    (user) =>
-      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">{t("users")}</h1>
-        <Link href="/register">
-          <Button>
+        <h1 className="text-2xl font-bold">{t("users.pageTitle")}</h1>
+        <Button asChild>
+          <Link href="/users/add">
             <UserPlus className="mr-2 h-4 w-4" />
-            Add User
-          </Button>
-        </Link>
+            {t("users.addUser")}
+          </Link>
+        </Button>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search users..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+      <div className="flex items-center py-4">
+        <Input
+          placeholder={t("users.searchPlaceholder")}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("users")}</CardTitle>
+          <CardTitle>{t("users.userList")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : filteredUsers.length > 0 ? (
-            <Table>
-              <TableHeader>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("users.username")}</TableHead>
+                <TableHead>{t("users.email")}</TableHead>
+                <TableHead>{t("users.role")}</TableHead>
+                <TableHead>{t("users.createdAt")}</TableHead>
+                <TableHead>{t("users.status")}</TableHead>
+                <TableHead className="text-right">{t("users.actions")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableCell colSpan={6} className="text-center">
+                    {t("users.noUsers")}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.map((user) => (
+              ) : (
+                filteredUsers.map((user) => (
                   <TableRow key={user.uid}>
-                    <TableCell className="font-medium">{user.username}</TableCell>
+                    <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Badge className={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+                      <Badge variant="outline">
+                        {t(`users.roles.${user.role.toLowerCase()}`)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      {user.createdAt?.toDate ? new Date(user.createdAt.toDate()).toLocaleString() : "N/A"}
+                      {new Date(user.createdAt?.toDate() || user.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      {user.lastLogin?.toDate ? new Date(user.lastLogin.toDate()).toLocaleString() : "N/A"}
+                      <Badge 
+                        className={
+                          user.lastLogin 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-gray-100 text-gray-800"
+                        }
+                      >
+                        {user.lastLogin 
+                          ? t("users.userStatus.active") 
+                          : t("users.userStatus.inactive")
+                        }
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">{t("users.openMenu")}</span>
                             <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit User</DropdownMenuItem>
-                          <DropdownMenuItem>Change Role</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Delete User</DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => navigator.clipboard.writeText(user.uid)}
+                          >
+                            {t("users.copyId")}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="text-center py-4">No users found</div>
-          )}
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
   )
 }
-

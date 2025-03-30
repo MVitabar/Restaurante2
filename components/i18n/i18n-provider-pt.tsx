@@ -605,6 +605,35 @@ export const ptTranslations = {
   
 
   // Rest of the translations continue...
+  "users": {
+    "pageTitle": "Usuários",
+    "userList": "Lista de Usuários",
+    "addUser": "Adicionar Usuário",
+    "searchPlaceholder": "Pesquisar usuários...",
+    "noUsers": "Nenhum usuário encontrado",
+    "username": "Nome de Usuário",
+    "email": "E-mail",
+    "role": "Função",
+    "createdAt": "Criado em",
+    "lastLogin": "Último login",
+    "status": "Status",
+    "actions": "Ações",
+    "openMenu": "Abrir menu",
+    "copyId": "Copiar ID",
+    "roles": {
+      "admin": "Administrador",
+      "manager": "Gerente",
+      "chef": "Chef",
+      "waiter": "Garçom"
+    },
+    "userStatus": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "errors": {
+      "fetchUsers": "Erro ao buscar usuários"
+    }
+  }
 };
 
 export default ptTranslations;

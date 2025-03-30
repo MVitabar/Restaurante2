@@ -468,7 +468,6 @@ export const esTranslations = {
     "table": "Mesa",
     "waiter": "Mesero",
     "items": "Artículos",
-    "status": "Estado",
     "total": "Total",
     "actions": "Acciones"
   },
@@ -766,6 +765,36 @@ export const esTranslations = {
     "success": {
       "orderCreated": "Pedido Creado",
       "orderCreatedDescription": "El pedido para la Mesa {{tableNumber}} se ha creado con éxito"
+    }
+  },
+
+  "users": {
+    "pageTitle": "Usuarios",
+    "userList": "Lista de Usuarios",
+    "addUser": "Agregar Usuario",
+    "searchPlaceholder": "Buscar usuarios...",
+    "noUsers": "No se encontraron usuarios",
+    "username": "Nombre de Usuario",
+    "email": "Correo Electrónico",
+    "role": "Rol",
+    "createdAt": "Creado en",
+    "lastLogin": "Último inicio de sesión",
+    "status": "Estado",
+    "actions": "Acciones",
+    "openMenu": "Abrir menú",
+    "copyId": "Copiar ID",
+    "roles": {
+      "admin": "Administrador",
+      "manager": "Gerente",
+      "chef": "Chef",
+      "waiter": "Mesero"
+    },
+    "userStatus": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "errors": {
+      "fetchUsers": "Error al buscar usuarios"
     }
   },
 

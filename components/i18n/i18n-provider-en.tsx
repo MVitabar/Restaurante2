@@ -856,6 +856,36 @@ export const enTranslations = {
     }
   },
 
+  "users": {
+    "pageTitle": "Users",
+    "userList": "User List",
+    "addUser": "Add User",
+    "searchPlaceholder": "Search users...",
+    "noUsers": "No users found",
+    "username": "Username",
+    "email": "Email",
+    "role": "Role",
+    "createdAt": "Created At",
+    "lastLogin": "Last Login",
+    "status": "Status",
+    "actions": "Actions",
+    "openMenu": "Open menu",
+    "copyId": "Copy ID",
+    "roles": {
+      "admin": "Administrator",
+      "manager": "Manager",
+      "chef": "Chef",
+      "waiter": "Waiter"
+    },
+    "userStatus": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "errors": {
+      "fetchUsers": "Error fetching users"
+    }
+  },
+
   // Rest of the translations continue...
 };
 
