@@ -12,8 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { doc, collection, getDocs, query, orderBy } from "firebase/firestore"
-import { Loader2, Plus, Minus, Trash } from "lucide-react"
+import { Loader2, Plus, Minus, Trash, QrCode } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+import QRCode from 'qrcode.react'
 
 interface OrderFormProps {
   onSubmit: (orderData: any) => void
@@ -87,6 +88,9 @@ export function OrderForm({
   const [quantity, setQuantity] = useState(1)
   const [notes, setNotes] = useState("")
   const [itemDietaryRestrictions, setItemDietaryRestrictions] = useState<string[]>([])
+
+  const [showQRCode, setShowQRCode] = useState(false)
+  const [menuUrl, setMenuUrl] = useState("https://v0-restaurante-milenio-website.vercel.app/")
 
   const filteredMenuItems = menuItems.filter(
     item => item.category === selectedCategory
@@ -312,6 +316,10 @@ export function OrderForm({
     }
   }
 
+  const toggleQRCode = () => {
+    setShowQRCode(!showQRCode)
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
@@ -452,18 +460,41 @@ export function OrderForm({
           <div className="space-y-4 bg-muted/50 p-4 rounded-lg">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold">{t("orderSummary")}</h2>
-              {orderItems.length > 0 && (
+              <div className="flex items-center gap-2">
+                {orderItems.length > 0 && (
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => setOrderItems([])}
+                    className="text-xs"
+                  >
+                    <Trash className="mr-2 h-4 w-4" />
+                    {t("clearOrder")}
+                  </Button>
+                )}
                 <Button 
-                  variant="destructive" 
+                  variant="outline" 
                   size="sm" 
-                  onClick={() => setOrderItems([])}
-                  className="text-xs"
+                  onClick={toggleQRCode}
+                  className="text-xs flex items-center"
                 >
-                  <Trash className="mr-2 h-4 w-4" />
-                  {t("clearOrder")}
+                  <QrCode className="mr-2 h-4 w-4" />
+                  {showQRCode ? t('hideMenuQr') : t('showMenuQr')}
                 </Button>
-              )}
+              </div>
             </div>
+
+            {showQRCode && (
+              <div className="flex flex-col items-center space-y-4 mt-4">
+                
+                <QRCode 
+                  value={menuUrl} 
+                  size={256} 
+                  level={'H'} 
+                  includeMargin={true} 
+                />
+              </div>
+            )}
 
             {orderItems.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">

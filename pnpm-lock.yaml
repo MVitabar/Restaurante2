@@ -134,6 +134,9 @@ importers:
       next-themes:
         specifier: ^0.4.4
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      qrcode.react:
+        specifier: ^1.0.1
+        version: 1.0.1(react@19.0.0)
       react:
         specifier: ^19
         version: 19.0.0
@@ -183,6 +186,9 @@ importers:
       '@types/node':
         specifier: ^22
         version: 22.13.14
+      '@types/qrcode.react':
+        specifier: ^3.0.0
+        version: 3.0.0(react@19.0.0)
       '@types/react':
         specifier: ^19
         version: 19.0.12
@@ -1328,6 +1334,10 @@ packages:
   '@types/node@22.13.14':
     resolution: {integrity: sha512-Zs/Ollc1SJ8nKUAgc7ivOEdIBM8JAKgrqqUYi2J997JuKO7/tpQC+WCetQ1sypiKCQWHdvdg9wBNpUPEWZae7w==}
 
+  '@types/qrcode.react@3.0.0':
+    resolution: {integrity: sha512-VPHYhnDfvt4LjlWajpYWRBVqmftEEza3GJVhe8sS5Wew0n4nTkg3+2MYunAiU6t04AZt0s/hkkMovefWeENjAQ==}
+    deprecated: This is a stub types definition. qrcode.react provides its own type definitions, so you do not need this installed.
+
   '@types/raf@3.4.3':
     resolution: {integrity: sha512-c4YAvMedbPZ5tEyxzQdMoOhhJ4RD3rngZIdwC2/qDN3d7JpEhB6fiBRKVY1lg5B7Wk+uPBjn5f39j1/2MY1oOw==}
 
@@ -1940,6 +1950,14 @@ packages:
   protobufjs@7.4.0:
     resolution: {integrity: sha512-mRUWCc3KUU4w1jU8sGxICXH/gNS94DvI1gxqDvBzhj1JpcsimQkYiOJfwsPUykUI5ZaspFbSgmBLER8IrQ3tqw==}
     engines: {node: '>=12.0.0'}
+
+  qr.js@0.0.0:
+    resolution: {integrity: sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==}
+
+  qrcode.react@1.0.1:
+    resolution: {integrity: sha512-8d3Tackk8IRLXTo67Y+c1rpaiXjoz/Dd2HpcMdW//62/x8J1Nbho14Kh8x974t9prsLHN6XqVgcnRiBGFptQmg==}
+    peerDependencies:
+      react: ^15.5.3 || ^16.0.0 || ^17.0.0
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -3556,6 +3574,12 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
+  '@types/qrcode.react@3.0.0(react@19.0.0)':
+    dependencies:
+      qrcode.react: 1.0.1(react@19.0.0)
+    transitivePeerDependencies:
+      - react
+
   '@types/raf@3.4.3':
     optional: true
 
@@ -4170,6 +4194,15 @@ snapshots:
       '@protobufjs/utf8': 1.1.0
       '@types/node': 22.13.14
       long: 5.3.1
+
+  qr.js@0.0.0: {}
+
+  qrcode.react@1.0.1(react@19.0.0):
+    dependencies:
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      qr.js: 0.0.0
+      react: 19.0.0
 
   queue-microtask@1.2.3: {}
 
