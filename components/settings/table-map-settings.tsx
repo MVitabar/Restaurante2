@@ -183,7 +183,7 @@ export function TableMapSettings() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col justify-between gap-4 items-center">
         <div>
           <h2 className="text-2xl font-bold">{t("tableMapSettings.title")}</h2>
           <p className="text-muted-foreground">{t("tableMapSettings.description")}</p>

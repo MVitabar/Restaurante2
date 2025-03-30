@@ -445,7 +445,9 @@ export const enTranslations = {
       "description": "Create and manage restaurant table layouts",
       "addNew": "Add New Map",
       "edit": "Edit Map",
-      "delete": "Delete Map"
+      "delete": "Delete Map",
+      
+
     },
     "system": {
       "title": "System",
@@ -662,6 +664,7 @@ export const enTranslations = {
   },
 
   "tables": {
+  
     "search": "Search tables",
     "status": "Status",
     "allStatuses": "All statuses",

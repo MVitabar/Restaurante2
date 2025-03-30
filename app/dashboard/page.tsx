@@ -7,6 +7,7 @@ import { collection, query, orderBy, limit, getDocs } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, LineChart, PieChart } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 // Define types for our dashboard data
 type SalesData = {
@@ -38,6 +39,7 @@ export default function DashboardPage() {
   const [topSellingItems, setTopSellingItems] = useState<TopSellingItem[]>([])
   const [inventoryLevel, setInventoryLevel] = useState<number>(0)
   const [lowStockItems, setLowStockItems] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState<"recent" | "sales" | "categories">("recent")
 
   useEffect(() => {
     const fetchRecentOrders = async () => {
@@ -300,144 +302,300 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Tabs defaultValue="recent">
-        <TabsList>
-          <TabsTrigger value="recent">
-            <LineChart className="h-4 w-4 mr-2" />
-            {t("dashboard.recentOrders")}
-          </TabsTrigger>
-          <TabsTrigger value="sales">
-            <BarChart className="h-4 w-4 mr-2" />
-            {t("dashboard.salesOverview.title")}
-          </TabsTrigger>
-          <TabsTrigger value="categories">
-            <PieChart className="h-4 w-4 mr-2" />
-            Categories
-          </TabsTrigger>
-        </TabsList>
+      <div>
+        {/* Mobile Dropdown Tabs */}
+        <div className="block md:hidden mb-4">
+          <Select 
+            defaultValue="recent"
+            onValueChange={(value) => {
+              setActiveTab(value as "recent" | "sales" | "categories");
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a tab" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent" className="flex items-center">
+                <LineChart className="h-4 w-4 mr-2" />
+                {t("dashboard.recentOrders")}
+              </SelectItem>
+              <SelectItem value="sales" className="flex items-center">
+                <BarChart className="h-4 w-4 mr-2" />
+                {t("dashboard.salesOverview.title")}
+              </SelectItem>
+              <SelectItem value="categories" className="flex items-center">
+                <PieChart className="h-4 w-4 mr-2" />
+                Categories
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-        <TabsContent value="recent" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("dashboard.recentOrders")}</CardTitle>
-              <CardDescription>Latest orders from customers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-4">Loading...</div>
-              ) : recentOrders.length > 0 ? (
-                <div className="space-y-4">
-                  {recentOrders.map((order, index) => (
-                    <div key={order.id} className="flex items-center justify-between border-b pb-2">
-                      <div>
-                        <div className="font-medium">Order #{order.id.substring(0, 6)}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Table {order.table || "N/A"} • {order.items?.length || 0} items
+          {/* Mobile Card Content */}
+          <div className="mt-4">
+            {activeTab === "recent" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("dashboard.recentOrders")}</CardTitle>
+                  <CardDescription>Latest orders from customers</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <div className="text-center py-4">Loading...</div>
+                  ) : recentOrders.length > 0 ? (
+                    <div className="space-y-4">
+                      {recentOrders.map((order, index) => (
+                        <div key={order.id} className="flex items-center justify-between border-b pb-2">
+                          <div>
+                            <div className="font-medium">Order #{order.id.substring(0, 6)}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Table {order.table || "N/A"} • {order.items?.length || 0} items
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">${order.total?.toFixed(2) || "0.00"}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(order.createdAt?.toDate()).toLocaleTimeString()}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">No recent orders found</div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {activeTab === "sales" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("dashboard.salesOverview.title")}</CardTitle>
+                  <CardDescription>Sales data for the current period</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px] flex items-end justify-between">
+                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
+                      <div key={day} className="flex flex-col items-center gap-2">
+                        <div
+                          className="w-12 bg-primary rounded-sm"
+                          style={{ height: `${Math.floor(Math.random() * 200) + 50}px` }}
+                        />
+                        <span className="text-sm">{day}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {activeTab === "categories" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Categories</CardTitle>
+                  <CardDescription>Sales by category</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-center py-4">
+                    <div className="w-[300px] h-[300px] relative">
+                      <svg viewBox="0 0 100 100" className="w-full h-full">
+                        {[
+                          { color: "hsl(var(--primary))", start: 0, size: 25 },
+                          { color: "hsl(var(--primary) / 0.8)", start: 25, size: 20 },
+                          { color: "hsl(var(--primary) / 0.6)", start: 45, size: 15 },
+                          { color: "hsl(var(--primary) / 0.4)", start: 60, size: 10 },
+                          { color: "hsl(var(--primary) / 0.2)", start: 70, size: 30 },
+                        ].map((segment, i) => {
+                          const startAngle = (segment.start / 100) * 360
+                          const endAngle = ((segment.start + segment.size) / 100) * 360
+
+                          const x1 = 50 + 40 * Math.cos((startAngle - 90) * (Math.PI / 180))
+                          const y1 = 50 + 40 * Math.sin((startAngle - 90) * (Math.PI / 180))
+                          const x2 = 50 + 40 * Math.cos((endAngle - 90) * (Math.PI / 180))
+                          const y2 = 50 + 40 * Math.sin((endAngle - 90) * (Math.PI / 180))
+
+                          const largeArcFlag = segment.size > 50 ? 1 : 0
+
+                          return (
+                            <path
+                              key={i}
+                              d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                              fill={segment.color}
+                            />
+                          )
+                        })}
+                        <circle cx="50" cy="50" r="25" fill="hsl(var(--background))" />
+                      </svg>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full bg-primary mr-2" />
+                        <span>Main Dishes (25%)</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full bg-primary/80 mr-2" />
+                        <span>Appetizers (20%)</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full bg-primary/60 mr-2" />
+                        <span>Desserts (15%)</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full bg-primary/40 mr-2" />
+                        <span>Drinks (10%)</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full bg-primary/20 mr-2" />
+                        <span>Others (30%)</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Horizontal Tabs */}
+        <Tabs defaultValue="recent" className="hidden md:block">
+          <TabsList className="flex flex-wrap justify-center sm:justify-start w-full overflow-x-auto">
+            <TabsTrigger value="recent" className="flex-grow sm:flex-grow-0 sm:min-w-[120px] max-w-[200px]">
+              <LineChart className="h-4 w-4 mr-2 shrink-0" />
+              <span className="truncate">{t("dashboard.recentOrders")}</span>
+            </TabsTrigger>
+            <TabsTrigger value="sales" className="flex-grow sm:flex-grow-0 sm:min-w-[120px] max-w-[200px]">
+              <BarChart className="h-4 w-4 mr-2 shrink-0" />
+              <span className="truncate">{t("dashboard.salesOverview.title")}</span>
+            </TabsTrigger>
+            <TabsTrigger value="categories" className="flex-grow sm:flex-grow-0 sm:min-w-[120px] max-w-[200px]">
+              <PieChart className="h-4 w-4 mr-2 shrink-0" />
+              <span className="truncate">Categories</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="recent" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.recentOrders")}</CardTitle>
+                <CardDescription>Latest orders from customers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="text-center py-4">Loading...</div>
+                ) : recentOrders.length > 0 ? (
+                  <div className="space-y-4">
+                    {recentOrders.map((order, index) => (
+                      <div key={order.id} className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <div className="font-medium">Order #{order.id.substring(0, 6)}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Table {order.table || "N/A"} • {order.items?.length || 0} items
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">${order.total?.toFixed(2) || "0.00"}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(order.createdAt?.toDate()).toLocaleTimeString()}
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-medium">${order.total?.toFixed(2) || "0.00"}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {new Date(order.createdAt?.toDate()).toLocaleTimeString()}
-                        </div>
-                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">No recent orders found</div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="sales" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.salesOverview.title")}</CardTitle>
+                <CardDescription>Sales data for the current period</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px] flex items-end justify-between">
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
+                    <div key={day} className="flex flex-col items-center gap-2">
+                      <div
+                        className="w-12 bg-primary rounded-sm"
+                        style={{ height: `${Math.floor(Math.random() * 200) + 50}px` }}
+                      />
+                      <span className="text-sm">{day}</span>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-4">No recent orders found</div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="sales" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("dashboard.salesOverview.title")}</CardTitle>
-              <CardDescription>Sales data for the current period</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] flex items-end justify-between">
-                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
-                  <div key={day} className="flex flex-col items-center gap-2">
-                    <div
-                      className="w-12 bg-primary rounded-sm"
-                      style={{ height: `${Math.floor(Math.random() * 200) + 50}px` }}
-                    />
-                    <span className="text-sm">{day}</span>
+          <TabsContent value="categories" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Categories</CardTitle>
+                <CardDescription>Sales by category</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center py-4">
+                  <div className="w-[300px] h-[300px] relative">
+                    <svg viewBox="0 0 100 100" className="w-full h-full">
+                      {[
+                        { color: "hsl(var(--primary))", start: 0, size: 25 },
+                        { color: "hsl(var(--primary) / 0.8)", start: 25, size: 20 },
+                        { color: "hsl(var(--primary) / 0.6)", start: 45, size: 15 },
+                        { color: "hsl(var(--primary) / 0.4)", start: 60, size: 10 },
+                        { color: "hsl(var(--primary) / 0.2)", start: 70, size: 30 },
+                      ].map((segment, i) => {
+                        const startAngle = (segment.start / 100) * 360
+                        const endAngle = ((segment.start + segment.size) / 100) * 360
+
+                        const x1 = 50 + 40 * Math.cos((startAngle - 90) * (Math.PI / 180))
+                        const y1 = 50 + 40 * Math.sin((startAngle - 90) * (Math.PI / 180))
+                        const x2 = 50 + 40 * Math.cos((endAngle - 90) * (Math.PI / 180))
+                        const y2 = 50 + 40 * Math.sin((endAngle - 90) * (Math.PI / 180))
+
+                        const largeArcFlag = segment.size > 50 ? 1 : 0
+
+                        return (
+                          <path
+                            key={i}
+                            d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                            fill={segment.color}
+                          />
+                        )
+                      })}
+                      <circle cx="50" cy="50" r="25" fill="hsl(var(--background))" />
+                    </svg>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="categories" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Categories</CardTitle>
-              <CardDescription>Sales by category</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-center py-4">
-                <div className="w-[300px] h-[300px] relative">
-                  <svg viewBox="0 0 100 100" className="w-full h-full">
-                    {[
-                      { color: "hsl(var(--primary))", start: 0, size: 25 },
-                      { color: "hsl(var(--primary) / 0.8)", start: 25, size: 20 },
-                      { color: "hsl(var(--primary) / 0.6)", start: 45, size: 15 },
-                      { color: "hsl(var(--primary) / 0.4)", start: 60, size: 10 },
-                      { color: "hsl(var(--primary) / 0.2)", start: 70, size: 30 },
-                    ].map((segment, i) => {
-                      const startAngle = (segment.start / 100) * 360
-                      const endAngle = ((segment.start + segment.size) / 100) * 360
-
-                      const x1 = 50 + 40 * Math.cos((startAngle - 90) * (Math.PI / 180))
-                      const y1 = 50 + 40 * Math.sin((startAngle - 90) * (Math.PI / 180))
-                      const x2 = 50 + 40 * Math.cos((endAngle - 90) * (Math.PI / 180))
-                      const y2 = 50 + 40 * Math.sin((endAngle - 90) * (Math.PI / 180))
-
-                      const largeArcFlag = segment.size > 50 ? 1 : 0
-
-                      return (
-                        <path
-                          key={i}
-                          d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                          fill={segment.color}
-                        />
-                      )
-                    })}
-                    <circle cx="50" cy="50" r="25" fill="hsl(var(--background))" />
-                  </svg>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-primary mr-2" />
+                      <span>Main Dishes (25%)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-primary/80 mr-2" />
+                      <span>Appetizers (20%)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-primary/60 mr-2" />
+                      <span>Desserts (15%)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-primary/40 mr-2" />
+                      <span>Drinks (10%)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-primary/20 mr-2" />
+                      <span>Others (30%)</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-primary mr-2" />
-                  <span>Main Dishes (25%)</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-primary/80 mr-2" />
-                  <span>Appetizers (20%)</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-primary/60 mr-2" />
-                  <span>Desserts (15%)</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-primary/40 mr-2" />
-                  <span>Drinks (10%)</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-primary/20 mr-2" />
-                  <span>Others (30%)</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }

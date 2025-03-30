@@ -101,7 +101,7 @@ export function TableCard({
         <CardHeader className="pb-2">
           <CardTitle className="flex justify-between items-center">
             <span>
-              {t("table")} {table.number}
+              {t("tableCard.label")} {table.number}
             </span>
             <Badge variant="outline" className={cn("font-normal", getStatusColor(table.status))}>
               {t(table.status)}
@@ -114,7 +114,7 @@ export function TableCard({
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span>
-                {table.seats} {t("seats")}
+                {table.seats} {t("tableCard.details.seats")}
               </span>
             </div>
             <div className="flex items-center gap-2">

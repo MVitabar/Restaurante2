@@ -628,6 +628,21 @@ export const ptTranslations = {
     "logout": "Sair",
     "orders": "Pedidos"
   },
+  "tableCard": {
+    "label": "Mesa",
+    "details": {
+      "seats": "Assentos",
+      "shape": {
+        "square": "Quadrada",
+        "rectangle": "Retangular",
+        "circle": "Circular"
+      }
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Excluir"
+    }
+  },
   
   
 

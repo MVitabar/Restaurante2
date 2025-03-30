@@ -16,18 +16,7 @@ export const esTranslations = {
       "inStock": "En Stock",
       "outOfStock": "Sin Stock"
     },
-    "table": {
-      "headers": {
-        "name": "Nombre",
-        "category": "Categoría",
-        "quantity": "Cantidad",
-        "unit": "Unidad",
-        "minQuantity": "Cant. Mínima",
-        "price": "Precio",
-        "status": "Estado",
-        "actions": "Acciones"
-      }
-    },
+    "table": "Mesa",
     "error": {
       "generic": "Ha ocurrido un error",
       "required": "Este campo es obligatorio",
@@ -488,12 +477,17 @@ export const esTranslations = {
   
   "noOrdersFound": "No se encontraron pedidos",
   "table": {
-    "id": "ID",
-    "table": "Mesa",
-    "waiter": "Mesero",
-    "items": "Artículos",
-    "total": "Total",
-    "actions": "Acciones"
+    "singular": "Mesa",
+    "plural": "Mesas",
+    "number": "Número de Mesa",
+    "headers": {
+      "id": "ID",
+      "table": "Mesa",
+      "waiter": "Mesero",
+      "items": "Artículos",
+      "total": "Total",
+      "actions": "Acciones"
+    }
   },
   "action": {
     "updateStatus": "Actualizar Estado",

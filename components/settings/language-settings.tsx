@@ -172,7 +172,7 @@ export function LanguageSettings() {
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("settings.language.actions.submitting")}
+              {t("settings.language.actions.saving")}
             </>
           ) : (
             t("settings.language.actions.submit")
